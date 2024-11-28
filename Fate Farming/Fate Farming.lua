@@ -76,7 +76,7 @@ This Plugins are Optional and not needed unless you have it enabled in the setti
 
 --Pre Fate Settings
 Food = ""                           --Leave "" Blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>"
-Potion = ""                         --Leave "" Blank if you don't want to use any potions.
+Potion = "Superior Spiritbond Potion <hq>"                         --Leave "" Blank if you don't want to use any potions.
 ShouldSummonChocobo = true          --Summon chocobo?
     ResummonChocoboTimeLeft = 3 * 60    --Resummons chocobo if there's less than this many seconds left on the timer, so it doesn't disappear on you in the middle of a fate.
     ChocoboStance = "Healer"            --Options: Follow/Free/Defender/Healer/Attacker
@@ -2281,6 +2281,7 @@ function ProcessRetainers()
 
         if not HasTarget() or GetTargetName() ~= "Summoning Bell" then
             yield("/target Summoning Bell")
+            yield("/ays e")
             return
         end
 
