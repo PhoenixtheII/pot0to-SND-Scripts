@@ -82,7 +82,7 @@ CompletionToJoinBossFate = 0        --If the boss fate has less than this much p
                                         --for the class. Ex: "PLD"
 JoinCollectionsFates = true         --Set to false if you never want to do collections fates
 
-MeleeDist = 2.5                     --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
+MeleeDist = 3.5                     --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
 RangedDist = 20                     --Distance for ranged. Ranged attacks and spells max distance to be usable is 25.49y, 25.5 is "target out of range"=
 
 RotationPlugin = "RSR"              --Options: RSR/BMR/VBM/Wrath/None
