@@ -1,11 +1,14 @@
 --[[
 ********************************************************************************
 *                            Fishing Gatherer Scrips                            *
-*                                Version 1.0.1                                 *
+*                                Version 1.2.0                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
+
+    -> 1.2.0    Updated algorithm to randomly choose any fishing spot in a line
+                    along the coast, fixed self repair
 
 ********************************************************************************
 *                               Required Plugins                               *
@@ -21,8 +24,7 @@ Lifestream
 ]]
 
 FishToFarm = "Zorgor Condor"
-FishToFarm = "Cloudsail"
-SwitchLocationsAfter                = 15        --Number of minutes to fish at this spot before changing spots.
+SwitchLocationsAfter                = 10        --Number of minutes to fish at this spot before changing spots.
 
 Retainers                           = true      --If true, will do AR (autoretainers)
 GrandCompanyTurnIn                  = true      --If true, will do GC deliveries using deliveroo everytime retainers are processed
@@ -35,7 +37,7 @@ Potion                              = "Superior Spiritbond Potion <hq>"     --wh
 --things you want to enable
 ExtractMateria                      = true      --If true, will extract materia if possible
 ReduceEphemerals                    = true      --If true, will reduce ephemerals if possible
-Repair                              = true      --If true, will do repair if possible set repair amount below
+SelfRepair                          = true      --If true, will do repair if possible set repair amount below
 RepairAmount                        = 1         --repair threshold, adjust as needed
 
 MinInventoryFreeSlots               = 1           --set !!!carefully how much inventory before script stops gathering and does additonal tasks!!!
@@ -103,32 +105,17 @@ FishTable =
     {
         fishName = "Zorgor Condor",
         fishId = 43761,
-        baitName = "Cactuar Jig",
+        baitName = "Versatile Lure",
         zoneId = 1190,
         zoneName = "Shaaloani",
-        --autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVdrs5BI6pWdx03SFHlh7LZAB11QEmUTkUUPRc0kHeTfe6mHLdlSggy8aAfZSZeX5z50eEjqmzUrtZyzQhfzdGWdfbPOcxZlfJZl1plWJZ9aZvBa5Hw/mLRDV/CEg3Bq3SshldBP1pkD1uL8Mc7KhCd7s/F/rrFupIzXBqx6wOapwvGCqXW5Xa4VL9YyA4tj2z3kl6ErjNDvzbBfTWa+LjdtBtSx6SsptLNklvFYj3QEcJzuLPx6FlIlgmUjeA72vF6PaTPtQhTr8ydedApwDwpw3V4BXvsN2ANfrEWqPzBRlWEMRWtYaBY/ACqANV/mGLeLGjao90wLnse8k493OM/rNxS3U5X4h8+ZrpkxRDNI4hAMH3wd0oAt1ywT7KG4YF+kMng9Q1sdmfbtH3ksv3Dwd0zPRlKgvYBtOz+I1SXbVHXP8lXGVdEGwfVU4tv0KPseVPAMWOePWrFmHZoPsZSLr2x7letSaCHzSybytrcIKHZdKn7Di4KtILRlTa3bKgnrVsJqndYIT1uwmMYM4F3LQn833j0UwocztJA1Ml5HrMb3+Sy2sJYUy+alUjzXJ6ryAPVktQ5me1TxYPTK60KqmCcGv1EsBzSrZs1Cy61Z0yJfLTTfVmK6L6hh1kydpo4uXJXY77n4XHKDa3nYT2MapyhgHkYUpxRFzImQhwnzIkqdhAYW4F2LQt+lJgZQ/VPNWVPATtPr6sZy/APig2RkfGI8DOCtVBuW/Srlg4Fo9eRPzqp3Y4f8d0szZVkBa7N+bwZNae2ibUx1/dTxjU61mAutZN7Z8EamL8WGqwMtuBH5bgi+UfizfRTKJp1Q13zF84SppxPUUAH/IktwPuhK7YG9cOewL3HUZSi1rtdSie1YJN/FZOcyFqvn9EK0xs+sgFmquZqzcrWGY8fGbE9A86GlUR1MgDjV/mceOso+Z9D4bKY132x120vjs2RqxWvMuzx7qjCMqfUZ0H3iu+HxweCFTd2cRlrFa7n8kX8uheIJ5KhLs7ea484IwV8h7Fu59s6dt3HnRBTo6CkJnQQ000a+Z6eIJoShyPNjFNMEE9sLQtdNQf6OBZSSwCXjAjpnsS6ZmvwmVv9r9bxhjx0boe+K+q6o74r64+zGJ5BQl0ReEiQMMea6iLqxgwLic+S7HrGDNCIYu9bz3+2ZtPnJ8GlnqFUVzqh9eYWkxuX1L6lWUk0WsVRb2Mp7x2nnpf5cJXDmFzEc/6EpJljtMNvIMu+5QQpueHgxJP07e2AilSplILuZ0dfhnw5u6L5yPXYB6D/z82V/r/nu24yZbCxz09Wqod37TXOrMY+1ee82RN8O1TBs0NjlHuJ2QhANKUWM2Bylse8kkR07Dg+r3fqASt5RAbPJV4jBk0mxZon8OlGi4MUkVXIDAxriT/SaTzZA0J+OWDeXeQJ/L07NuWHqvJ2C75w7KeccO4p4GjLEU+7ACRGewoS6iPGI2JFtc9umg5yzX7hes5ViuZ4AIWKW9NfPu3z9sPIVBzhNOXERpyFQKQowYiGOUBhHoRuHQcqwV+2UNW5fddDkDjiz4rDpwSGh/1fIsTH2/MRHHoF/QZTwBDEvSBHzI+ambkpxHFnP/wJPKLbAUhgAAA==",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1Y227bOBD9FUPP5kIUdc2b602yXTgXxG4LtNgHmhrJRGTRpahu3CL/XlIXW7KtBC38sou8ycPhmTnDmUPCP6xJqcSUFqqYJql18cO6zOkyg0mWWRdKljC2zOKM57BfjNul9/rLCaOxdS+5kFxtrQusrcXlE8vKGOK92fg/11g3QrCVAas+HPNV4fjh2LreLFYSipXItAXbdg/5ZegKIwp6O+xXk5muynWbgYtt95UU2l0iy4CpgYpoHNzd5byehZAxp9kAHnZ8v1djt9l2xYvV5RaKDgHvgIDn9Qj47RnQR5iveKLeUV7RMIaiNcwVZY8aVYM1J3OM20WNGtR7qjjkDDr5+If7/H5BnXar5N9hSlXdGafaTCdxCOYcnA5pwBYrmnH6WFzRb0IavJ6hZUfGffsDMPENtD82NRtIwe0FbMv5jqfXdF3xnuRpBrJogzj1VhLY7lH2PajwWWNdPilJmzk0B7EQ83/p5n2uSq64yK8pz9vaIt1is1LCDRQFTXVoyxpbt1US1q3Q0zquEbYbbTGFOYE3E4X6bbx7TQROZ2gha2C9jlit7/OZb/QsSZpNSykhV2dieYB6Nq4nsz1ifDJ65XUlJIPY4DeKhbVm1V0zV2JjZprn6VzBphLTPaGmsybyPDy6cFViH3L+tQSDayUUR57jAfKWGCM3wD4KExyjOPECH1PAzLYtjTfjhbpLTAzd6l/qnjUEdppesxvK8aOOryUjg5HxMIC3Qq5p9pcQjwai1ZNPQKvfxq7z341mQrNCz2b9u1k01NqhbUw1fxcHRqdazLmSIu9ceAPbF3wN8kALbni+W9JnFP1hH4WySSfUDFLIYyq3Z+BQAf8pSu18UJXaw/GjncOe4qDLqdS6XgvJN0ORAs8hO5ehWD2nF6I1fmYCJokCOaVlutLPjrW5nnSbnxqN6mGiG6e6/8xHR9mnVBc+mygF641qa2l8FlSmUGPe5dm2wjCm1ueE7pPAi44fBi9c6uY10ipe28sP8LXkEmKdoyrN3WqeOwMN/krD/mqvvfXOr/XO7555R0CZlk/AkY08hxHkkoShpUeWyGE2JEDCJcGh1rtjxXRJ6JFhxZxSpkoqR3/z9D8tlzf0qWMj7puEvknom4T+f67fM0ioQ4IwwjhCbsI85LJliKIg8RHxlx7zwoQkRkL/aR+hzb8KX3aGWlXN7/rV2yjoZyFTIUdodCdpnsJoznRt+q9fiGLHpcxBlMSODk89tCR+hByf0DAM3Ii4jvX8E7T2Ymk6EQAA",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVfrsNCD1CM7j5ukKfLCOG2BDrqgyCtbiCx6KGqSdDD/3kvJSiRbTpCBF+0gO+ny8tyHDg9JfXWmtVEzXplqli2c46/OScnTAqZF4RwbXcORYwcv8hKeB2U3dI5PfpwcOTc6Vzo3j86xh9bq5EEUtQT5bLb+31qsS6XE0oI1D759anDC+Mg5W98uNVRLVaDFc90B8svQDUYSDWa4ryYzW9arLgPqufSVFLpZqihAmD0dQRyvP8t/PQulZc6LPXihRwd4dDPrNK+WJ49Q9fJnW/kzNsg/7D4Bv4P5Ms/MB543VVhD1Rnmhos7REWwzYfZxe2jJhvUG25yKAX08gm354XDfvrdVJ3/AzNuWmKMsQyT2Abztz5OsAG7XfIi53fVKf+itMUbGLrqgqOh/SMI9QXQ37M925MCHQTs2vkhX5zxVVP3tFwUoKsuiN9ODSKX7mQ/gIq/IdbJg9F8swzth7hV83u+Pi9NnZtclWc8L7veEmTERa3hEqqKLzC04xw5V00SzpXCxXrUIjyu0WIbM4J3oSrz3Xg3WAiMZ+gQZ894G7EZf85nvsalpHkxq7WG0hyoyi3Ug9U6mu1OxaPRG69TpQU0qwzdOno1RmmtGxXzUMdaKs2NWtuFnpeLuQGc4fWr3NBtqg9TXB+uyfb3Mv9cg8V1PD+mSZBIkgZhRCi4PkkBXEIz4FkQJ9wD30G8i7wy15mNgfz/1BLZFvCk8211+3L8A+OjjhQwsR4W8ErpFS9+VerOQnQi8yfw5t3aMf+n9ZrxosKOtu+bwX6rN6a2fupFVrw6zLnRquxtgnum3+Yr0FsCcZmXT0P4jZKf3Z1QbtALdQELKCXXjweooQH+RdXovNWV1sMPkyeH5xL3uoyl1ve61fl6X6SI+cGTy75YA6cXom387AqYZgb0jNeLJR5FVnbPQpqPLY3msILEaTZF+9CT+xnHxhdTY2C1Nl0vrc8t1wtoMa/L4rHBsKbOZ2QzCCKW7B4WXtjo7Qmlk8GOyx/hc51rkJijqe2Ga49Aewj+CmHfyrV37ryNOweiQE9PwQWRMghJwiMgNBAe4TRKiZ/4WZrEwuehi/K3K6A0iFmwX0BnXJia68lv+eJ/rZ6X/KFnC+i7or4r6rui/ji78QEkNGR+knLwiQSXEyokJzwVLuEMhTRG6ChACf27O5Nufjx8ejK0qopn1KG8YlL75fUvpRdKT+ZC6TVu5YPjtPdSf84lXgRygXcCbIoN1jpMV6ouB26YAku2b4vB8CIf20i1zjjKbmH1dfxHBEvYK3dmhkD/mR8yz/ea777N2MnWMrNdbRrav99sbjX2sTU/u43Rt0c1EaWSutIjLk9iQmkMhMs0JOBJxqQrMoCo2a23qBTuFDCd3GMMkJNqyaW6n+i8gmqSabXCAYPxJ2YJkxUS9Kcd1s1UKfGXxqE5N06dt1PwnXMH5VzMQgEgGGFuEhDqUUYSwVwSBowlQZoETMpRzrkvXK/5QvPSTJAQgsvh+nmXrx9WvgIuaCQTICkubEKlZISHCSdZTLPIozJMXNHslC3umOpMyOQaqbMA3PvwrFAN/w7FMfViDpTEIqaERjQiCUsF/iIKYg/vK6EfIVf/BUp1IuxuGAAA",
         fishingSpots = {
-            { waypointX=165.910, waypointY = 10.830, waypointZ=741.100, x=162.842, y=9.301, z=744.320 },
-            { waypointX=102.676, waypointY=3.812, waypointZ=721.523, x=102.598, y=3.105, z=731.788 },
-            { waypointX=147.534, waypointY=7.134, waypointZ=715.325, x=142.502, y=4.143, z=726.691 },
-            { waypointX=57.653, waypointY=-2.134, waypointZ=733.227, x=59.132, y=-2.865, z=742.846 }
-        },
-        collectiblesTurnInListIndex = 6,
-        collectiblesTurnInScripId = 39
-    },
-    {
-        fishName = "Cloudsail",
-        fishId = 44347,
-        baitName = "Cactuar Jig",
-        zoneId = 1190,
-        zoneName = "Shaaloani",
-        autohookPreset = "AH4_H4sIAAAAAAAACs1XS3PaOhT+Kx2v8R2/jbOjNE1zh6SZQqeLzl0c5GOsQVhUltNwO/nvlWwr2MRA0smiO3Gk852Hv/PglzWpJJ9CKctptrIuflmXBSwZThizLqSocGTpyxktcH+ZmqtrdfLGyci6E5QLKnfWhauk5eUDYVWK6V6s3z82WDeck1yD1QdPn2qcaDyyrraLXGCZc6YkruP0kE9D1xhJ3NNwzjozzauN8SBwneCMC0aLM4ZEdhTd7jPvvFkuUgrsSEpdL4p6SQ1atY+0zC93WHYMhwceh2HP48gkHdY4z2km3wOt/daC0gjmEshaoSqw9lM8x+2iJi3qHUiKBcGOP9GhXtTPoGdUBf0fpyAbKhirh9reQf79VnuRA6OwLj/CPRcaoCcw4fijvvwLEn6P6r2rkzTEZeVC0DNo8veerq5gUwc6KVYMRWmMeI2qHzvBM+97UONHhXX5IAW0laYzv+Dzn7C9LmRFJeXFFdDC5MNWnJpVAm+wLGGlTFvWyLqtnbBuuarHUYOw2yqJTswA3oyX8o/x7lQgOOyhZVtH7huL9f3en/lWVYsANq2EwEK+UZQHqG8W66C3zyIetF6/aggyl3yr65UWq7nEbd0Z9763JJqIt3G5C1f78LWgPyrUuFY0XjpxHMa2i0DsICRLe0x8145Cguj5ydLLAkvhzWgpP2fahmL194aeOoCn4vbHoX/cxykQWYF49y9dabRbLjbAPnG+1vqmUXxDqH9ruXL+qQQzYKWqweZ3e6njMsXZiprgAzfWDchgzqXgRWd0DajfwIOWLuimqf5/nANIL4k6iDNcYZGC2L2Bq47+VB94pR6fCb7vUJQ86e0DfK3mSwIZUP5a4kLQbROeiauRvCqGOPR09I3mPoqhr/G5YLtvORYTIuk9ztmRfPYhXx9eq65rc5JJFFOoVrnabjZ6KKoCHCraev9RpK+nrj50xkvT+cPk+d5wYgXQy4ppl6ZAvuCPigpMFbas9CTW29CRqjlTBUMEPMXs80x9ASVfxr3uq0E+nSbOK6nwl33zTkvOIPJVD0abQJraAXE8G1IE2w0D31e9GVMSW4//mZ7cbszfnwRNW1Y9ut+f4yg43p8/IWNlwX++m+cg1r1p4p5Kz3WqphslatCpnGhbzYPJhldF75nyIEwOVyC/v46OtaVKZEDaGh/cfxVOOLQIfuCFnIKiMWsz0tZ4Z8kKlYG/5g/Gftz/8ZDXyloy1dmuE90d++2w18dGvH82xOoeA7NsGQPaoaKcWgoCVy8Fvh0SiN0UXCdJljUDG1wz43mVlkBZf8HwFVLiZL7t+5rNTpbYy3hJbEKWJMAAI8f1rcffEeRFYGoOAAA=",
-        fishingSpots = {
-            { waypointX=460.732, waypointY = 17.485, waypointZ=661.207, x=469.317, y=14.912, z=679.156 },
-            { waypointX=505.676, waypointY=15.944, waypointZ=644.545, x=513.276, y=14.111, z=659.090 },
-            { waypointX=545.021, waypointY=16.880, waypointZ=629.284, x=547.961, y=15.968, z=641.722 },
-            { waypointX=573.488, waypointY=-16.450, waypointZ=613.894, x=577.240, y=-14.509, z=627.165 }
+            waypoints = {
+                { x=-97.73, y=-26.45, z=701.98 },
+                { x=134.07, y=6.07, z=708.82 },
+                { x=219.42, y=12.25, z=737.8 }
+            },
+            direction = { x=0, y=0, z=100}
         },
         collectiblesTurnInListIndex = 6,
         collectiblesTurnInScripId = 39
@@ -139,7 +126,7 @@ FishTable =
         baitName = "Versatile Lure",
         zoneId = 959,
         zoneName = "Mare Lamentorum",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1YTW/bOBD9K4ZOu6hVSLQ+c3PcJGvASYM42R6KPdASZRORRZeisvEW+e87I4m2ZMtxUSRBDrnJQ/LN4/BxOOOfxrBQYkRzlY+SuXHy0zjL6CxlwzQ1TpQsWN/AwQnP2HYw1kNj+CJB2DeuJReSq7VxYoM1P3uM0iJm8daM858qrEshogWClR8Ev0ocL+gbF6vbhWT5QqRgsS2rhfw8dIkR+q0V1lEyo0Wx1Awc23KOUNCrRJqySB2ICODYzVXkOAshY07Tkkj2wKQ2tCf3u5zZxPPCHdZOm3V7U8OZeICzTGiaa/fnPF+crVneCIS7A+m6LUhPnyW9Z9MFT9Qp5WU40JBrw1TR6B5QAaw+4X3cJmpYo15TxVkWHVIc0PN2Ybz2ORGNJPl/bERVJThNYnc12TnlQb36dkFTTu/zc/ogJAK0DHp3g37bfsMiiDDMtzFmXTcGKOwKbdAioMN7yucXdFnGYZjNUyZz7RQ1hct8y9nbTQsqeAKss0claX2/8WBuxfRfuhpnquCKi+yC8kzHxwTpTgrJLlme0zm4Noy+cVWSMK4EZIF+hbBegQUD1YE3Ebn6bbxr2AjrZmiYxoHxymM5vuUzXcEdlTQdFVKyTL3QLndQX2yvnWz3dtzpvZxVCWSqxAqvM8/mU8VWZT7ecq9FNJQvQ7kJV3K4y/iPgiGuEbNZFHiebVqhZ5kOtTwzCOPYtL0k8mN/4FlObADehOfqa4I+QNXfK3niBjb3NfRt/zDHv8E/ZIuU9XAGAl4JuaTpX0LcI4ROJd8YLX+jHfhvbmWZBvUtrQdxa/q+oumWL5ncuceXPNsM4dP0GThe0semLfwM17+GrOLn2D6mOM1pqqTIGm/u67u3Bg33EzZnWUzl+h3EpST2RRQAdeSkXtQx8cKN3+1pvJqLX4n4Kzi/lXz1xnH1XTLYeH6tyLacvH1sa/eYcYeJYnJEi/kCKuUlVkKQVrtScVlLQ6IqSy38aBQR1Xvuhvs1aPtBf6aaxDJYP4k6A96wHwWXLAZPqsBiDOvsrrT4+mnuTbPZR3b6yE4f2emdZadGgRj4URJDiWiSwKWmMwgjM5gR13TCBEfiwGeu8fSPrhDrfw2+bwxVkQgVY7NaHHiOPzhcLZ6njCnYce9U0ixu1bb2wWBhFzeOodjmEdTdECJ09jVL13c5u8tiJrftqv7DBFcPl6LIGgHvamTdcLd5G6C3LyJTIwqIab3r+v3axjNAtoVMKKTXFKuyunF3Q/dIb+vCynfzD8y2M/ntfgQXo2WE0S4D3exQ6r4EPyvzdtr+BbBa+vQJvO9BMjMTZ0ZMh9mBGbhBaBKPJGzmkDDyEug39vXnHt7BDZsLJXjOflF6dofyutX1nJyelU23LDtVdFyWH+o6rK6WuAgJaEzcmclIAuIicWDSxEtMj0YW9ZlHgmBWJr9KtbV8vi24Yr1pBAVv3vtj2/p+6rUT2yedkXrj8Z87bblj+Y7jBqYboOMoCU3qObHpxzRMZqBp27aNp/8BcyShAhYWAAA=",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1YTVPjOBD9Kymf4yl/f3ALGWCpCgxFwu5hag+y3U5UOFZGllmyU/z3adlWYicOmZoiFAculGlJr59aT63u/NRGpWBjUohinM61s5/aRU6iDEZZpp0JXsJQk4MTmsN2MFFD1/hlBeFQu+OUcSrW2pmJ1uLiOc7KBJKtWc5/qbFuGIsXEqz6sORXheMFQ+1qNVtwKBYsQ4tpGB3k16ErjNDvrDCOkhkvyqVi4JiGc4SCWsWyDGJxICKIY7ZXWcdZMJ5QklVE8ifgytCdPOxzZlqeF+6wdrqsu5saRewJzzIlWaHcX9JicbGGohUIdwfSdTuQnjpL8gjTBU3FOaFVOKShUIapIPEjoiJYc8L7uG3UsEG9I4JCHh9SHNLzdmG87jlZConT/2FMRC04RWJ3tbVzynazerYgGSWPxSV5YlwCdAxqd/awa7+HGCOM800Zs74bgxR2hWZ3CKjwntP5FVlWcRjl8wx4oZxKTcllvuHs7aYDFbwg1sWz4KS53/JgZmz6H1ld56KkgrL8itBcxUdH6U5KDjdQFGSOrjVtqN1WJLRbhllgWCOsV2iRgerBm7BC/DHeHW4E+hlqunZgvPZYjW/5TFd4RznJxiXnkIs32uUO6pvttZft3o57vVezaoFMBVvJ60zz+VTAqsrHW+6NiEb8bSi34SoODzn9UYLE1dIoiAkEhm7GIdEdN0j00I4iPTUAwtBMzBBsDfEmtBDfUukDVf29lqfcwOa+hr7pH+b4N/rHbJHBQM6QgLeML0n2F2OPEkKlkn+AVP9LO/Lf3MoqDapb2gzKran7Kk0zugS+c49vaL4Zkk/TF+R4Q57btvALXv8Gso6fY/oyxSlOU8FZ3npzT+/esFvuJzCHPCF8/QHiUhH7ykqEOnJSb+rY8sKN3+1pnMzF70T8BM5nnK7eOa6+a9kbz6eKbMfJ+8e2cS8z7igVwMeknC+wUl7KSgjTal8qrmppTFRVqSU/WkVE/Z674X4N2n3QX6kmZRmsnkSVAe/hR0k5JOhJlLIYk3V2X1o8fZp712z2mZ0+s9Nndvpg2alVIAYGpF5CUt02A093jNjUie/HumcHsW8Zielaifbyr6oQm18Nvm8MdZGIFWO7WrQ9x7cPV4uXGYDAHQ/OOcmTTm1rHgyW7OKuEyy2aYx1N4ZIOvuWZ+uHAh7yBPi2XVU/mMjVoyUr81bA+xpZN9xt3mzp7SvLxZggYtbsunm/tvEMJNuSpwTTayarsqZxd0P3SG/r4soP8wvMtjP5435ELpaWsYx2Feh2h9L0JfKzNm+n7V8Ao6NPK3LtwLAsPY3sQHcSYuhR4Nq6ZXmuATZxIyPCfmNff+7hHdzDnAlGC/hN6Zk9yutX12tyelU2/bLsVdFxWX6q67C6OuJyIhL6jk/0xI8c3Qk90EmCMkvD1DNMMwwTB5tZzHW1anvT10Af3JUcS9/BNMYSuOj234GUrRekOknNSHeISzC9Ehf/uIGTgOO4JNZefgEjD0ty/xUAAA==",
         fishingSpots = {
             {waypointX = 15.25, waypointY = 23.72, waypointZ = 459.84, x = 13.53, y = 22.93, z = 463.75},
             {waypointX = 26.27, waypointY = 22.11, waypointZ = 468.88, x = 23.14, y = 21.73, z = 472.73},
@@ -194,16 +181,67 @@ CharacterCondition = {
 }
 
 --#region Fishing
+function InterpolateCoordinates(startCoords, endCoords, n)
+    local x = startCoords.x + n * (endCoords.x - startCoords.x)
+    local y = startCoords.y + n * (endCoords.y - startCoords.y)
+    local z = startCoords.z + n * (endCoords.z - startCoords.z)
+    return {waypointX=x, waypointY=y, waypointZ=z}
+end
+
+function GetWaypoint(coords, n)
+    local total_distance = 0
+    local distances = {}
+
+    -- Calculate distances between each pair of coordinates
+    for i = 1, #coords - 1 do
+        local dx = coords[i + 1].x - coords[i].x
+        local dy = coords[i + 1].y - coords[i].y
+        local dz = coords[i + 1].z - coords[i].z
+        local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+        table.insert(distances, distance)
+        total_distance = total_distance + distance
+    end
+
+    -- Find the target distance
+    local target_distance = n * total_distance
+
+    -- Walk through the coordinates to find the target coordinates
+    local accumulated_distance = 0
+    for i = 1, #coords - 1 do
+        if accumulated_distance + distances[i] >= target_distance then
+            local remaining_distance = target_distance - accumulated_distance
+            local t = remaining_distance / distances[i]
+            return InterpolateCoordinates(coords[i], coords[i + 1], t)
+        end
+        accumulated_distance = accumulated_distance + distances[i]
+    end
+
+    -- If n is 1 (100%), return the last coordinate
+    return { waypointX=coords[#coords].x, waypointY=coords[#coords].y, waypointZ=coords[#coords].z }
+end
 
 function SelectNewFishingHole()
-    local n = math.random(1, #SelectedFish.fishingSpots)
-    SelectedFishingSpot = SelectedFish.fishingSpots[n]
+
+    if SelectedFish.fishingSpots.waypoints ~= nil then
+        SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
+        SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, 1024, SelectedFishingSpot.waypointZ, false, 50)
+
+        SelectedFishingSpot.x = SelectedFishingSpot.waypointX + SelectedFish.fishingSpots.direction.x
+        SelectedFishingSpot.y = SelectedFishingSpot.waypointY + SelectedFish.fishingSpots.direction.y
+        SelectedFishingSpot.z = SelectedFishingSpot.waypointZ + SelectedFish.fishingSpots.direction.z
+    else
+        local n = math.random(1, #SelectedFish.fishingSpots)
+        SelectedFishingSpot = SelectedFish.fishingSpots[n]
+    end
     SelectedFishingSpot.startTime = os.clock()
 end
 
 function GoToFishingHole()
     if not IsInZone(SelectedFish.zoneId) then
         TeleportTo(SelectedFish.closestAetheryte.aetheryteName)
+        if IsInZone(SelectedFish.zoneId) then
+            SelectNewFishingHole()
+        end
         return
     end
 
@@ -229,6 +267,12 @@ function GoToFishingHole()
 end
 
 function Fishing()
+    if GetItemCount(29717) == 0 then
+        State = CharacterState.buyFishingBait
+        LogInfo("State Change: Buy Fishing Bait")
+        return
+    end
+
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         if GetCharacterCondition(CharacterCondition.fishing) then
             yield("/ac Quit")
@@ -255,14 +299,9 @@ function Fishing()
         return
     end
 
-    if GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) > 1 then
-        if not PathfindInProgress() and not PathIsRunning() then
-            PathfindAndMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
-        end
-        return
-    end
+    yield("/ahbait "..SelectedFish.baitName)
 
-    if GetCharacterCondition(CharacterCondition.fishing) then
+    if GetCharacterCondition(CharacterCondition.gathering) then
         if (PathfindInProgress() or PathIsRunning()) then
             yield("/vnav stop")
         end
@@ -270,34 +309,61 @@ function Fishing()
         return
     end
 
-    yield("/bait "..SelectedFish.baitName)
-    yield("/wait 0.1")
-    yield("/ac Cast")
+    if GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) > 1 then
+        if not PathfindInProgress() and not PathIsRunning() then
+            PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+        end
+        yield("/ac Cast")
+        yield("/wait 0.5")
+        return
+    end
 end
 
+FishingBaitMerchant =
+{
+    npcName = "Merchant & Mender",
+    x=-398, y=3, z=80,
+    zoneId = 129,
+    aetheryte = "Limsa Lominsa",
+    aethernet = {
+        name = "Arcanists' Guild",
+        x=-336, y=12, z=56
+    }
+}
 function BuyFishingBait()
-    if GetItemCount(30279) >= 30 and GetItemCount(30280) >= 30 and GetItemCount(30281) >= 30 then
+    if GetItemCount(29717) >= 1 then
         if IsAddonVisible("Shop") then
             yield("/callback Shop true -1")
         else
             State = CharacterState.goToFishingHole
-            LogInfo("State Change: MoveToNextNode")
+            LogInfo("State Change: GoToFishingHole")
         end
         return
     end
 
-    if not HasTarget() or GetTargetName() ~= Mender.npcName then
-        yield("/target "..Mender.npcName)
-        yield("/wait 1")
-        if not HasTarget() or GetTargetName() ~= Mender.npcName then
-            LeaveDuty()
+    if not IsInZone(FishingBaitMerchant.zoneId) then
+        TeleportTo(FishingBaitMerchant.aetheryte)
+        return
+    end
+
+    local distanceToMerchant = GetDistanceToPoint(FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
+    local distanceViaAethernet = DistanceBetween(FishingBaitMerchant.aethernet.x, FishingBaitMerchant.aethernet.y, FishingBaitMerchant.aethernet.z, FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
+
+    if distanceToMerchant > distanceViaAethernet + 20 then
+        if not LifestreamIsBusy() then
+            yield("/li "..FishingBaitMerchant.aethernet.name)
         end
         return
     end
 
-    if GetDistanceToPoint(Mender.x, Mender.y, Mender.z) > 5 then
+    if IsAddonVisible("TelepotTown") then
+        yield("/callback TelepotTown true -1")
+        return
+    end
+    
+    if distanceToMerchant > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
-            PathfindAndMoveTo(Mender.x, Mender.y, Mender.z)
+            PathfindAndMoveTo(FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
         end
         return
     end
@@ -307,18 +373,17 @@ function BuyFishingBait()
         return
     end
 
+    if not HasTarget() or GetTargetName() ~= FishingBaitMerchant.npcName then
+        yield("/target "..FishingBaitMerchant.npcName)
+        return
+    end
+
     if IsAddonVisible("SelectIconString") then
         yield("/callback SelectIconString true 0")
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
     elseif IsAddonVisible("Shop") then
-        if GetItemCount(30279) < 30 then
-            yield("/callback Shop true 0 4 99 0")
-        elseif GetItemCount(30280) < 30 then
-            yield("/callback Shop true 0 5 99 0")
-        elseif GetItemCount(30281) < 30 then
-            yield("/callback Shop true 0 6 99 0")
-        end
+        yield("/callback Shop true 0 3 99 0")
     else
         yield("/interact")
     end
@@ -338,10 +403,10 @@ function GetClosestAetheryte(x, y, z, zoneId, teleportTimePenalty)
         local distanceAetheryteToPoint = DistanceBetween(aetheryteRawPos.Item1, y, aetheryteRawPos.Item2, x, y, z)
         local comparisonDistance = distanceAetheryteToPoint + teleportTimePenalty
         local aetheryteName = GetAetheryteName(aetheryteId)
-        LogInfo("[OrangeGatherer] Distance via "..aetheryteName.." adjusted for tp penalty is "..tostring(comparisonDistance))
+        LogInfo("[FishingGatherer] Distance via "..aetheryteName.." adjusted for tp penalty is "..tostring(comparisonDistance))
 
         if comparisonDistance < closestTravelDistance then
-            LogInfo("[OrangeGatherer] Updating closest aetheryte to "..aetheryteName)
+            LogInfo("[FishingGatherer] Updating closest aetheryte to "..aetheryteName)
             closestTravelDistance = comparisonDistance
             closestAetheryte = {
                 aetheryteId = aetheryteId,
@@ -357,12 +422,12 @@ function TeleportTo(aetheryteName)
     yield("/tp "..aetheryteName)
     yield("/wait 1") -- wait for casting to begin
     while GetCharacterCondition(CharacterCondition.casting) do
-        LogInfo("[FATE] Casting teleport...")
+        LogInfo("[FishingGatherer] Casting teleport...")
         yield("/wait 1")
     end
     yield("/wait 1") -- wait for that microsecond in between the cast finishing and the transition beginning
     while GetCharacterCondition(CharacterCondition.betweenAreas) do
-        LogInfo("[FATE] Teleporting...")
+        LogInfo("[FishingGatherer] Teleporting...")
         yield("/wait 1")
     end
     yield("/wait 1")
@@ -387,7 +452,6 @@ function Dismount()
     end
 
     if GetCharacterCondition(CharacterCondition.flying) then
-        yield("/e is flying")
         yield('/ac dismount')
     elseif GetCharacterCondition(CharacterCondition.mounted) then
         yield('/ac dismount')
@@ -522,7 +586,7 @@ function ProcessRetainers()
             yield("/callback RetainerList true -1")
         elseif not GetCharacterCondition(CharacterCondition.occupiedSummoningBell) then
             State = CharacterState.ready
-            LogInfo("[FATE] State Change: Ready")
+            LogInfo("[FishingGatherer] State Change: Ready")
         end
     elseif not LogInfo("[FishingGatherer] is in hub city zone?") and
         not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId))
@@ -554,7 +618,7 @@ function ProcessRetainers()
     elseif IsAddonVisible("RetainerList") then
         yield("/ays e")
         if Echo == "All" then
-            yield("/echo [FATE] Processing retainers")
+            yield("/echo [FishingGatherer] Processing retainers")
         end
         yield("/wait 1")
     end
@@ -619,18 +683,18 @@ function ExecuteRepair()
 
             if GetCharacterCondition(CharacterCondition.mounted) then
                 Dismount()
-                LogInfo("[FATE] State Change: Dismounting")
+                LogInfo("[FishingGatherer] State Change: Dismounting")
                 return
             end
 
             if NeedsRepair(RepairAmount) then
                 if not IsAddonVisible("Repair") then
-                    LogInfo("[FATE] Opening repair menu...")
+                    LogInfo("[FishingGatherer] Opening repair menu...")
                     yield("/generalaction repair")
                 end
             else
                 State = CharacterState.ready
-                LogInfo("[FATE] State Change: Ready")
+                LogInfo("[FishingGatherer] State Change: Ready")
             end
         elseif ShouldAutoBuyDarkMatter then
             if not IsInZone(129) then
@@ -786,6 +850,9 @@ function Ready()
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) > 0 then
         State = CharacterState.goToHubCity
         LogInfo("[FishingGatherer] State Change: GoToSolutionNine")
+    elseif GetItemCount(29717) == 0 then
+        State = CharacterState.buyFishingBait
+        LogInfo("State Change: Buy Fishing Bait")
     else
         State = CharacterState.goToFishingHole
         LogInfo("State Change: MoveToWaypoint")
@@ -805,7 +872,8 @@ CharacterState = {
     fishing = Fishing,
     turnIn = TurnIn,
     scripExchange = ScripExchange,
-    goToHubCity = GoToHubCity
+    goToHubCity = GoToHubCity,
+    buyFishingBait = BuyFishingBait
 }
 
 StopMain = false
@@ -817,12 +885,27 @@ if SelectedFish == nil then
     yield("/echo Cannot find data for "..FishToFarm)
     StopMain = true
 end
-SelectedFish.closestAetheryte = GetClosestAetheryte(
-            SelectedFish.fishingSpots[1].x,
-            SelectedFish.fishingSpots[1].y,
-            SelectedFish.fishingSpots[1].z,
+
+if SelectedFish.fishingSpots.waypoints == nil then
+    SelectedFish.closestAetheryte = GetClosestAetheryte(
+            SelectedFishingSpot.waypointX,
+            SelectedFishingSpot.waypointY,
+            SelectedFishingSpot.waypointZ,
             SelectedFish.zoneId,
             0)
+else
+    SelectedFish.closestAetheryte = GetClosestAetheryte(
+            SelectedFish.fishingSpots.waypoints[1].x,
+            SelectedFish.fishingSpots.waypoints[1].y,
+            SelectedFish.fishingSpots.waypoints[1].z,
+            SelectedFish.zoneId,
+            0)
+end
+
+if IsInZone(SelectedFish.zoneId) then
+    SelectNewFishingHole()
+end
+
 yield("/ahon")
 DeleteAllAutoHookAnonymousPresets()
 UseAutoHookAnonymousPreset(SelectedFish.autohookPreset)
@@ -843,7 +926,6 @@ if GetClassJobId() ~= 18 then
     yield("/wait 1")
 end
 
-SelectNewFishingHole()
 State = CharacterState.ready
 while not StopMain do
     State()
