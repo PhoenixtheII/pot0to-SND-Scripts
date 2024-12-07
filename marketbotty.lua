@@ -278,8 +278,24 @@ function SearchResults()
                 debug("HQ Search Ready!")
                 yield("/wait 1")
             else
-                debug("Waiting...")
+                search_wait_tick = search_wait_tick + 1
+                debug("Waiting... "..search_wait_tick)
                 if (search_wait_tick > 50) or (string.find(GetNodeText("ItemSearchResult", 26), "Please wait") and search_wait_tick > 10) then
+                    subready = false
+                    while subready == false do
+                        if IsAddonVisible("ItemSearchFilter") then
+
+                            SafeCallback("ItemSearchFilter", true, 1)
+                            yield("/wait 0.1")
+                            SafeCallback("ItemSearchFilter", true, 0)
+                            yield("/wait 0.1")
+                            debug("Waiting for HQ prices...")
+                            subready = true
+                        elseif IsAddonVisible("ItemSearchResult")==true then
+                            SafeCallback("ItemSearchResult", true, 1)
+                        end
+                        yield("/wait 0.1")
+                    end
                     search_wait_tick = 0
                 end
                 --[[search_wait_tick = search_wait_tick + 1
