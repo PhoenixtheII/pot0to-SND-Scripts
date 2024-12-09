@@ -249,9 +249,9 @@ function SearchResults()
             if IsAddonVisible("ItemSearchFilter") then
 
                 SafeCallback("ItemSearchFilter", true, 1)
-                yield("/wait 0.1")
+                yield("/wait 0.25")
                 SafeCallback("ItemSearchFilter", true, 0)
-                yield("/wait 0.1")
+                yield("/wait 0.25")
                 hqsearched = true
                 ready = true
                 debug("Waiting for HQ prices...")
@@ -286,9 +286,9 @@ function SearchResults()
                         if IsAddonVisible("ItemSearchFilter") then
 
                             SafeCallback("ItemSearchFilter", true, 1)
-                            yield("/wait 0.1")
+                            yield("/wait 0.25")
                             SafeCallback("ItemSearchFilter", true, 0)
-                            yield("/wait 0.1")
+                            yield("/wait 0.25")
                             debug("Waiting for HQ prices...")
                             subready = true
                         elseif IsAddonVisible("ItemSearchResult")==true then
