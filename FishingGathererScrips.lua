@@ -30,7 +30,7 @@ Teleporter
 *                                   Settings                                   *
 ********************************************************************************
 ]]
-
+FishToFarm = "Zorgor Condor"
 ScripColorToFarm                    = "Orange"
 ItemToExchange                      = "Mount Token"
 SwitchLocationsAfter                = 10        --Number of minutes to fish at this spot before changing spots.
@@ -87,21 +87,44 @@ FishTable =
         baitName = "Versatile Lure",
         zoneId = 1190,
         zoneName = "Shaaloani",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVfrsNCD1CM7j5ukKfLCOG2BDrqgyCtbiCx6KGqSdDD/3kvJSiRbTpCBF+0gO+ny8tyHDg9JfXWmtVEzXplqli2c46/OScnTAqZF4RwbXcORYwcv8hKeB2U3dI5PfpwcOTc6Vzo3j86xh9bq5EEUtQT5bLb+31qsS6XE0oI1D759anDC+Mg5W98uNVRLVaDFc90B8svQDUYSDWa4ryYzW9arLgPqufSVFLpZqihAmD0dQRyvP8t/PQulZc6LPXihRwd4dDPrNK+WJ49Q9fJnW/kzNsg/7D4Bv4P5Ms/MB543VVhD1Rnmhos7REWwzYfZxe2jJhvUG25yKAX08gm354XDfvrdVJ3/AzNuWmKMsQyT2Abztz5OsAG7XfIi53fVKf+itMUbGLrqgqOh/SMI9QXQ37M925MCHQTs2vkhX5zxVVP3tFwUoKsuiN9ODSKX7mQ/gIq/IdbJg9F8swzth7hV83u+Pi9NnZtclWc8L7veEmTERa3hEqqKLzC04xw5V00SzpXCxXrUIjyu0WIbM4J3oSrz3Xg3WAiMZ+gQZ894G7EZf85nvsalpHkxq7WG0hyoyi3Ug9U6mu1OxaPRG69TpQU0qwzdOno1RmmtGxXzUMdaKs2NWtuFnpeLuQGc4fWr3NBtqg9TXB+uyfb3Mv9cg8V1PD+mSZBIkgZhRCi4PkkBXEIz4FkQJ9wD30G8i7wy15mNgfz/1BLZFvCk8211+3L8A+OjjhQwsR4W8ErpFS9+VerOQnQi8yfw5t3aMf+n9ZrxosKOtu+bwX6rN6a2fupFVrw6zLnRquxtgnum3+Yr0FsCcZmXT0P4jZKf3Z1QbtALdQELKCXXjweooQH+RdXovNWV1sMPkyeH5xL3uoyl1ve61fl6X6SI+cGTy75YA6cXom387AqYZgb0jNeLJR5FVnbPQpqPLY3msILEaTZF+9CT+xnHxhdTY2C1Nl0vrc8t1wtoMa/L4rHBsKbOZ2QzCCKW7B4WXtjo7Qmlk8GOyx/hc51rkJijqe2Ga49Aewj+CmHfyrV37ryNOweiQE9PwQWRMghJwiMgNBAe4TRKiZ/4WZrEwuehi/K3K6A0iFmwX0BnXJia68lv+eJ/rZ6X/KFnC+i7or4r6rui/ji78QEkNGR+knLwiQSXEyokJzwVLuEMhTRG6ChACf27O5Nufjx8ejK0qopn1KG8YlL75fUvpRdKT+ZC6TVu5YPjtPdSf84lXgRygXcCbIoN1jpMV6ouB26YAku2b4vB8CIf20i1zjjKbmH1dfxHBEvYK3dmhkD/mR8yz/ea777N2MnWMrNdbRrav99sbjX2sTU/u43Rt0c1EaWSutIjLk9iQmkMhMs0JOBJxqQrMoCo2a23qBTuFDCd3GMMkJNqyaW6n+i8gmqSabXCAYPxJ2YJkxUS9Kcd1s1UKfGXxqE5N06dt1PwnXMH5VzMQgEgGGFuEhDqUUYSwVwSBowlQZoETMpRzrkvXK/5QvPSTJAQgsvh+nmXrx9WvgIuaCQTICkubEKlZISHCSdZTLPIozJMXNHslC3umOpMyOQaqbMA3PvwrFAN/w7FMfViDpTEIqaERjQiCUsF/iIKYg/vK6EfIVf/BUp1IuxuGAAA",
+        --autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVfrsNCD1CM7j5ukKfLCOG2BDrqgyCtbiCx6KGqSdDD/3kvJSiRbTpCBF+0gO+ny8tyHDg9JfXWmtVEzXplqli2c46/OScnTAqZF4RwbXcORYwcv8hKeB2U3dI5PfpwcOTc6Vzo3j86xh9bq5EEUtQT5bLb+31qsS6XE0oI1D759anDC+Mg5W98uNVRLVaDFc90B8svQDUYSDWa4ryYzW9arLgPqufSVFLpZqihAmD0dQRyvP8t/PQulZc6LPXihRwd4dDPrNK+WJ49Q9fJnW/kzNsg/7D4Bv4P5Ms/MB543VVhD1Rnmhos7REWwzYfZxe2jJhvUG25yKAX08gm354XDfvrdVJ3/AzNuWmKMsQyT2Abztz5OsAG7XfIi53fVKf+itMUbGLrqgqOh/SMI9QXQ37M925MCHQTs2vkhX5zxVVP3tFwUoKsuiN9ODSKX7mQ/gIq/IdbJg9F8swzth7hV83u+Pi9NnZtclWc8L7veEmTERa3hEqqKLzC04xw5V00SzpXCxXrUIjyu0WIbM4J3oSrz3Xg3WAiMZ+gQZ894G7EZf85nvsalpHkxq7WG0hyoyi3Ug9U6mu1OxaPRG69TpQU0qwzdOno1RmmtGxXzUMdaKs2NWtuFnpeLuQGc4fWr3NBtqg9TXB+uyfb3Mv9cg8V1PD+mSZBIkgZhRCi4PkkBXEIz4FkQJ9wD30G8i7wy15mNgfz/1BLZFvCk8211+3L8A+OjjhQwsR4W8ErpFS9+VerOQnQi8yfw5t3aMf+n9ZrxosKOtu+bwX6rN6a2fupFVrw6zLnRquxtgnum3+Yr0FsCcZmXT0P4jZKf3Z1QbtALdQELKCXXjweooQH+RdXovNWV1sMPkyeH5xL3uoyl1ve61fl6X6SI+cGTy75YA6cXom387AqYZgb0jNeLJR5FVnbPQpqPLY3msILEaTZF+9CT+xnHxhdTY2C1Nl0vrc8t1wtoMa/L4rHBsKbOZ2QzCCKW7B4WXtjo7Qmlk8GOyx/hc51rkJijqe2Ga49Aewj+CmHfyrV37ryNOweiQE9PwQWRMghJwiMgNBAe4TRKiZ/4WZrEwuehi/K3K6A0iFmwX0BnXJia68lv+eJ/rZ6X/KFnC+i7or4r6rui/ji78QEkNGR+knLwiQSXEyokJzwVLuEMhTRG6ChACf27O5Nufjx8ejK0qopn1KG8YlL75fUvpRdKT+ZC6TVu5YPjtPdSf84lXgRygXcCbIoN1jpMV6ouB26YAku2b4vB8CIf20i1zjjKbmH1dfxHBEvYK3dmhkD/mR8yz/ea777N2MnWMrNdbRrav99sbjX2sTU/u43Rt0c1EaWSutIjLk9iQmkMhMs0JOBJxqQrMoCo2a23qBTuFDCd3GMMkJNqyaW6n+i8gmqSabXCAYPxJ2YJkxUS9Kcd1s1UKfGXxqE5N06dt1PwnXMH5VzMQgEgGGFuEhDqUUYSwVwSBowlQZoETMpRzrkvXK/5QvPSTJAQgsvh+nmXrx9WvgIuaCQTICkubEKlZISHCSdZTLPIozJMXNHslC3umOpMyOQaqbMA3PvwrFAN/w7FMfViDpTEIqaERjQiCUsF/iIKYg/vK6EfIVf/BUp1IuxuGAAA",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1Y227bOBD9FUPP5kIUdc2b602yXTgXxG4LtNgHmhrJRGTRpahu3CL/XlIXW7KtBC38sou8ycPhmTnDmUPCP6xJqcSUFqqYJql18cO6zOkyg0mWWRdKljC2zOKM57BfjNul9/rLCaOxdS+5kFxtrQusrcXlE8vKGOK92fg/11g3QrCVAas+HPNV4fjh2LreLFYSipXItAXbdg/5ZegKIwp6O+xXk5muynWbgYtt95UU2l0iy4CpgYpoHNzd5byehZAxp9kAHnZ8v1djt9l2xYvV5RaKDgHvgIDn9Qj47RnQR5iveKLeUV7RMIaiNcwVZY8aVYM1J3OM20WNGtR7qjjkDDr5+If7/H5BnXar5N9hSlXdGafaTCdxCOYcnA5pwBYrmnH6WFzRb0IavJ6hZUfGffsDMPENtD82NRtIwe0FbMv5jqfXdF3xnuRpBrJogzj1VhLY7lH2PajwWWNdPilJmzk0B7EQ83/p5n2uSq64yK8pz9vaIt1is1LCDRQFTXVoyxpbt1US1q3Q0zquEbYbbTGFOYE3E4X6bbx7TQROZ2gha2C9jlit7/OZb/QsSZpNSykhV2dieYB6Nq4nsz1ifDJ65XUlJIPY4DeKhbVm1V0zV2JjZprn6VzBphLTPaGmsybyPDy6cFViH3L+tQSDayUUR57jAfKWGCM3wD4KExyjOPECH1PAzLYtjTfjhbpLTAzd6l/qnjUEdppesxvK8aOOryUjg5HxMIC3Qq5p9pcQjwai1ZNPQKvfxq7z341mQrNCz2b9u1k01NqhbUw1fxcHRqdazLmSIu9ceAPbF3wN8kALbni+W9JnFP1hH4WySSfUDFLIYyq3Z+BQAf8pSu18UJXaw/GjncOe4qDLqdS6XgvJN0ORAs8hO5ehWD2nF6I1fmYCJokCOaVlutLPjrW5nnSbnxqN6mGiG6e6/8xHR9mnVBc+mygF641qa2l8FlSmUGPe5dm2wjCm1ueE7pPAi44fBi9c6uY10ipe28sP8LXkEmKdoyrN3WqeOwMN/krD/mqvvfXOr/XO7555R0CZlk/AkY08hxHkkoShpUeWyGE2JEDCJcGh1rtjxXRJ6JFhxZxSpkoqR3/z9D8tlzf0qWMj7puEvknom4T+f67fM0ioQ4IwwjhCbsI85LJliKIg8RHxlx7zwoQkRkL/aR+hzb8KX3aGWlXN7/rV2yjoZyFTIUdodCdpnsJoznRt+q9fiGLHpcxBlMSODk89tCR+hByf0DAM3Ii4jvX8E7T2Ymk6EQAA",
         fishingSpots = {
             maxHeight = 1024,
             waypoints = {
-                { x=-115.85, y=-27.7, z=723.95 },
-                { x=-11.04, y=-7.64, z=746.06 },
-                { x=64.24, y=1.78, z=729.25 }, -- tree
-                { x=135.71, y=6.12, z=715.0 },
-                { x=212.5, y=12.2, z=739.26 },
+                { x=162.842, y=9.301, z=744.320 },
+                { x=102.598, y=3.105, z=731.788 },
+                { x=142.502, y=4.143, z=726.691 },
+                { x=59.132, y=-2.865, z=742.846 }
+
             },
             pointToFace = { x=134.07, y=6.07, z=10000 }
         },
         scripColor = "Orange",
         scripId = 39,
         collectiblesTurnInListIndex = 6
+    },
+    {
+        fishName = "Cloudsail",
+        fishId = 44347,
+        baitName = "Cactuar Jig",
+        zoneId = 1190,
+        zoneName = "Shaaloani",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1YW3OjNhT+K5Rnq8NF4pI3r5uk6eQ2a7ed6U4fhCQwE4y8Quwm3cl/7xEYG2ycTHb80Eve4OjoOxc+fZL4Zk9rLWe00tUszeyzb/Z5SZNCTIvCPtOqFhPbDF7npdgN8m7oCp68KJ7Y9yqXKtdP9pkL1ur8kRU1F3xnNv7PLdaNlGxpwJoHzzw1OEE0sS/Xi6US1VIWYHEdZ4D8MnSDEYeDGc6rycyW9arLALsOfiWFbpYsCsH0kY4Ajtuf5b2ehVQ8p8URPNcLgkGP8WbaRV4tz59E1SuA7BVAyKCAoPsG9EHMl3mqP9C8KcMYqs4w15Q9ACqAbb7MIW4fNd6g3lOdi5KJXj7B/rxg2FCvm6ryv8SM6pYZYzSDJPbBvL2v42/AFkta5PShuqBfpDJ4A0NXnT8Z2j8KJr8I8HdNz46kgAcBu3Z+yLNLumrqnpZZIVTVBfHaqX7o4IPsB1DRM2CdP2pFN+vQfIiFnH+l66tS17nOZXlJ87LrLQKKXddK3IiqohmEtu2JfdskYd9KWK2TFuFpDRbTmBG8a1np78a7h0LEeIY2so+MtxGb8V0+8zWsJUWLWa2UKPWJqtxDPVmto9keVDwavfG6kIoJbvA3iuWCZrWsmWu5Nms6L7O5FutGTHcFbZg1Vaepow/XJPZrmX+uhcG1eeglOIxT5LvUQRgTB8G7j9I4ijn2HIYT3wa867zSd6mJAVT/1HLWFLDV9La6Yzn+BvFBMgphGQ8DeCvVihY/S/lgIDo9+V3Q5t3YIf/t0kxpUcHabN83g6a0btFuTG392A2NTnWYc61k2dvwjkxf5Cuh9rTgJi+3Q/CN4h+dg1CO3wt1LTJRcqqeTlBDA/yTrMF5ryuthxfEW4ddiUddxlLrey1Uvj4WKSSev3U5Fmvg9EK0jZ9ZAdNUCzWjdbaEY8fKbE9A87Gl0RxMgDjN/mceeso+o9D4Yqq1WK1110vjs6AqEy3mXVk8NRjG1PmM6L4fkvjwYPDCpm5OI53idVz+KD7XuRIcctS12VvNcecIwV8h7Fu59s6dt3HnRBTo6SkLI8JZ4CDiYg566jkoZq6HGBckjXgcE0ZA/g4FFPsR8Y8L6IwyXVNl/ZJn/2r1vKGPPZuP3xX1XVHfFfW/sxufQEIpTh3hEopwEmGE05AhiuMIJSzymUi9iHM4Qf7ZnUk3Pxk+bQ2tqsIZdSivkNRxef1Dqkwqa86kWsNWPjhOuy/154rDmT9ncPyHpphgrcN0Jety4AYpkHj/YugP7+yRiVSrlILsFkZfx386kJi8cj0mAPSP+fmyu9d8923GTDaWmelq09D+/WZzqzGPrXnnNkbfHtXcJPYo9iIUeBz4RrCPYoEFchIv5IHj40R4zW69R6XgoICp9RViCG5VS8rlV0vllaisVMkVDGiIb+mlsFZA0B8OWDeTJYe/F6fm3Dh13k7Bd86dlHNCeD7IWYS4oD7CMeeIJg5BASMkjmAlh9gd5ZzzwvWaZoqW2gJCMArq+C5f/wv54jymIQkTlNIAqESYi6KER8gjjFLfC2gS0manbHHHVMdC1h1QJxOw98FZoRr+HYoi7EZUYBQxsxWHOEQxSRhKhB+5cF8JQCbt578BALnDoFoYAAA=",
+        fishingSpots = {
+            maxHeight = 1024,
+            waypoints = {
+                { x = 197.205, y = 11.194, z = 750.186 },
+                { x = 120.631, y = 5.295, z = 724.759 },
+                { x = 75.741, y = -1.648, z = 737.941 },
+                { x = 12.425, y = -7.169, z = 756.219 }
+            }
+            pointToFace = { x=134.07, y=6.07, z=10000 }
+
+        },
+        scripColor = "JustFish",
+        collectiblesTurnInListIndex = 6,
+        collectiblesTurnInScripId = 39
     },
     {
         fishName = "Fleeting Brand",
@@ -191,22 +214,6 @@ FishTable =
             { waypointX=102.676, waypointY=3.812, waypointZ=721.523, x=102.598, y=3.105, z=731.788 },
             { waypointX=147.534, waypointY=7.134, waypointZ=715.325, x=142.502, y=4.143, z=726.691 },
             { waypointX=57.653, waypointY=-2.134, waypointZ=733.227, x=59.132, y=-2.865, z=742.846 }
-        },
-        collectiblesTurnInListIndex = 6,
-        collectiblesTurnInScripId = 39
-    },
-    {
-        fishName = "Cloudsail",
-        fishId = 44347,
-        baitName = "Cactuar Jig",
-        zoneId = 1190,
-        zoneName = "Shaaloani",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1YW3OjNhT+K5Rnq8NF4pI3r5uk6eQ2a7ed6U4fhCQwE4y8Quwm3cl/7xEYG2ycTHb80Eve4OjoOxc+fZL4Zk9rLWe00tUszeyzb/Z5SZNCTIvCPtOqFhPbDF7npdgN8m7oCp68KJ7Y9yqXKtdP9pkL1ur8kRU1F3xnNv7PLdaNlGxpwJoHzzw1OEE0sS/Xi6US1VIWYHEdZ4D8MnSDEYeDGc6rycyW9arLALsOfiWFbpYsCsH0kY4Ajtuf5b2ehVQ8p8URPNcLgkGP8WbaRV4tz59E1SuA7BVAyKCAoPsG9EHMl3mqP9C8KcMYqs4w15Q9ACqAbb7MIW4fNd6g3lOdi5KJXj7B/rxg2FCvm6ryv8SM6pYZYzSDJPbBvL2v42/AFkta5PShuqBfpDJ4A0NXnT8Z2j8KJr8I8HdNz46kgAcBu3Z+yLNLumrqnpZZIVTVBfHaqX7o4IPsB1DRM2CdP2pFN+vQfIiFnH+l66tS17nOZXlJ87LrLQKKXddK3IiqohmEtu2JfdskYd9KWK2TFuFpDRbTmBG8a1np78a7h0LEeIY2so+MtxGb8V0+8zWsJUWLWa2UKPWJqtxDPVmto9keVDwavfG6kIoJbvA3iuWCZrWsmWu5Nms6L7O5FutGTHcFbZg1Vaepow/XJPZrmX+uhcG1eeglOIxT5LvUQRgTB8G7j9I4ijn2HIYT3wa867zSd6mJAVT/1HLWFLDV9La6Yzn+BvFBMgphGQ8DeCvVihY/S/lgIDo9+V3Q5t3YIf/t0kxpUcHabN83g6a0btFuTG392A2NTnWYc61k2dvwjkxf5Cuh9rTgJi+3Q/CN4h+dg1CO3wt1LTJRcqqeTlBDA/yTrMF5ryuthxfEW4ddiUddxlLrey1Uvj4WKSSev3U5Fmvg9EK0jZ9ZAdNUCzWjdbaEY8fKbE9A87Gl0RxMgDjN/mceeso+o9D4Yqq1WK1110vjs6AqEy3mXVk8NRjG1PmM6L4fkvjwYPDCpm5OI53idVz+KD7XuRIcctS12VvNcecIwV8h7Fu59s6dt3HnRBTo6SkLI8JZ4CDiYg566jkoZq6HGBckjXgcE0ZA/g4FFPsR8Y8L6IwyXVNl/ZJn/2r1vKGPPZuP3xX1XVHfFfW/sxufQEIpTh3hEopwEmGE05AhiuMIJSzymUi9iHM4Qf7ZnUk3Pxk+bQ2tqsIZdSivkNRxef1Dqkwqa86kWsNWPjhOuy/154rDmT9ncPyHpphgrcN0Jety4AYpkHj/YugP7+yRiVSrlILsFkZfx386kJi8cj0mAPSP+fmyu9d8923GTDaWmelq09D+/WZzqzGPrXnnNkbfHtXcJPYo9iIUeBz4RrCPYoEFchIv5IHj40R4zW69R6XgoICp9RViCG5VS8rlV0vllaisVMkVDGiIb+mlsFZA0B8OWDeTJYe/F6fm3Dh13k7Bd86dlHNCeD7IWYS4oD7CMeeIJg5BASMkjmAlh9gd5ZzzwvWaZoqW2gJCMArq+C5f/wv54jymIQkTlNIAqESYi6KER8gjjFLfC2gS0manbHHHVMdC1h1QJxOw98FZoRr+HYoi7EZUYBQxsxWHOEQxSRhKhB+5cF8JQCbt578BALnDoFoYAAA=",
-        fishingSpots = {
-            { waypointX=200.699, waypointY=12.000, waypointZ=735.425, x=197.205, y=11.194, z=750.186 },
-            { waypointX=114.894, waypointY=5.233,  waypointZ=711.255, x=120.631, y=5.295,  z=724.759 },
-            { waypointX=69.043,  waypointY=-0.889, waypointZ=727.032, x=75.741,  y=-1.648, z=737.941 },
-            { waypointX=10.366,  waypointY=-5.563, waypointZ=743.747, x=12.425,  y=-7.169, z=756.219 }
         },
         collectiblesTurnInListIndex = 6,
         collectiblesTurnInScripId = 39
@@ -896,7 +903,7 @@ end
 
 function SelectFishTable()
     for _, fishTable in ipairs(FishTable) do
-        if ScripColorToFarm == fishTable.scripColor then
+        if FishToFarm == fishTable.fishName then
             return fishTable
         end
     end
@@ -964,8 +971,10 @@ LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlaye
 
 if ScripColorToFarm == "Orange" then
     GathererScripId = OrangeGathererScripId
-else
+elseif ScripColorToFarm == "Purple" then
     GathererScripId = PurpleGathererScripId
+else
+    GathererScripId = 0
 end
 
 for _, item in ipairs(ScripExchangeItems) do
