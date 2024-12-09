@@ -118,7 +118,7 @@ FishTable =
                 { x = 120.631, y = 5.295, z = 724.759 },
                 { x = 75.741, y = -1.648, z = 737.941 },
                 { x = 12.425, y = -7.169, z = 756.219 }
-            }
+            },
             pointToFace = { x=134.07, y=6.07, z=10000 }
 
         },
@@ -195,58 +195,6 @@ HubCities =
         retainerBell = { x=-152.465, y=0.660, z=-13.557, requiresAethernet=true },
         scripExchange = { x=-158.019, y=0.922, z=-37.884, requiresAethernet=true }
     }
-}
-
-OrangeGathererScripId = 41785
-
-FishTable =
-{
-    {
-        fishName = "Zorgor Condor",
-        fishId = 43761,
-        baitName = "Cactuar Jig",
-        zoneId = 1190,
-        zoneName = "Shaaloani",
-        --autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVdrs5BI6pWdx03SFHlh7LZAB11QEmUTkUUPRc0kHeTfe6mHLdlSggy8aAfZSZeX5z50eEjqmzUrtZyzQhfzdGWdfbPOcxZlfJZl1plWJZ9aZvBa5Hw/mLRDV/CEg3Bq3SshldBP1pkD1uL8Mc7KhCd7s/F/rrFupIzXBqx6wOapwvGCqXW5Xa4VL9YyA4tj2z3kl6ErjNDvzbBfTWa+LjdtBtSx6SsptLNklvFYj3QEcJzuLPx6FlIlgmUjeA72vF6PaTPtQhTr8ydedApwDwpw3V4BXvsN2ANfrEWqPzBRlWEMRWtYaBY/ACqANV/mGLeLGjao90wLnse8k493OM/rNxS3U5X4h8+ZrpkxRDNI4hAMH3wd0oAt1ywT7KG4YF+kMng9Q1sdmfbtH3ksv3Dwd0zPRlKgvYBtOz+I1SXbVHXP8lXGVdEGwfVU4tv0KPseVPAMWOePWrFmHZoPsZSLr2x7letSaCHzSybytrcIKHZdKn7Di4KtILRlTa3bKgnrVsJqndYIT1uwmMYM4F3LQn833j0UwocztJA1Ml5HrMb3+Sy2sJYUy+alUjzXJ6ryAPVktQ5me1TxYPTK60KqmCcGv1EsBzSrZs1Cy61Z0yJfLTTfVmK6L6hh1kydpo4uXJXY77n4XHKDa3nYT2MapyhgHkYUpxRFzImQhwnzIkqdhAYW4F2LQt+lJgZQ/VPNWVPATtPr6sZy/APig2RkfGI8DOCtVBuW/Srlg4Fo9eRPzqp3Y4f8d0szZVkBa7N+bwZNae2ibUx1/dTxjU61mAutZN7Z8EamL8WGqwMtuBH5bgi+UfizfRTKJp1Q13zF84SppxPUUAH/IktwPuhK7YG9cOewL3HUZSi1rtdSie1YJN/FZOcyFqvn9EK0xs+sgFmquZqzcrWGY8fGbE9A86GlUR1MgDjV/mceOso+Z9D4bKY132x120vjs2RqxWvMuzx7qjCMqfUZ0H3iu+HxweCFTd2cRlrFa7n8kX8uheIJ5KhLs7ea484IwV8h7Fu59s6dt3HnRBTo6CkJnQQ000a+Z6eIJoShyPNjFNMEE9sLQtdNQf6OBZSSwCXjAjpnsS6ZmvwmVv9r9bxhjx0boe+K+q6o74r64+zGJ5BQl0ReEiQMMea6iLqxgwLic+S7HrGDNCIYu9bz3+2ZtPnJ8GlnqFUVzqh9eYWkxuX1L6lWUk0WsVRb2Mp7x2nnpf5cJXDmFzEc/6EpJljtMNvIMu+5QQpueHgxJP07e2AilSplILuZ0dfhnw5u6L5yPXYB6D/z82V/r/nu24yZbCxz09Wqod37TXOrMY+1ee82RN8O1TBs0NjlHuJ2QhANKUWM2Bylse8kkR07Dg+r3fqASt5RAbPJV4jBk0mxZon8OlGi4MUkVXIDAxriT/SaTzZA0J+OWDeXeQJ/L07NuWHqvJ2C75w7KeccO4p4GjLEU+7ACRGewoS6iPGI2JFtc9umg5yzX7hes5ViuZ4AIWKW9NfPu3z9sPIVBzhNOXERpyFQKQowYiGOUBhHoRuHQcqwV+2UNW5fddDkDjiz4rDpwSGh/1fIsTH2/MRHHoF/QZTwBDEvSBHzI+ambkpxHFnP/wJPKLbAUhgAAA==",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1Y227bOBD9FUPP5kIUdc2b602yXTgXxG4LtNgHmhrJRGTRpahu3CL/XlIXW7KtBC38sou8ycPhmTnDmUPCP6xJqcSUFqqYJql18cO6zOkyg0mWWRdKljC2zOKM57BfjNul9/rLCaOxdS+5kFxtrQusrcXlE8vKGOK92fg/11g3QrCVAas+HPNV4fjh2LreLFYSipXItAXbdg/5ZegKIwp6O+xXk5muynWbgYtt95UU2l0iy4CpgYpoHNzd5byehZAxp9kAHnZ8v1djt9l2xYvV5RaKDgHvgIDn9Qj47RnQR5iveKLeUV7RMIaiNcwVZY8aVYM1J3OM20WNGtR7qjjkDDr5+If7/H5BnXar5N9hSlXdGafaTCdxCOYcnA5pwBYrmnH6WFzRb0IavJ6hZUfGffsDMPENtD82NRtIwe0FbMv5jqfXdF3xnuRpBrJogzj1VhLY7lH2PajwWWNdPilJmzk0B7EQ83/p5n2uSq64yK8pz9vaIt1is1LCDRQFTXVoyxpbt1US1q3Q0zquEbYbbTGFOYE3E4X6bbx7TQROZ2gha2C9jlit7/OZb/QsSZpNSykhV2dieYB6Nq4nsz1ifDJ65XUlJIPY4DeKhbVm1V0zV2JjZprn6VzBphLTPaGmsybyPDy6cFViH3L+tQSDayUUR57jAfKWGCM3wD4KExyjOPECH1PAzLYtjTfjhbpLTAzd6l/qnjUEdppesxvK8aOOryUjg5HxMIC3Qq5p9pcQjwai1ZNPQKvfxq7z341mQrNCz2b9u1k01NqhbUw1fxcHRqdazLmSIu9ceAPbF3wN8kALbni+W9JnFP1hH4WySSfUDFLIYyq3Z+BQAf8pSu18UJXaw/GjncOe4qDLqdS6XgvJN0ORAs8hO5ehWD2nF6I1fmYCJokCOaVlutLPjrW5nnSbnxqN6mGiG6e6/8xHR9mnVBc+mygF641qa2l8FlSmUGPe5dm2wjCm1ueE7pPAi44fBi9c6uY10ipe28sP8LXkEmKdoyrN3WqeOwMN/krD/mqvvfXOr/XO7555R0CZlk/AkY08hxHkkoShpUeWyGE2JEDCJcGh1rtjxXRJ6JFhxZxSpkoqR3/z9D8tlzf0qWMj7puEvknom4T+f67fM0ioQ4IwwjhCbsI85LJliKIg8RHxlx7zwoQkRkL/aR+hzb8KX3aGWlXN7/rV2yjoZyFTIUdodCdpnsJoznRt+q9fiGLHpcxBlMSODk89tCR+hByf0DAM3Ii4jvX8E7T2Ymk6EQAA",
-        fishingSpots = {
-            { waypointX=165.910, waypointY = 10.830, waypointZ=741.100, x=162.842, y=9.301, z=744.320 },
-            { waypointX=102.676, waypointY=3.812, waypointZ=721.523, x=102.598, y=3.105, z=731.788 },
-            { waypointX=147.534, waypointY=7.134, waypointZ=715.325, x=142.502, y=4.143, z=726.691 },
-            { waypointX=57.653, waypointY=-2.134, waypointZ=733.227, x=59.132, y=-2.865, z=742.846 }
-        },
-        collectiblesTurnInListIndex = 6,
-        collectiblesTurnInScripId = 39
-    },
-    {
-        fishName = "Fleeting Brand",
-        fishId = 36473,
-        baitName = "Versatile Lure",
-        zoneId = 959,
-        zoneName = "Mare Lamentorum",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1YTW/bOBD9K4ZOu6hVSLQ+c3PcJGvASYM42R6KPdASZRORRZeisvEW+e87I4m2ZMtxUSRBDrnJQ/LN4/BxOOOfxrBQYkRzlY+SuXHy0zjL6CxlwzQ1TpQsWN/AwQnP2HYw1kNj+CJB2DeuJReSq7VxYoM1P3uM0iJm8daM858qrEshogWClR8Ev0ocL+gbF6vbhWT5QqRgsS2rhfw8dIkR+q0V1lEyo0Wx1Awc23KOUNCrRJqySB2ICODYzVXkOAshY07Tkkj2wKQ2tCf3u5zZxPPCHdZOm3V7U8OZeICzTGiaa/fnPF+crVneCIS7A+m6LUhPnyW9Z9MFT9Qp5WU40JBrw1TR6B5QAaw+4X3cJmpYo15TxVkWHVIc0PN2Ybz2ORGNJPl/bERVJThNYnc12TnlQb36dkFTTu/zc/ogJAK0DHp3g37bfsMiiDDMtzFmXTcGKOwKbdAioMN7yucXdFnGYZjNUyZz7RQ1hct8y9nbTQsqeAKss0claX2/8WBuxfRfuhpnquCKi+yC8kzHxwTpTgrJLlme0zm4Noy+cVWSMK4EZIF+hbBegQUD1YE3Ebn6bbxr2AjrZmiYxoHxymM5vuUzXcEdlTQdFVKyTL3QLndQX2yvnWz3dtzpvZxVCWSqxAqvM8/mU8VWZT7ecq9FNJQvQ7kJV3K4y/iPgiGuEbNZFHiebVqhZ5kOtTwzCOPYtL0k8mN/4FlObADehOfqa4I+QNXfK3niBjb3NfRt/zDHv8E/ZIuU9XAGAl4JuaTpX0LcI4ROJd8YLX+jHfhvbmWZBvUtrQdxa/q+oumWL5ncuceXPNsM4dP0GThe0semLfwM17+GrOLn2D6mOM1pqqTIGm/u67u3Bg33EzZnWUzl+h3EpST2RRQAdeSkXtQx8cKN3+1pvJqLX4n4Kzi/lXz1xnH1XTLYeH6tyLacvH1sa/eYcYeJYnJEi/kCKuUlVkKQVrtScVlLQ6IqSy38aBQR1Xvuhvs1aPtBf6aaxDJYP4k6A96wHwWXLAZPqsBiDOvsrrT4+mnuTbPZR3b6yE4f2emdZadGgRj4URJDiWiSwKWmMwgjM5gR13TCBEfiwGeu8fSPrhDrfw2+bwxVkQgVY7NaHHiOPzhcLZ6njCnYce9U0ixu1bb2wWBhFzeOodjmEdTdECJ09jVL13c5u8tiJrftqv7DBFcPl6LIGgHvamTdcLd5G6C3LyJTIwqIab3r+v3axjNAtoVMKKTXFKuyunF3Q/dIb+vCynfzD8y2M/ntfgQXo2WE0S4D3exQ6r4EPyvzdtr+BbBa+vQJvO9BMjMTZ0ZMh9mBGbhBaBKPJGzmkDDyEug39vXnHt7BDZsLJXjOflF6dofyutX1nJyelU23LDtVdFyWH+o6rK6WuAgJaEzcmclIAuIicWDSxEtMj0YW9ZlHgmBWJr9KtbV8vi24Yr1pBAVv3vtj2/p+6rUT2yedkXrj8Z87bblj+Y7jBqYboOMoCU3qObHpxzRMZqBp27aNp/8BcyShAhYWAAA=",
-        fishingSpots = {
-            {waypointX = 15.25, waypointY = 23.72, waypointZ = 459.84, x = 13.53, y = 22.93, z = 463.75},
-            {waypointX = 26.27, waypointY = 22.11, waypointZ = 468.88, x = 23.14, y = 21.73, z = 472.73},
-            {waypointX = 34.51, waypointY = 21.7, waypointZ = 481.15, x = 30.27, y = 21.69, z = 482.1},
-            {waypointX = 44.03, waypointY = 21.75, waypointZ = 482.86, x = 45.16, y = 21.64, z = 487.06}
-        },
-        collectiblesTurnInListIndex = 10,
-        collectiblesTurnInScripId = 38
-    },
-    {
-        fishName = "Goldgrouper",
-        fishId = 43775,
-        collectiblesTurnInScripId = 39
-    }
-}
-
-ScripExchangeItem =
-{
-    scripExchangeMenu1=4,
-    scripExchangeMenu2=8,
-    scripExchangeRow=6,
-    scripExchangePrice=1000
 }
 
 CharacterCondition = {
@@ -592,7 +540,7 @@ function TurnIn()
         State = CharacterState.goToHubCity
         LogInfo("State Change: GoToHubCity")
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-        GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
+            GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
         end
@@ -645,7 +593,7 @@ function KupoVoucherLottery()
         State = CharacterState.goToHubCity
         LogInfo("State Change: GoToHubCity")
     elseif not LogInfo("[FishingGatherer] /li aethernet") and SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-        GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
+            GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
         end
