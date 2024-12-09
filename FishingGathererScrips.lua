@@ -31,9 +31,9 @@ Teleporter
 ********************************************************************************
 ]]
 FishToFarm = "Zorgor Condor"
-ScripColorToFarm                    = "Orange"
-ItemToExchange                      = "Mount Token"
-SwitchLocationsAfter                = 10        --Number of minutes to fish at this spot before changing spots.
+ScripColorToFarm                    = "JustFish"
+ItemToExchange                      = "JustFish"
+SwitchLocationsAfter                = 15        --Number of minutes to fish at this spot before changing spots.
 
 Retainers                           = true      --If true, will do AR (autoretainers)
 GrandCompanyTurnIn                  = true      --If true, will do GC deliveries using deliveroo everytime retainers are processed
@@ -77,6 +77,9 @@ ScripExchangeItems = {
         listIndex = 0,
         price = 1000
     },
+    {
+        itemName = "JustFish"
+    }
 }
 
 FishTable =
@@ -930,7 +933,7 @@ for _, item in ipairs(ScripExchangeItems) do
         ScripExchangeItem = item
     end
 end
-if ScripExchange == nil then
+if ScripExchangeItem ~= nil then
     yield("/echo Cannot recognize item "..ScripExchangeItem..". Stopping script.")
     yield("/snd stop")
 end
