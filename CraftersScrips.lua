@@ -2,7 +2,7 @@
 
 ********************************************************************************
 *                 Orange Crafter Scrips (Solution Nine Patch 7.1)              *
-*                                Version 0.4.0                                 *
+*                                Version 0.4.1                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
@@ -11,7 +11,8 @@ State Machine Diagram: https://github.com/pot0to/pot0to-SND-Scripts/blob/main/Fa
 Crafts orange scrip item matching whatever class you're on, turns it in, buys
 stuff, repeat.
 
-    -> 0.4.0    Added purple scrips, fixed /li inn
+    -> 0.4.1    Fixed purple scrip turn ins (credit: Telain)
+                Added purple scrips, fixed /li inn
                 Added HQ item count to out of materials check, continue turn in
                     items after dumping scrips
                 Fixed up some bugs
@@ -69,11 +70,46 @@ ScripExchangeItems = {
         price = 125
     },
     {
+        itemName = "Crafter's Competence Materia XII",
+        categoryMenu = 2,
+        subcategoryMenu = 2,
+        listIndex = 0,
+        price = 500
+    },
+    {
+        itemName = "Crafter's Cunning Materia XII",
+        categoryMenu = 2,
+        subcategoryMenu = 2,
+        listIndex = 1,
+        price = 500
+    },
+    {
         itemName = "Crafter's Command Materia XII",
         categoryMenu = 2,
         subcategoryMenu = 2,
         listIndex = 2,
         price = 500
+    },
+    {
+        itemName = "Crafter's Competence Materia XI",
+        categoryMenu = 2,
+        subcategoryMenu = 1,
+        listIndex = 0,
+        price = 250
+    },
+    {
+        itemName = "Crafter's Cunning Materia XI",
+        categoryMenu = 2,
+        subcategoryMenu = 1,
+        listIndex = 1,
+        price = 250
+    },
+    {
+        itemName = "Crafter's Command Materia XI",
+        categoryMenu = 2,
+        subcategoryMenu = 1,
+        listIndex = 2,
+        price = 250
     }
 }
 
@@ -435,6 +471,10 @@ function TurnIn()
             yield("/interact")
             yield("/wait 1")
         else
+			if ScripColor == "Purple" then
+				yield("/callback CollectablesShop true 12 1")
+                yield("/wait 0.5")
+			end
             yield("/callback CollectablesShop true 15 0")
             yield("/wait 1")
         end
@@ -642,7 +682,7 @@ if ScripColor == "Orange" then
     CrafterScripId = OrangeCrafterScripId
     ScripRecipes = OrangeScripRecipes
 elseif ScripColor == "Purple" then
-    CrafterScripId = PurpleScripRecipes
+    CrafterScripId = PurpleCrafterScripId
     ScripRecipes = PurpleScripRecipes
 else
     yield("/echo Cannot recognize crafter scrip color: "..ScripColor)

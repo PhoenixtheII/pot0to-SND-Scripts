@@ -8,12 +8,19 @@ Does DiademV2 gathering until umbral weather happens, then gathers umbral node
 and goes fishing until umbral weather disappears.
 
 ********************************************************************************
-*                               Version 0.1.6                                  *
+*                               Version 1.0.1                                  *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    ->  0.1.6   Fixed it for autobuy dark matter too
+    ->  1.0.1   Added default change to miner to make sure you can queue in
+                Added ability to leave and re-enter after gathering umbral nodes
+                    instead of fishing (credit: Estriam)
+                Added long route for botanist islands and added ability to
+                    select random route after finishing previous route (credit: 
+                    Mars375)
+                SetSNDProperty("StopMacroIfTargetNotFound", "false")
+                Fixed it for autobuy dark matter too
                 Fixed bug with repairing via mender
                 Fixed mender name for repair function
                 Fixed name for merchant & mender
@@ -65,12 +72,15 @@ FoodTimeout = 5
 -- How many attempts would you like it to try and food before giving up?
 -- The higher this is, the longer it's going to take. Don't set it below 5 for safety. 
 
-RouteType = "RedRoute"
+
+SelectedRoute = "Random"
 -- Select which route you would like to do. 
     -- Options are:
         -- "RedRoute"     -> MIN perception route, 8 node loop
         -- "PinkRoute"    -> BTN perception route, 8 node loop
-        -- "MinerIslands" -> MIN
+        -- "MinerIslands" -> MIN, all the islands
+        -- "BotanistIslands" -> BTN, all the islands
+        -- "Random" -> Randomizes the route each time
 
 GatheringSlot = 4
 -- This will let you tell the script WHICH item you want to gather. (So if I was gathering the 4th item from the top, I would input 4)
@@ -82,8 +92,9 @@ TargetType = 1
 -- Options : 0 | 1 | 2 | 3 (Option: 0 is don't use cannon, Option: 1 is any target, Option: 2 only sprites, Option: 3 is don't include sprites)
 
 PrioritizeUmbral = true
+DoFish = false -- If false will continuously leave and re-enter the diadem when finishing an Umbral Node to take advantage of the node reset, if true will go fish after finishing an Umbral Node while the window is up
 
-CapGP = true 
+CapGP = true
 -- Bountiful Yield 2 (Min) | Bountiful Harvest 2 (Btn) [+x (based on gathering) to that hit on the node (only once)]
 -- If you want this to let your gp cap between rounds, then true 
 -- If you would like it to use a skill on a node before getting to the final one, so you don't waste GP, set to false
@@ -102,14 +113,9 @@ SelfRepair = true                              --if false, will go to Limsa mend
 ShouldExtractMateria = true                           --should it Extract Materia
 --When do you want to repair your own gear? From 0-100 (it's in percentage, but enter a whole value
 
-PlayerWaitTime = true 
+PlayerWaitTime = true
 -- this is if you want to make it... LESS sus on you just jumping from node to node instantly/firing a cannon off at an enemy and then instantly flying off
--- default is true, just for safety. If you want to turn this off, do so at your own risk. 
-
-AntiStutterOpen = false
-AntiStutter = 2
--- default is 2 gathering loops this will execute the script again if you are having stutter issues 
--- WARNING your macro name should be DiademV2
+-- default is true, just for safety. If you want to turn this off, do so at your own risk.
 
 debug = false
 -- This is for debugging 
@@ -140,7 +146,8 @@ UmbralWeatherNodes = {
             baitName = "Diadem Crane Fly",
             baitId = 30280,
             x = 370.88373, y = 255.67848, z = 525.73334,
-            fishingX = 372.32, fishingY = 254.9, fishingZ = 521.2
+            fishingX = 372.32, fishingY = 254.9, fishingZ = 521.2,
+            autohookPreset = ""
         }
     },
     duststorms = {
@@ -158,7 +165,8 @@ UmbralWeatherNodes = {
             baitName = "Diadem Hoverworm",
             baitId = 30281,
             x = 589.74, y = 188.42, z = -591.81,
-            fishingX=593.08, fishingY=187.17, fishingZ=-594.61
+            fishingX=593.08, fishingY=187.17, fishingZ=-594.61,
+            autohookPreset = ""
         }
     },
     levin = {
@@ -176,7 +184,8 @@ UmbralWeatherNodes = {
             baitName = "Diadem Red Balloon", -- mooched from Grade 4 Skybuilders' Ghost Faerie
             baitId = 30279,
             x = 365.84, y = -193.35, z = -222.72,
-            fishingX = 369.91, fishingY = -195.22, fishingZ = -209.88
+            fishingX = 369.91, fishingY = -195.22, fishingZ = -209.88,
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YS2/jNhD+K4YuvViAqLdyc7yJG8BJgziLHooeRhJlE5ZFL0Wl6y7y3zuUxFiy5Xizm/bS3IjRzDcPDb8h+c2YVJJPoZTlNFsaF98MtZ6zgqr1VQFxTlPjQoqKjo0bXNlhNDbuBeOCyZ1xQVBaXn1N8iql6V6s9J/HNdYt58lKgdULW61qHD8cG7Pt40rQcsVzlBDL6iG/Dl1jREHPwjobzHRVbXQELrHcMyFoK57nNJEdQ9JVs8+75SJlkGsAn7g9ALdVu2bl6mpHy44j7yBCz+tF6Osiw5ouViyTl8DqOJWg1IKFhGSNqAjWlv4Yt4sataj3IBktEtqJxz+08/sVs7WpYH/TKcjm12uvh9b2Qb2d1vpxBTmDdXkNT1wogJ5Ap+OM+/IHmvAnivpEFUn7dHsedMEu2XIGmzqzSbHMqSg1qt2YOoHlHoXbgwqfEevqqxTQ7hxV6ke++Au2N4WsmGS8mAErdAFM/OfzStBbWpawRNeGMTbu6iCMO44bbtwg7LYoUZUYwJvzUv4w3j0mQocjNEzjxPfGY/19H89ii9tBQD6thKCFfKcsD1DfLdfBaI8yHvReazUNspB8qzYoK5YLSbc19e1jb5toIt4n5C5cHcPngn2pqMI1fBol1PVik0Dimm5qO2bkeLaZZrEDlgWxY1ED8easlL9lygd29R9Ne6oEdIDEDqzwdIwPNB1dQp5zXii0Oy42kP/K+VrZa2b4ncJ6PyjUV0xBJaBHRitqsnRJoKhFGy+k4EW9c1qtl3GTQV6i8feiWk4HdU6XtEhB7N4SV43wiVeorFPqadh+9KJwFPaxSi+GAa1HwbanPAWe7byonPLVU3rFW6uneneSSSqmUC1XON43akpggw41dX0AwKaox5BadPi2YUYvOh6cr8xANa01negGeqBfKiZoitiyUqNJHQcOu+pNzXO+GT7++X/6zzuUFdshTcGxzTAJQ6QsEpuQea4JDqGR72ShFWTG85+as9oj4wBnOXj8dE9z1kxASkfuaLHexRXLU6TQX0azFVL56BqoYH3SJWdp7Sd56YPtPtjug+3+d2wHOIQgIaFJUpeYbuBZZhT6nhmltpf4gWuTwO2wXcNvSHb/KtGdLNBNiqddluDBF6vSPAAohcmGV0VPDRnNiw6vRE7/PhoqT5XIAAd0rnixvTh6kXfm6ueh5cBTwdALxE++HAxBvukhYX/q/+GzvjJWkqkqcl3f7um/PfOrZSPeqw21c/dukIRRGFixGWQRDlorjMzYCUIzCUmG8zcBG/BugK3X4LYhft7EePEZzekTK0bmSDcX3j5YCQV+6bXZLV1CQSsB/WuJZRMaU9s2Hdd1cMaHmRlDGOC1JPGjhER+6uOM/wf4PtTxcBIAAA=="
         }
     },
     tempest = {
@@ -194,7 +203,8 @@ UmbralWeatherNodes = {
             baitName = "Diadem Hoverworm", -- mooched from Grade 4 Skybuilders' Ghost Faerie
             baitId = 30281,
             x = -417.17, y = -206.7, z = 165.31,
-            fishingX = -411.73, fishingY = -207.15, fishingZ = 166.06
+            fishingX = -411.73, fishingY = -207.15, fishingZ = 166.06,
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YTXObSBD9KyouexFVfAww+KYotuIqxeuKlNrDVg4DNNKUECjDkESb8n9PDzAWSMiKE+9e1r541HS/7ml6Xvfw3ZhUspiyUpbTdGVcfTfUes5zUOvrnEUZJMaVFBWMjVtcOTQcG/eCF4LLvXFlo7S8/hZnVQLJQaz0H8Y11vuiiNcKrF44alXj+HRszHbLtYByXWQosS2rh/w0dI0RBj0L62Iw03W11REQ2yIXQtBWRZZBLDuGdlfNuey2EAlnmQbwbdIDIK3aDS/X13soO468owg9rxehr5PMNrBY81S+YbyOUwlKLVhIFm8QFcHa1J/idlHDFvWeSQ55DJ14/GM7v58xR5sK/g9MmWxevfZ6bO0c5dttrZdrlnG2KW/Yl0IogJ5Ab8cd9+UfIC6+AOrbKknaJ+l50Al7w1cztq13NslXGYhSozqNqRtY5CTcHhR9QKzrb1Kw9uSoVC+LxVe2u81lxSUv8hnjuU6Aie98Xgl4D2XJVujaMMbGXR2EcVfggRs3CPsdSlQmBvDmRSl/Ge8eNwLDERqmceZ547F+fohnscPjIFg2rYSAXL7QLo9QX2yvg9Ge7HjQe63VFMhCFjt1QHm+WkjY1dR3iL0tool4mZC7cHUMH3P+uQKFa1hhkCQ+Tc0AQt8kxLPMkIUh/nQoZZbrJ6lrIN6cl/LPVPnAqv67KU+1AR2gazn0iRjfcpbAdvROHamvhdgqyDv8z7J3RbFRIJoe/gK2OXQL9RT3oXah+0YrarZK7EDxizZeSFHk9fFptR57TsqyEo1/FtVyO6hzWEGeMLF/Tlw1wtuiQmW9pZ6G44ePCidhn6r0YhjQWgq+O+cp8Bz3UeWcr57SE95aPVXAk1SCmLJqtcYev1WtAitgqLLrKQAro+5FatEh3YYevfC0ez7RCFXL1pyiC+gDfK64gASxZaX6k5oJjqvqWcVzuRhe3/l/+s47vEVJmqYRJKbvuNQkth+aNPXAjCMCNnWQ02wwHj5p4mrnxiHiwhmUnCeumUDiGpHRYrOPKp4lyKN/jGZr5PPRDQPB+8xrX6S13+SlV7Z7ZbtXtvvfsR2jtgshzmYpiXFKSyAwQ0ojM/UIDe1YMZ7dYbuG35Ds/lWiO5ug2wRHXh7j9ItZab4CKIXJtqjynhoymhce34vc/qWUKk+VSBk26EzxYnt79ELvwv3PQ8uB7wVDnyF+8/PBEOSzviYcRv9fHviVsZJMVZLr/HavAO3gr5aN+KA2VM6d0rNdB/+CxCQA2GgtihcEiIhpM+KlqWWFUcLq0mtw2xA/biO8/YyWsN0BVpA50uWFlxBeshyf9QtN8DTFm1TPtRtHkRvYxExYANjjA8ekhKVmktCQxkHsecwyHn4ASILxv3USAAA="
         }
     }
 }
@@ -251,6 +261,48 @@ GatheringRoute =
             {x = -577.23, y = 331.88, z = 519.38, nodeName = "Mineral Deposit"},
             {x = -558.09, y = 334.52, z = 448.38, nodeName = "Mineral Deposit"}, -- End of Island #7
             {x = -729.13, y = 272.73, z = -62.52, nodeName = "Mineral Deposit"}
+        },
+
+    BotanistIslands = 
+        {
+            {x = -202, y = -2, z = -310, nodeName = "Mature Tree"}, 
+            {x = -262, y = -2, z = -346, nodeName = "Mature Tree"}, 
+            {x = -323, y = -5, z = -322, nodeName = "Mature Tree"}, 
+            {x = -372, y = 16, z = -290, nodeName = "Lush Vegetation Patch"}, 
+            {x = -421, y = 23, z = -201, nodeName = "Lush Vegetation Patch"}, 
+            {x = -471, y = 28, z = -193, nodeName = "Mature Tree"}, 
+            {x = -549, y = 29, z = -211, nodeName = "Mature Tree"},
+            {x = -627, y = 285, z = -141, nodeName = "Lush Vegetation Patch"}, 
+            {x = -715, y = 271, z = -49, nodeName = "Mature Tree"}, 
+
+            {x = -45, y = -48, z = -501, nodeName = "Lush Vegetation Patch"},
+            {x = -63, y = -48, z = -535, nodeName = "Lush Vegetation Patch"},
+            {x = -137, y = -7, z = -481, nodeName = "Lush Vegetation Patch"},
+            {x = -191, y = -2, z = -422, nodeName = "Mature Tree"},
+            {x = -149, y = -5, z = -389, nodeName = "Mature Tree"},
+            {x = 114, y = -49, z = -515, nodeName = "Mature Tree"},
+            {x = 46, y = -47, z = -500, nodeName = "Mature Tree"},
+
+            {x = 101, y = -48, z = -535, nodeName = "Lush Vegetation Patch"},
+            {x = 58, y = -37, z = -577, nodeName = "Lush Vegetation Patch"},
+            {x = -6, y = -20, z = -641, nodeName = "Lush Vegetation Patch"},
+            {x = -65, y = -19, z = -610, nodeName = "Mature Tree"},
+            {x = -125, y = -19, z = -621, nodeName = "Mature Tree"},
+            {x = -169, y = -7, z = -550, nodeName = "Lush Vegetation Patch"},
+
+            {x = 454, y = 207, z = -615, nodeName = "Lush Vegetation Patch"},
+            {x = 573, y = 191, z = -513, nodeName = "Mature Tree"},
+            {x = 584, y = 191, z = -557, nodeName = "Lush Vegetation Patch"},
+            {x = 540, y = 199, z = -617, nodeName = "Lush Vegetation Patch"},
+            {x = 482, y = 192, z = -674, nodeName = "Lush Vegetation Patch"},
+
+            {x = 433, y = -15, z = 274, nodeName = "Mature Tree"},
+            {x = 467, y = -13, z = 268, nodeName = "Lush Vegetation Patch"},
+            {x = 440, y = -25, z = 208, nodeName = "Mature Tree"},
+            {x = 553, y = -32, z = 419, nodeName = "Lush Vegetation Patch"},
+            {x = 564, y = -31, z = 339, nodeName = "Lush Vegetation Patch"},
+            {x = 529, y = -10, z = 279, nodeName = "Lush Vegetation Patch"},
+            {x = 474, y = -24, z = 197, nodeName = "Lush Vegetation Patch"},
         },
     RedRoute =
         {
@@ -378,15 +430,20 @@ function TeleportTo(aetheryteName)
 end
 
 function EnterDiadem()
+    UmbralGathered = false
+    NextNodeId = 0
+
     if IsInZone(DiademZoneId) and IsPlayerAvailable() then
-        if NavIsReady() and not IsPlayerOccupied() then
+        if not NavIsReady() then
+            yield("/echo Waiting for navmesh...")
+            yield("/wait 1")
+        elseif GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.beingMoved) then
+            -- wait to instance in
+        else
             LastStuckCheckTime = os.clock()
             LastStuckCheckPosition = { x = GetPlayerRawXPos(), y = GetPlayerRawYPos(), z = GetPlayerRawZPos() }
             State = CharacterState.ready
             LogInfo("State Change: Ready")
-        else
-            yield("/echo Waiting for navmesh...")
-            yield("/wait 1")
         end
         return
     end
@@ -493,6 +550,16 @@ function RandomAdjustCoordinates(x, y, z, maxDistance)
     return randomX, randomY, randomZ
 end
 
+function GetRandomRouteType()
+    local routeNames = {}
+    for routeName, _ in pairs(GatheringRoute) do
+        table.insert(routeNames, routeName)
+    end
+    local randomIndex = math.random(#routeNames) 
+    
+    return routeNames[randomIndex] 
+end
+
 function SelectNextNode()
     local weather = GetActiveWeatherID()
     if PrioritizeUmbral and not UmbralGathered and (weather >= 133 and weather <= 136) then
@@ -506,26 +573,34 @@ function SelectNextNode()
             end
         end
     elseif PrioritizeUmbral and UmbralGathered and (weather >= 133 and weather <= 136) then
-        for _, umbralWeather in pairs(UmbralWeatherNodes) do
-            if umbralWeather.weatherId == weather then
-                umbralWeather.fishingNode.isUmbralNode = true
-                umbralWeather.fishingNode.isFishingNode = true
-                umbralWeather.fishingNode.umbralWeatherName = umbralWeather.weatherName
-                LogInfo("Selected umbral fishing node for "..umbralWeather.weatherName)
-                return umbralWeather.fishingNode
+        if Dofish then
+            for _, umbralWeather in pairs(UmbralWeatherNodes) do
+                if umbralWeather.weatherId == weather then
+                    umbralWeather.fishingNode.isUmbralNode = true
+                    umbralWeather.fishingNode.isFishingNode = true
+                    umbralWeather.fishingNode.umbralWeatherName = umbralWeather.weatherName
+                    LogInfo("Selected umbral fishing node for "..umbralWeather.weatherName)
+                    return umbralWeather.fishingNode
+                end
             end
+        else
+            LeaveDuty()
         end
     else
         GatheringRoute[RouteType][NextNodeId].isUmbralNode = false
         GatheringRoute[RouteType][NextNodeId].isFishingNode = false
-        LogInfo("Selected regular gathering node :"..GatheringRoute[RouteType][NextNodeId].nodeName)
+        LogInfo("Selected regular gathering node: "..GatheringRoute[RouteType][NextNodeId].nodeName)
         return GatheringRoute[RouteType][NextNodeId]
     end
 end
 
 function MoveToNextNode()
     NextNodeCandidate = SelectNextNode()
-    if (NextNodeCandidate ~= nil and NextNodeCandidate.x ~= NextNode.x or NextNodeCandidate.y ~= NextNode.y or NextNodeCandidate.z ~= NextNode.z) then
+    if (NextNodeCandidate == nil) then
+        State = CharacterState.ready
+        LogInfo("State Change: Ready")
+        return
+    elseif (NextNodeCandidate.x ~= NextNode.x or NextNodeCandidate.y ~= NextNode.y or NextNodeCandidate.z ~= NextNode.z) then
         yield("/vnav stop")
         NextNode = NextNodeCandidate
         if NextNode.isUmbralNode then
@@ -549,7 +624,7 @@ function MoveToNextNode()
     elseif not NextNode.isUmbralNode and (RouteType == "RedRoute" or RouteType == "MinerIslands") and GetClassJobId() ~= 16 then
         yield("/gs change Miner")
         yield("/wait 3")
-    elseif not NextNode.isUmbralNode and RouteType == "PinkRoute" and GetClassJobId() ~= 17 then
+    elseif not NextNode.isUmbralNode and (RouteType == "PinkRoute" or RouteType == "BotanistIslands") and GetClassJobId() ~= 17 then
         yield("/gs change Botanist")
         yield("/wait 3")
     elseif GetDistanceToPoint(NextNode.x, NextNode.y, NextNode.z) <= 5 then
@@ -605,15 +680,22 @@ function Gather()
     
     if not HasTarget() or GetTargetName() ~= NextNode.nodeName then
         yield("/target "..NextNode.nodeName)
-        
-
         yield("/wait 1")
         if not HasTarget() then
-            yield("/echo Could not find "..NextNode.nodeName)
+            -- yield("/echo Could not find "..NextNode.nodeName)
             if NextNode.nodeName:sub(1, 7) == "Clouded" then
                 UmbralGathered = true
             else
-                NextNodeId = (NextNodeId % #GatheringRoute[RouteType]) + 1
+                if NextNodeId >= #GatheringRoute[RouteType] then
+                    if SelectedRoute == "Random" then
+                        RouteType = GetRandomRouteType()
+                        yield("/echo New random route selected : "..RouteType)
+                    end
+                    NextNodeId = 1
+                else
+                    NextNodeId = NextNodeId + 1
+                end
+                NextNode = GatheringRoute[RouteType][NextNodeId]
             end
             State = CharacterState.ready
             LogInfo("State Change: Ready")
@@ -710,13 +792,14 @@ function Fish()
         return
     end
 
-    if not PathfindInProgress() and not PathIsRunning() then
+    if GetDistanceToPoint(NextNode.fishingX, NextNode.fishingY, NextNode.fishingZ) > 5 and not PathfindInProgress() and not PathIsRunning() then
         PathfindAndMoveTo(NextNode.fishingX, NextNode.fishingY, NextNode.fishingZ)
         return
     end
 
-    yield("/ahbait "..NextNode.baitName)
-    yield("/wait 0.1")
+    DeleteAllAutoHookAnonymousPresets()
+    UseAutoHookAnonymousPreset(NextNode.autohookPreset)
+    yield("/wait 1")
     yield("/ac Cast")
 end
 
@@ -961,6 +1044,17 @@ FoundationZoneId = 418
 FirmamentZoneId = 886
 DiademZoneId = 939
 
+if SelectedRoute == "Random" then
+    RouteType = GetRandomRouteType()
+elseif GatheringRoute[SelectedRoute] then
+    RouteType = SelectedRoute
+else
+    yield("/echo Invalid SelectedRoute : " .. RouteType)
+end
+yield("/echo SelectedRoute : " .. RouteType)
+yield("/gs change Miner")
+
+SetSNDProperty("StopMacroIfTargetNotFound", "false")
 if not (IsInZone(FoundationZoneId) or IsInZone(FirmamentZoneId) or IsInZone(DiademZoneId)) then
     TeleportTo("Foundation")
 end

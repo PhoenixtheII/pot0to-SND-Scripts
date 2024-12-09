@@ -1,13 +1,19 @@
 --[[
 ********************************************************************************
-*                            Fishing Gatherer Scrips                            *
-*                                Version 1.2.1                                 *
+*                            Fishing Gatherer Scrips                           *
+*                                Version 1.2.9                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
 
-    -> 1.2.0    Fixed MinInventoryFreeSlots
+    -> 1.2.9    Added purple scrip exchange code bc i forgot lol
+                Tree
+                Fixed materia extraction bug p2
+                Fixed repair
+                Fixed teleport errors
+                Fixed purple scrips
+                Fixed MinInventoryFreeSlots
                 Updated algorithm to randomly choose any fishing spot in a line
                     along the coast, fixed self repair
 
@@ -18,15 +24,16 @@ Loosely based on Ahernika's NonStopFisher
 AutoHook
 VnavMesh
 Lifestream
+Teleporter
 
 ********************************************************************************
 *                                   Settings                                   *
 ********************************************************************************
 ]]
 
-FishToFarm = "Zorgor Condor"
-FishToFarm = "Cloudsail"
-SwitchLocationsAfter                = 15        --Number of minutes to fish at this spot before changing spots.
+ScripColorToFarm                    = "Orange"
+ItemToExchange                      = "Mount Token"
+SwitchLocationsAfter                = 10        --Number of minutes to fish at this spot before changing spots.
 
 Retainers                           = true      --If true, will do AR (autoretainers)
 GrandCompanyTurnIn                  = true      --If true, will do GC deliveries using deliveroo everytime retainers are processed
@@ -42,7 +49,7 @@ ReduceEphemerals                    = true      --If true, will reduce ephemeral
 SelfRepair                          = true      --If true, will do repair if possible set repair amount below
 RepairAmount                        = 1         --repair threshold, adjust as needed
 
-MinInventoryFreeSlots               = 1           --set !!!carefully how much inventory before script stops gathering and does additonal tasks!!!
+MinInventoryFreeSlots               = 1         --set !!!carefully how much inventory before script stops gathering and does additonal tasks!!!
 
 HubCity                             = "Solution Nine"   --options:Limsa/Gridania/Ul'dah/Solution Nine
 
@@ -51,6 +58,73 @@ HubCity                             = "Solution Nine"   --options:Limsa/Gridania
 *           Code: Don't touch this unless you know what you're doing           *
 ********************************************************************************
 ]]
+
+OrangeGathererScripId = 41785
+PurpleGathererScripId = 33914
+
+ScripExchangeItems = {
+    {
+        itemName = "Mount Token",
+        categoryMenu = 4,
+        subcategoryMenu = 8,
+        listIndex = 6,
+        price = 1000
+    },
+    {
+        itemName = "Hi-Cordial",
+        categoryMenu = 4,
+        subcategoryMenu = 1,
+        listIndex = 0,
+        price = 1000
+    },
+}
+
+FishTable =
+{
+    {
+        fishName = "Zorgor Condor",
+        fishId = 43761,
+        baitName = "Versatile Lure",
+        zoneId = 1190,
+        zoneName = "Shaaloani",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVfrsNCD1CM7j5ukKfLCOG2BDrqgyCtbiCx6KGqSdDD/3kvJSiRbTpCBF+0gO+ny8tyHDg9JfXWmtVEzXplqli2c46/OScnTAqZF4RwbXcORYwcv8hKeB2U3dI5PfpwcOTc6Vzo3j86xh9bq5EEUtQT5bLb+31qsS6XE0oI1D759anDC+Mg5W98uNVRLVaDFc90B8svQDUYSDWa4ryYzW9arLgPqufSVFLpZqihAmD0dQRyvP8t/PQulZc6LPXihRwd4dDPrNK+WJ49Q9fJnW/kzNsg/7D4Bv4P5Ms/MB543VVhD1Rnmhos7REWwzYfZxe2jJhvUG25yKAX08gm354XDfvrdVJ3/AzNuWmKMsQyT2Abztz5OsAG7XfIi53fVKf+itMUbGLrqgqOh/SMI9QXQ37M925MCHQTs2vkhX5zxVVP3tFwUoKsuiN9ODSKX7mQ/gIq/IdbJg9F8swzth7hV83u+Pi9NnZtclWc8L7veEmTERa3hEqqKLzC04xw5V00SzpXCxXrUIjyu0WIbM4J3oSrz3Xg3WAiMZ+gQZ894G7EZf85nvsalpHkxq7WG0hyoyi3Ug9U6mu1OxaPRG69TpQU0qwzdOno1RmmtGxXzUMdaKs2NWtuFnpeLuQGc4fWr3NBtqg9TXB+uyfb3Mv9cg8V1PD+mSZBIkgZhRCi4PkkBXEIz4FkQJ9wD30G8i7wy15mNgfz/1BLZFvCk8211+3L8A+OjjhQwsR4W8ErpFS9+VerOQnQi8yfw5t3aMf+n9ZrxosKOtu+bwX6rN6a2fupFVrw6zLnRquxtgnum3+Yr0FsCcZmXT0P4jZKf3Z1QbtALdQELKCXXjweooQH+RdXovNWV1sMPkyeH5xL3uoyl1ve61fl6X6SI+cGTy75YA6cXom387AqYZgb0jNeLJR5FVnbPQpqPLY3msILEaTZF+9CT+xnHxhdTY2C1Nl0vrc8t1wtoMa/L4rHBsKbOZ2QzCCKW7B4WXtjo7Qmlk8GOyx/hc51rkJijqe2Ga49Aewj+CmHfyrV37ryNOweiQE9PwQWRMghJwiMgNBAe4TRKiZ/4WZrEwuehi/K3K6A0iFmwX0BnXJia68lv+eJ/rZ6X/KFnC+i7or4r6rui/ji78QEkNGR+knLwiQSXEyokJzwVLuEMhTRG6ChACf27O5Nufjx8ejK0qopn1KG8YlL75fUvpRdKT+ZC6TVu5YPjtPdSf84lXgRygXcCbIoN1jpMV6ouB26YAku2b4vB8CIf20i1zjjKbmH1dfxHBEvYK3dmhkD/mR8yz/ea777N2MnWMrNdbRrav99sbjX2sTU/u43Rt0c1EaWSutIjLk9iQmkMhMs0JOBJxqQrMoCo2a23qBTuFDCd3GMMkJNqyaW6n+i8gmqSabXCAYPxJ2YJkxUS9Kcd1s1UKfGXxqE5N06dt1PwnXMH5VzMQgEgGGFuEhDqUUYSwVwSBowlQZoETMpRzrkvXK/5QvPSTJAQgsvh+nmXrx9WvgIuaCQTICkubEKlZISHCSdZTLPIozJMXNHslC3umOpMyOQaqbMA3PvwrFAN/w7FMfViDpTEIqaERjQiCUsF/iIKYg/vK6EfIVf/BUp1IuxuGAAA",
+        fishingSpots = {
+            maxHeight = 1024,
+            waypoints = {
+                { x=-115.85, y=-27.7, z=723.95 },
+                { x=-11.04, y=-7.64, z=746.06 },
+                { x=64.24, y=1.78, z=729.25 }, -- tree
+                { x=135.71, y=6.12, z=715.0 },
+                { x=212.5, y=12.2, z=739.26 },
+            },
+            pointToFace = { x=134.07, y=6.07, z=10000 }
+        },
+        scripColor = "Orange",
+        scripId = 39,
+        collectiblesTurnInListIndex = 6
+    },
+    {
+        fishName = "Fleeting Brand",
+        fishId = 36473,
+        baitName = "Versatile Lure",
+        zoneId = 959,
+        zoneName = "Mare Lamentorum",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1YTVPjOBD9Kymf4yl/f3ALGWCpCgxFwu5hag+y3U5UOFZGllmyU/z3adlWYicOmZoiFAculGlJr59aT63u/NRGpWBjUohinM61s5/aRU6iDEZZpp0JXsJQk4MTmsN2MFFD1/hlBeFQu+OUcSrW2pmJ1uLiOc7KBJKtWc5/qbFuGIsXEqz6sORXheMFQ+1qNVtwKBYsQ4tpGB3k16ErjNDvrDCOkhkvyqVi4JiGc4SCWsWyDGJxICKIY7ZXWcdZMJ5QklVE8ifgytCdPOxzZlqeF+6wdrqsu5saRewJzzIlWaHcX9JicbGGohUIdwfSdTuQnjpL8gjTBU3FOaFVOKShUIapIPEjoiJYc8L7uG3UsEG9I4JCHh9SHNLzdmG87jlZConT/2FMRC04RWJ3tbVzynazerYgGSWPxSV5YlwCdAxqd/awa7+HGCOM800Zs74bgxR2hWZ3CKjwntP5FVlWcRjl8wx4oZxKTcllvuHs7aYDFbwg1sWz4KS53/JgZmz6H1ld56KkgrL8itBcxUdH6U5KDjdQFGSOrjVtqN1WJLRbhllgWCOsV2iRgerBm7BC/DHeHW4E+hlqunZgvPZYjW/5TFd4RznJxiXnkIs32uUO6pvttZft3o57vVezaoFMBVvJ60zz+VTAqsrHW+6NiEb8bSi34SoODzn9UYLE1dIoiAkEhm7GIdEdN0j00I4iPTUAwtBMzBBsDfEmtBDfUukDVf29lqfcwOa+hr7pH+b4N/rHbJHBQM6QgLeML0n2F2OPEkKlkn+AVP9LO/Lf3MoqDapb2gzKran7Kk0zugS+c49vaL4Zkk/TF+R4Q57btvALXv8Gso6fY/oyxSlOU8FZ3npzT+/esFvuJzCHPCF8/QHiUhH7ykqEOnJSb+rY8sKN3+1pnMzF70T8BM5nnK7eOa6+a9kbz6eKbMfJ+8e2cS8z7igVwMeknC+wUl7KSgjTal8qrmppTFRVqSU/WkVE/Z674X4N2n3QX6kmZRmsnkSVAe/hR0k5JOhJlLIYk3V2X1o8fZp712z2mZ0+s9Nndvpg2alVIAYGpF5CUt02A093jNjUie/HumcHsW8Zielaifbyr6oQm18Nvm8MdZGIFWO7WrQ9x7cPV4uXGYDAHQ/OOcmTTm1rHgyW7OKuEyy2aYx1N4ZIOvuWZ+uHAh7yBPi2XVU/mMjVoyUr81bA+xpZN9xt3mzp7SvLxZggYtbsunm/tvEMJNuSpwTTayarsqZxd0P3SG/r4soP8wvMtjP5435ELpaWsYx2Feh2h9L0JfKzNm+n7V8Ao6NPK3LtwLAsPY3sQHcSYuhR4Nq6ZXmuATZxIyPCfmNff+7hHdzDnAlGC/hN6Zk9yutX12tyelU2/bLsVdFxWX6q67C6OuJyIhL6jk/0xI8c3Qk90EmCMkvD1DNMMwwTB5tZzHW1anvT10Af3JUcS9/BNMYSuOj234GUrRekOknNSHeISzC9Ehf/uIGTgOO4JNZefgEjD0ty/xUAAA==",
+        fishingSpots = {
+            maxHeight = 35,
+            waypoints = {
+                { x=10.05, y=26.89, z=448.99 },
+                { x=37.71, y=22.36, z=481.05 },
+                { x=58.87, y=22.22, z=487.95 }, --orange balls
+                { x=71.79, y=22.39, z=477.65 },
+            },
+            pointToFace = { x=37.71, y=22.36, z=600 }
+        },
+        scripColor = "Purple",
+        scripId = 38,
+        collectiblesTurnInListIndex = 10
+    }
+}
 
 HubCities =
 {
@@ -235,12 +309,13 @@ function SelectNewFishingHole()
     LogInfo("[FishingGatherer] Selecting new fishing hole")
 
     if SelectedFish.fishingSpots.waypoints ~= nil then
-        SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
-        SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, 1024, SelectedFishingSpot.waypointZ, false, 50)
 
-        SelectedFishingSpot.x = SelectedFishingSpot.waypointX + SelectedFish.fishingSpots.direction.x
-        SelectedFishingSpot.y = SelectedFishingSpot.waypointY + SelectedFish.fishingSpots.direction.y
-        SelectedFishingSpot.z = SelectedFishingSpot.waypointZ + SelectedFish.fishingSpots.direction.z
+        SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
+        SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
+
+        SelectedFishingSpot.x = SelectedFish.fishingSpots.pointToFace.x
+        SelectedFishingSpot.y = SelectedFish.fishingSpots.pointToFace.y
+        SelectedFishingSpot.z = SelectedFish.fishingSpots.pointToFace.z
     else
         local n = math.random(1, #SelectedFish.fishingSpots)
         SelectedFishingSpot = SelectedFish.fishingSpots[n]
@@ -248,12 +323,21 @@ function SelectNewFishingHole()
     SelectedFishingSpot.startTime = os.clock()
 end
 
-function GoToFishingHole()
+function TeleportToFishingZone()
     if not IsInZone(SelectedFish.zoneId) then
         TeleportTo(SelectedFish.closestAetheryte.aetheryteName)
-        if IsInZone(SelectedFish.zoneId) then
-            SelectNewFishingHole()
-        end
+    elseif not GetCharacterCondition(CharacterCondition.betweenAreas) then
+        yield("/wait 3")
+        SelectNewFishingHole()
+        State = CharacterState.goToFishingHole
+        LogInfo("[FishingGatherer] GoToFishingHole")
+    end
+end
+
+function GoToFishingHole()
+    if not IsInZone(SelectedFish.zoneId) then
+        State = CharacterState.teleportToFishingZone
+        LogInfo("[FishingGatherer] TeleportToFishingZone")
         return
     end
 
@@ -464,7 +548,6 @@ function Dismount()
     end
 
     if GetCharacterCondition(CharacterCondition.flying) then
-        yield("/e is flying")
         yield('/ac dismount')
     elseif GetCharacterCondition(CharacterCondition.mounted) then
         yield('/ac dismount')
@@ -515,7 +598,7 @@ function TurnIn()
             LogInfo("Path not running")
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
         end
-    elseif GetItemCount(OrangeGathererScripId) >= 3800 then
+    elseif GetItemCount(GathererScripId) >= 3800 then
         if IsAddonVisible("CollectablesShop") then
             yield("/callback CollectablesShop true -1")
         else
@@ -540,8 +623,8 @@ function TurnIn()
     end
 end
 
-function ScripExchange()
-    if GetItemCount(OrangeGathererScripId) < 3800 then
+function KupoVoucherLottery()
+    if GetItemCount(GathererScripId) < 3800 then
         if IsAddonVisible("InclusionShop") then
             yield("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
@@ -574,11 +657,11 @@ function ScripExchange()
     elseif IsAddonVisible("SelectIconString") then
         yield("/callback SelectIconString true 0")
     elseif IsAddonVisible("InclusionShop") then
-        yield("/callback InclusionShop true 12 "..ScripExchangeItem.scripExchangeMenu1)
+        yield("/callback InclusionShop true 12 "..ScripExchangeItem.categoryMenu)
         yield("/wait 1")
-        yield("/callback InclusionShop true 13 "..ScripExchangeItem.scripExchangeMenu2)
+        yield("/callback InclusionShop true 13 "..ScripExchangeItem.subcategoryMenu)
         yield("/wait 1")
-        yield("/callback InclusionShop true 14 "..ScripExchangeItem.scripExchangeRow.." "..GetItemCount(OrangeGathererScripId)//ScripExchangeItem.scripExchangePrice)
+        yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..GetItemCount(GathererScripId)//ScripExchangeItem.price)
     else
         yield("/wait 1")
         yield("/target Scrip Exchange")
@@ -684,22 +767,6 @@ function ExecuteRepair()
     local hawkersAlleyAethernetShard = { x=-213.95, y=15.99, z=49.35 }
     if SelfRepair then
         if GetItemCount(33916) > 0 then
-            if IsAddonVisible("Shop") then
-                yield("/callback Shop true -1")
-                return
-            end
-
-            if not IsInZone(SelectedFish.zoneId) then
-                TeleportTo(SelectedFish.aetheryteList[1].aetheryteName)
-                return
-            end
-
-            if GetCharacterCondition(CharacterCondition.mounted) then
-                Dismount()
-                LogInfo("[FishingGatherer] State Change: Dismounting")
-                return
-            end
-
             if NeedsRepair(RepairAmount) then
                 if not IsAddonVisible("Repair") then
                     LogInfo("[FishingGatherer] Opening repair menu...")
@@ -788,8 +855,9 @@ function ExecuteExtractMateria()
     end
 
     if CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
-        if not IsAddonVisible("Materialize") then
+        if not IsAddonVisible("Materialize") then -- open material window
             yield("/generalaction \"Materia Extraction\"")
+            yield("/wait 1") -- give it a second to stick
             return
         end
 
@@ -828,7 +896,7 @@ end
 
 function SelectFishTable()
     for _, fishTable in ipairs(FishTable) do
-        if FishToFarm == fishTable.fishName then
+        if ScripColorToFarm == fishTable.scripColor then
             return fishTable
         end
     end
@@ -868,7 +936,7 @@ function Ready()
         LogInfo("State Change: Buy Fishing Bait")
     else
         State = CharacterState.goToFishingHole
-        LogInfo("State Change: MoveToWaypoint")
+        LogInfo("State Change: GoToFishingHole")
     end
 end
 
@@ -876,6 +944,7 @@ CharacterState = {
     ready = Ready,
     mounting = Mount,
     dismounting = Dismount,
+    teleportToFishingZone = TeleportToFishingZone,
     goToFishingHole = GoToFishingHole,
     extractMateria = ExecuteExtractMateria,
     repair = ExecuteRepair,
@@ -884,7 +953,7 @@ CharacterState = {
     gcTurnIn = ExecuteGrandCompanyTurnIn,
     fishing = Fishing,
     turnIn = TurnIn,
-    scripExchange = ScripExchange,
+    scripExchange = KupoVoucherLottery,
     goToHubCity = GoToHubCity,
     buyFishingBait = BuyFishingBait
 }
@@ -893,11 +962,23 @@ StopMain = false
 LastStuckCheckTime = os.clock()
 LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()}
 
-SelectedFish = SelectFishTable()
-if SelectedFish == nil then
-    yield("/echo Cannot find data for "..FishToFarm)
-    StopMain = true
+if ScripColorToFarm == "Orange" then
+    GathererScripId = OrangeGathererScripId
+else
+    GathererScripId = PurpleGathererScripId
 end
+
+for _, item in ipairs(ScripExchangeItems) do
+    if item.itemName == ItemToExchange then
+        ScripExchangeItem = item
+    end
+end
+if ScripExchange == nil then
+    yield("/echo Cannot recognize item "..ScripExchangeItem..". Stopping script.")
+    yield("/snd stop")
+end
+
+SelectedFish = SelectFishTable()
 
 if SelectedFish.fishingSpots.waypoints == nil then
     SelectedFish.closestAetheryte = GetClosestAetheryte(
@@ -939,7 +1020,6 @@ if GetClassJobId() ~= 18 then
     yield("/wait 1")
 end
 
-SelectNewFishingHole()
 State = CharacterState.ready
 while not StopMain do
     State()
