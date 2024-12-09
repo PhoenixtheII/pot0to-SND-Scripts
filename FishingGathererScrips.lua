@@ -31,8 +31,8 @@ Teleporter
 ********************************************************************************
 ]]
 FishToFarm = "Zorgor Condor"
-ScripColorToFarm                    = "JustFish"
-ItemToExchange                      = "JustFish"
+ScripColorToFarm                    = "Orange"
+ItemToExchange                      = "Mount Token"
 SwitchLocationsAfter                = 15        --Number of minutes to fish at this spot before changing spots.
 
 Retainers                           = true      --If true, will do AR (autoretainers)
@@ -75,7 +75,7 @@ ScripExchangeItems = {
         categoryMenu = 4,
         subcategoryMenu = 1,
         listIndex = 0,
-        price = 1000
+        price = 15
     },
     {
         itemName = "JustFish"
@@ -87,7 +87,7 @@ FishTable =
     {
         fishName = "Zorgor Condor",
         fishId = 43761,
-        baitName = "Versatile Lure",
+        baitName = "Cactuar Jig",
         zoneId = 1190,
         zoneName = "Shaaloani",
         --autohookPreset = "AH4_H4sIAAAAAAAACu1Yy27jNhT9FVfrsNCD1CM7j5ukKfLCOG2BDrqgyCtbiCx6KGqSdDD/3kvJSiRbTpCBF+0gO+ny8tyHDg9JfXWmtVEzXplqli2c46/OScnTAqZF4RwbXcORYwcv8hKeB2U3dI5PfpwcOTc6Vzo3j86xh9bq5EEUtQT5bLb+31qsS6XE0oI1D759anDC+Mg5W98uNVRLVaDFc90B8svQDUYSDWa4ryYzW9arLgPqufSVFLpZqihAmD0dQRyvP8t/PQulZc6LPXihRwd4dDPrNK+WJ49Q9fJnW/kzNsg/7D4Bv4P5Ms/MB543VVhD1Rnmhos7REWwzYfZxe2jJhvUG25yKAX08gm354XDfvrdVJ3/AzNuWmKMsQyT2Abztz5OsAG7XfIi53fVKf+itMUbGLrqgqOh/SMI9QXQ37M925MCHQTs2vkhX5zxVVP3tFwUoKsuiN9ODSKX7mQ/gIq/IdbJg9F8swzth7hV83u+Pi9NnZtclWc8L7veEmTERa3hEqqKLzC04xw5V00SzpXCxXrUIjyu0WIbM4J3oSrz3Xg3WAiMZ+gQZ894G7EZf85nvsalpHkxq7WG0hyoyi3Ug9U6mu1OxaPRG69TpQU0qwzdOno1RmmtGxXzUMdaKs2NWtuFnpeLuQGc4fWr3NBtqg9TXB+uyfb3Mv9cg8V1PD+mSZBIkgZhRCi4PkkBXEIz4FkQJ9wD30G8i7wy15mNgfz/1BLZFvCk8211+3L8A+OjjhQwsR4W8ErpFS9+VerOQnQi8yfw5t3aMf+n9ZrxosKOtu+bwX6rN6a2fupFVrw6zLnRquxtgnum3+Yr0FsCcZmXT0P4jZKf3Z1QbtALdQELKCXXjweooQH+RdXovNWV1sMPkyeH5xL3uoyl1ve61fl6X6SI+cGTy75YA6cXom387AqYZgb0jNeLJR5FVnbPQpqPLY3msILEaTZF+9CT+xnHxhdTY2C1Nl0vrc8t1wtoMa/L4rHBsKbOZ2QzCCKW7B4WXtjo7Qmlk8GOyx/hc51rkJijqe2Ga49Aewj+CmHfyrV37ryNOweiQE9PwQWRMghJwiMgNBAe4TRKiZ/4WZrEwuehi/K3K6A0iFmwX0BnXJia68lv+eJ/rZ6X/KFnC+i7or4r6rui/ji78QEkNGR+knLwiQSXEyokJzwVLuEMhTRG6ChACf27O5Nufjx8ejK0qopn1KG8YlL75fUvpRdKT+ZC6TVu5YPjtPdSf84lXgRygXcCbIoN1jpMV6ouB26YAku2b4vB8CIf20i1zjjKbmH1dfxHBEvYK3dmhkD/mR8yz/ea777N2MnWMrNdbRrav99sbjX2sTU/u43Rt0c1EaWSutIjLk9iQmkMhMs0JOBJxqQrMoCo2a23qBTuFDCd3GMMkJNqyaW6n+i8gmqSabXCAYPxJ2YJkxUS9Kcd1s1UKfGXxqE5N06dt1PwnXMH5VzMQgEgGGFuEhDqUUYSwVwSBowlQZoETMpRzrkvXK/5QvPSTJAQgsvh+nmXrx9WvgIuaCQTICkubEKlZISHCSdZTLPIozJMXNHslC3umOpMyOQaqbMA3PvwrFAN/w7FMfViDpTEIqaERjQiCUsF/iIKYg/vK6EfIVf/BUp1IuxuGAAA",
@@ -95,10 +95,10 @@ FishTable =
         fishingSpots = {
             maxHeight = 1024,
             waypoints = {
-                { x=162.842, y=9.301, z=744.320 },
-                { x=102.598, y=3.105, z=731.788 },
-                { x=142.502, y=4.143, z=726.691 },
-                { x=59.132, y=-2.865, z=742.846 }
+                { waypointX = 165.910, waypointY = 10.830, waypointZ = 741.100, x = 162.842, y = 9.301, z = 744.320 },
+                { waypointX = 102.676, waypointY = 3.812, waypointZ = 721.523, x = 102.598, y = 3.105, z = 731.788 },
+                { waypointX = 147.534, waypointY = 7.134, waypointZ = 715.325, x = 142.502, y = 4.143, z = 726.691 },
+                { waypointX = 57.653, waypointY = -2.134, waypointZ = 733.227, x = 59.132, y = -2.865, z = 742.846 }
 
             },
             pointToFace = { x=134.07, y=6.07, z=10000 }
@@ -117,12 +117,13 @@ FishTable =
         fishingSpots = {
             maxHeight = 1024,
             waypoints = {
-                { x = 197.205, y = 11.194, z = 750.186 },
-                { x = 120.631, y = 5.295, z = 724.759 },
-                { x = 75.741, y = -1.648, z = 737.941 },
-                { x = 12.425, y = -7.169, z = 756.219 }
+                { waypointX = 200.699, waypointY = 12.000, waypointZ = 735.425, x = 197.205, y = 11.194, z = 750.186 },
+                { waypointX = 114.894, waypointY = 5.233, waypointZ = 711.255, x = 120.631, y = 5.295, z = 724.759 },
+                { waypointX = 69.043, waypointY = -0.889, waypointZ = 727.032, x = 75.741, y = -1.648, z = 737.941 },
+                { waypointX = 10.366, waypointY = -5.563, waypointZ = 743.747, x = 12.425, y = -7.169, z = 756.219 }
             },
             pointToFace = { x=134.07, y=6.07, z=10000 }
+
 
         },
         scripColor = "JustFish",
@@ -266,7 +267,7 @@ end
 function SelectNewFishingHole()
     LogInfo("[FishingGatherer] Selecting new fishing hole")
 
-    if SelectedFish.fishingSpots.waypoints ~= nil then
+    --[[if SelectedFish.fishingSpots.waypoints ~= nil then
 
         SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
         SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
@@ -277,7 +278,9 @@ function SelectNewFishingHole()
     else
         local n = math.random(1, #SelectedFish.fishingSpots)
         SelectedFishingSpot = SelectedFish.fishingSpots[n]
-    end
+    end--]]
+    local n = math.random(1, #SelectedFish.fishingSpots.waypoints)
+    SelectedFishingSpot = SelectedFish.fishingSpots.waypoints[n]
     SelectedFishingSpot.startTime = os.clock()
 end
 
@@ -362,15 +365,17 @@ function Fishing()
         yield("/wait 1")
         return
     end
-
-    if GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) > 1 then
+    yield("/echo Distance: "..GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) )
+    if GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) > 2 then
         if not PathfindInProgress() and not PathIsRunning() then
             PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         end
+    else
         yield("/ac Cast")
         yield("/wait 0.5")
-        return
     end
+    return
+
 end
 
 FishingBaitMerchant =
@@ -633,7 +638,7 @@ end
 -- #region Other Tasks
 function ProcessRetainers()
     CurrentFate = nil
-    
+
     LogInfo("[FishingGatherer] Handling retainers...")
     if not LogInfo("[FishingGatherer] check retainers ready") and not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1 then
         if IsAddonVisible("RetainerList") then
@@ -643,12 +648,12 @@ function ProcessRetainers()
             LogInfo("[FishingGatherer] State Change: Ready")
         end
     elseif not LogInfo("[FishingGatherer] is in hub city zone?") and
-        not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId))
+            not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId))
     then
         TeleportTo(SelectedHubCity.aetheryte)
     elseif not LogInfo("[FishingGatherer] use aethernet?") and
-        SelectedHubCity.retainerBell.requiresAethernet and not LogInfo("abc") and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-        (GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > (DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10)))
+            SelectedHubCity.retainerBell.requiresAethernet and not LogInfo("abc") and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
+            (GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > (DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10)))
     then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
@@ -776,7 +781,7 @@ function ExecuteRepair()
                 TeleportTo("Limsa Lominsa Lower Decks")
                 return
             end
-            
+
             local mender = { npcName="Alistair", x=-246.87, y=16.19, z=49.83 }
             if GetDistanceToPoint(mender.x, mender.y, mender.z) > (DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10) then
                 yield("/li Hawkers' Alley")
@@ -820,7 +825,7 @@ function ExecuteExtractMateria()
         end
 
         LogInfo("[FATE] Extracting materia...")
-            
+
         if IsAddonVisible("MaterializeDialog") then
             yield("/callback MaterializeDialog true 0")
         else
@@ -867,14 +872,14 @@ function Ready()
     if not LogInfo("[FishingGatherer] Ready -> IsPlayerAvailable()") and not IsPlayerAvailable() then
         -- do nothing
     elseif not LogInfo("[FishingGatherer] Ready -> Repair") and RepairAmount > 0 and NeedsRepair(RepairAmount) and
-        (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
+            (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
         State = CharacterState.repair
         LogInfo("[FishingGatherer] State Change: Repair")
     elseif not LogInfo("[FishingGatherer] Ready -> ExtractMateria") and ExtractMateria and CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
         LogInfo("[FishingGatherer] State Change: ExtractMateria")
     elseif not LogInfo("[FishingGatherer] Ready -> ProcessRetainers") and
-        Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1
+            Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1
     then
         State = CharacterState.processRetainers
         LogInfo("[FishingGatherer] State Change: ProcessingRetainers")
@@ -882,7 +887,7 @@ function Ready()
         State = CharacterState.turnIn
         LogInfo("State Change: TurnIn")
     elseif not LogInfo("[FishingGatherer] Ready -> GC TurnIn") and GrandCompanyTurnIn and
-        GetInventoryFreeSlotCount() <= MinInventoryFreeSlots
+            GetInventoryFreeSlotCount() <= MinInventoryFreeSlots
     then
         State = CharacterState.gcTurnIn
         LogInfo("[FishingGatherer] State Change: GCTurnIn")
@@ -927,34 +932,27 @@ elseif ScripColorToFarm == "Purple" then
 else
     GathererScripId = 0
 end
-
+ScripExchangeItem = nil
 for _, item in ipairs(ScripExchangeItems) do
     if item.itemName == ItemToExchange then
         ScripExchangeItem = item
     end
 end
-if ScripExchangeItem ~= nil then
-    yield("/echo Cannot recognize item "..ScripExchangeItem..". Stopping script.")
+if ScripExchangeItem == nil then
+    yield("/echo Cannot recognize item "..ItemToExchange..". Stopping script.")
     yield("/snd stop")
 end
 
 SelectedFish = SelectFishTable()
 
-if SelectedFish.fishingSpots.waypoints == nil then
-    SelectedFish.closestAetheryte = GetClosestAetheryte(
-            SelectedFishingSpot.waypointX,
-            SelectedFishingSpot.waypointY,
-            SelectedFishingSpot.waypointZ,
-            SelectedFish.zoneId,
-            0)
-else
-    SelectedFish.closestAetheryte = GetClosestAetheryte(
-            SelectedFish.fishingSpots.waypoints[1].x,
-            SelectedFish.fishingSpots.waypoints[1].y,
-            SelectedFish.fishingSpots.waypoints[1].z,
-            SelectedFish.zoneId,
-            0)
-end
+
+SelectedFish.closestAetheryte = GetClosestAetheryte(
+        SelectedFish.fishingSpots.waypoints[1].x,
+        SelectedFish.fishingSpots.waypoints[1].y,
+        SelectedFish.fishingSpots.waypoints[1].z,
+        SelectedFish.zoneId,
+        0)
+
 
 if IsInZone(SelectedFish.zoneId) then
     SelectNewFishingHole()
@@ -984,4 +982,4 @@ State = CharacterState.ready
 while not StopMain do
     State()
     yield("/wait 0.1")
-end
+end--]]
