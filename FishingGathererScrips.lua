@@ -1,13 +1,16 @@
 --[[
 ********************************************************************************
 *                            Fishing Gatherer Scrips                           *
-*                                Version 1.2.9                                 *
+*                                Version 1.2.10                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
 
-    -> 1.2.9    Added purple scrip exchange code bc i forgot lol
+    -> 1.2.10   Fixed purple scrip exchange, changed purple fishing point to
+                    face to be further south, fixed coordinates for ul'dah and
+                    gridania
+                Added purple scrip exchange code bc i forgot lol
                 Tree
                 Fixed materia extraction bug p2
                 Fixed repair
@@ -51,7 +54,7 @@ RepairAmount                        = 1         --repair threshold, adjust as ne
 
 MinInventoryFreeSlots               = 1         --set !!!carefully how much inventory before script stops gathering and does additonal tasks!!!
 
-HubCity                             = "Solution Nine"   --options:Limsa/Gridania/Ul'dah/Solution Nine
+HubCity                             = "Solution Nine"   --Options: Limsa/Gridania/Ul'dah/Solution Nine
 
 --[[
 ********************************************************************************
@@ -75,7 +78,7 @@ ScripExchangeItems = {
         categoryMenu = 4,
         subcategoryMenu = 1,
         listIndex = 0,
-        price = 15
+        price = 20
     },
     {
         itemName = "JustFish"
@@ -145,11 +148,11 @@ FishTable =
                 { x=58.87, y=22.22, z=487.95 }, --orange balls
                 { x=71.79, y=22.39, z=477.65 },
             },
-            pointToFace = { x=37.71, y=22.36, z=600 }
+            pointToFace = { x=37.71, y=22.36, z=1000 }
         },
         scripColor = "Purple",
         scripId = 38,
-        collectiblesTurnInListIndex = 10
+        collectiblesTurnInListIndex = 28
     }
 }
 
@@ -171,8 +174,8 @@ HubCities =
         zoneId = 132,
         aethernet = {
             aethernetZoneId = 133,
-            aethernetName = "Sapphire Avenue Exchange",
-            x=131.9447, y=4.714966, z=-29.800903
+            aethernetName = "Leatherworkers' Guild & Shaded Bower",
+            x=101, y=9, z=-112
         },
         retainerBell = { x=168.72, y=15.5, z=-100.06, requiresAethernet=true },
         scripExchange = { x=142.15, y=13.74, z=-105.39, requiresAethernet=true },
@@ -182,11 +185,11 @@ HubCities =
         zoneId = 130,
         aethernet = {
             aethernetZoneId = 131,
-            aethernetName = "Leatherworkers' Guild & Shaded Bower",
-            x=101, y=9, z=-112
+            aethernetName = "Sapphire Avenue Exchange",
+            x=131.9447, y=4.714966, z=-29.800903
         },
-        retainerBell = { x=171, y=15, z=-102, requiresAethernet=true },
-        scripExchange = { x=142.68, y=13.75, z=-104.59, requiresAethernet=true },
+        retainerBell = { x=148, y=3, z=-45, requiresAethernet=true },
+        scripExchange = { x=148.39, y=3.99, z=-18.4, requiresAethernet=true },
     },
     {
         zoneName="Solution Nine",
@@ -540,6 +543,9 @@ function TurnIn()
     if GetItemCount(SelectedFish.fishId) == 0 then
         if IsAddonVisible("CollectablesShop") then
             yield("/callback CollectablesShop true -1")
+        elseif GetItemCount(GathererScripId) >= ScripExchangeItem.price then
+            State = CharacterState.scripExchange
+            LogInfo("FishingGatherer] State Change: ScripExchange")
         else
             State = CharacterState.ready
             LogInfo("[FishingGatherer] State Change: Ready")
@@ -586,8 +592,8 @@ function TurnIn()
     end
 end
 
-function KupoVoucherLottery()
-    if GetItemCount(GathererScripId) < 3800 then
+function ScripExchange()
+    if GetItemCount(GathererScripId) < ScripExchangeItem.price then
         if IsAddonVisible("InclusionShop") then
             yield("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
@@ -624,7 +630,7 @@ function KupoVoucherLottery()
         yield("/wait 1")
         yield("/callback InclusionShop true 13 "..ScripExchangeItem.subcategoryMenu)
         yield("/wait 1")
-        yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..GetItemCount(GathererScripId)//ScripExchangeItem.price)
+        yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..math.min(99, GetItemCount(GathererScripId)//ScripExchangeItem.price))
     else
         yield("/wait 1")
         yield("/target Scrip Exchange")
@@ -916,7 +922,7 @@ CharacterState = {
     gcTurnIn = ExecuteGrandCompanyTurnIn,
     fishing = Fishing,
     turnIn = TurnIn,
-    scripExchange = KupoVoucherLottery,
+    scripExchange = ScripExchange,
     goToHubCity = GoToHubCity,
     buyFishingBait = BuyFishingBait
 }

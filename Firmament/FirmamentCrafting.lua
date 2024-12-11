@@ -66,9 +66,9 @@ local Npcs =
 
 CharacterCondition =
 {
-    craftingMode = 5,
+    craftingMode = 5, --kneel to craft
     occupiedInQuestEvent=32,
-    executingCraftingSkill = 40,
+    executingCraftingSkill = 40, -- executing crafting skill
     craftingModeIdle = 41
 }
 
@@ -88,16 +88,24 @@ end
 function Crafting()
     local slots = GetInventoryFreeSlotCount()
     if slots <= MinInventoryFreeSlots then
+        yield("/echo Out of inventory slots")
+        ArtisanSetEnduranceStatus(false)
         if IsAddonVisible("RecipeNote") then
+            yield("/echo Closing crafting log 1")
             yield("/callback RecipeNote true -1")
         elseif not GetCharacterCondition(CharacterCondition.craftingMode) then
+            yield("/echo Turning in")
             State = CharacterState.turnIn
             LogInfo("State Change: TurnIn")
+        else
+            yield("/wait 0.5")
         end
+    elseif ArtisanGetEnduranceStatus() then
+        -- let artisan keep crafting
     elseif IsAddonVisible("RecipeNote") and OutOfMaterials() then
         if GetItemCount(ItemId) == 0 then
             yield("/echo Out of materials. Stopping SND.")
-            yield("/snd stop")
+            StopFlag = true
         else
             yield("/echo Out of materials, doing final turnin")
             yield("/callback RecipeNote true -1")
@@ -105,7 +113,8 @@ function Crafting()
             State = CharacterState.turnIn
             LogInfo("State Change: TurnIn")
         end
-    elseif not IsAddonVisible("Synthesis") then
+    elseif not ArtisanGetEnduranceStatus() then
+        yield("/echo Crafting "..math.max(0, slots - MinInventoryFreeSlots).." items")
         ArtisanCraftItem(RecipeId, math.max(0, slots - MinInventoryFreeSlots))
         yield("/wait 5")
     end
@@ -119,14 +128,14 @@ function TurnIn()
             yield("/callback HWDSupply true -1")
         elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
             yield("/echo Out of inventory space. Stopping SND")
-            yield("/snd stop")
+            StopFlag = true
         else
             State = CharacterState.crafting
             LogInfo("State Change: Crafting")
         end
     elseif GetItemCount(28063) >= 9900 then
         yield("/echo Almost capped on Skybuilders' Scrips! Stopping SND.")
-        yield("/snd stop")
+        StopFlag = true
     elseif GetDistanceToPoint(Npcs.x, Npcs.y, Npcs.z) > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
             PathfindAndMoveTo(Npcs.x, Npcs.y, Npcs.z)
@@ -143,7 +152,7 @@ function TurnIn()
             yield("/wait 1")
         elseif GetNodeText("HWDSupply", 16) == "10/10" then
             yield("/callback HWDSupply true -1")
-            State = CharacterState.scripExchange
+            State = CharacterState.kupoVoucherLottery
             LogInfo("State Change: KupoVouchers")
         else
             yield("/callback HWDSupply true 1 0")
@@ -186,7 +195,7 @@ CharacterState =
 {
     crafting = Crafting,
     turnIn = TurnIn,
-    scripExchange = KupoVoucherLottery
+    kupoVoucherLottery = KupoVoucherLottery
 }
 
 State = CharacterState.crafting
@@ -203,7 +212,8 @@ if ItemId == 0 then
     yield("/echo Cannot recognize current class. Stopping SND.")
 end
 
-while true do
+StopFlag = false
+while not StopFlag do
     State()
     yield("/wait 0.1")
 end

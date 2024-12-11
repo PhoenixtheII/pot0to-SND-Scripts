@@ -8,12 +8,13 @@ Does DiademV2 gathering until umbral weather happens, then gathers umbral node
 and goes fishing until umbral weather disappears.
 
 ********************************************************************************
-*                               Version 1.0.1                                  *
+*                               Version 1.0.2                                  *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    ->  1.0.1   Added default change to miner to make sure you can queue in
+    ->  1.0.2   Fixed starting NodeId after entering Diadem
+                Added default change to miner to make sure you can queue in
                 Added ability to leave and re-enter after gathering umbral nodes
                     instead of fishing (credit: Estriam)
                 Added long route for botanist islands and added ability to
@@ -398,16 +399,16 @@ CharacterCondition = {
 function Ready()
     if GetItemCount(30279) < 30 or GetItemCount(30280) < 30 or GetItemCount(30281) < 30 then
         State = CharacterState.buyFishingBait
-        LogInfo("State Change: BuyFishingBait")
+        LogInfo("[UmbralGathering] State Change: BuyFishingBait")
     elseif RepairAmount > 0 and NeedsRepair(RepairAmount) then
         State = CharacterState.repair
-        LogInfo("State Change: Repair")
+        LogInfo("[UmbralGathering] State Change: Repair")
     elseif GetDiademAetherGaugeBarCount() > 0 and TargetType > 0 then
         State = CharacterState.fireCannon
         LogInfo("State Change: Fire Cannon")
     else
         State = CharacterState.moveToNextNode
-        LogInfo("State Change: MoveToNextNode")
+        LogInfo("[UmbralGathering] State Change: MoveToNextNode")
     end
 end
 
@@ -431,7 +432,7 @@ end
 
 function EnterDiadem()
     UmbralGathered = false
-    NextNodeId = 0
+    NextNodeId = 1
 
     if IsInZone(DiademZoneId) and IsPlayerAvailable() then
         if not NavIsReady() then
@@ -440,10 +441,11 @@ function EnterDiadem()
         elseif GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.beingMoved) then
             -- wait to instance in
         else
+            yield("/wait 3")
             LastStuckCheckTime = os.clock()
             LastStuckCheckPosition = { x = GetPlayerRawXPos(), y = GetPlayerRawYPos(), z = GetPlayerRawZPos() }
             State = CharacterState.ready
-            LogInfo("State Change: Ready")
+            LogInfo("[UmbralGathering] State Change: Ready")
         end
         return
     end
@@ -1021,7 +1023,7 @@ function Repair()
             yield("/interact")
         else
             State = CharacterState.ready
-            LogInfo("[FATE] State Change: Ready")
+            LogInfo("[UmbralGatherer] State Change: Ready")
         end
     end
 end
