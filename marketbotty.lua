@@ -23,7 +23,7 @@ item_overrides = { --Item names with no spaces or symbols
     StuffedAlpha = { maximum = 450 },
     StuffedBomBoko = { minimum = 450 },
     Coke = { minimum = 450, maximum = 5000 },
-    CunningCraftsmansTisane = { default = 3499, minimum = 2899 },
+    CunningCraftsmansTisane = { default = 3499, minimum = 1999 },
 }
 
 undercut = 1 --There's no reason to change this. 1 gil undercut is life.
@@ -247,7 +247,7 @@ function SearchResults()
     if (is_hq and hqsearched == false) then
         while ready == false do
             if IsAddonVisible("ItemSearchFilter") then
-
+                yield("/wait 0.25")
                 SafeCallback("ItemSearchFilter", true, 1)
                 yield("/wait 0.25")
                 SafeCallback("ItemSearchFilter", true, 0)
@@ -284,7 +284,7 @@ function SearchResults()
                     subready = false
                     while subready == false do
                         if IsAddonVisible("ItemSearchFilter") then
-
+                            yield("/wait 0.25")
                             SafeCallback("ItemSearchFilter", true, 1)
                             yield("/wait 0.25")
                             SafeCallback("ItemSearchFilter", true, 0)
