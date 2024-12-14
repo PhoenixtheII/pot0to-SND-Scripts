@@ -8,12 +8,14 @@ Does DiademV2 gathering until umbral weather happens, then gathers umbral node
 and goes fishing until umbral weather disappears.
 
 ********************************************************************************
-*                               Version 1.0.2                                  *
+*                               Version 1.0.4                                  *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    ->  1.0.2   Fixed starting NodeId after entering Diadem
+    ->  1.0.4   Fixed DoFish, added DodgeTree()
+                Added food and potion check back in
+                Fixed starting NodeId after entering Diadem
                 Added default change to miner to make sure you can queue in
                 Added ability to leave and re-enter after gathering umbral nodes
                     instead of fishing (credit: Estriam)
@@ -58,21 +60,8 @@ This Plugins are optional and not needed unless you have it enabled in the setti
 ********************************************************************************
 ]]
 
-UseFood = false
-FoodKind = "Sideritis Cookie <HQ>"
-RemainingFoodTimer = 5 -- This is in minutes
--- If you would like to use food while in diadem, and what kind of food you would like to use. 
--- With the suggested TeamCraft melds, Sideritis Cookies (HQ) are the best ones you can be using to get the most bang for your buck
--- Can also set it to where it will refood at a certain duration left
--- Options
-    -- UseFood : true | false (default is true)
-    -- FoodKind : "Sideritis Cookie" (make sure to have the name of the food IN the "")
-    -- RemainingFoodTimer : Default is 5, time is in minutes
-
-FoodTimeout = 5 
--- How many attempts would you like it to try and food before giving up?
--- The higher this is, the longer it's going to take. Don't set it below 5 for safety. 
-
+Food = ""                   --Leave "" Blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>"
+Potion = ""                 --Leave "" Blank if you don't want to use any potions.
 
 SelectedRoute = "Random"
 -- Select which route you would like to do. 
@@ -148,7 +137,7 @@ UmbralWeatherNodes = {
             baitId = 30280,
             x = 370.88373, y = 255.67848, z = 525.73334,
             fishingX = 372.32, fishingY = 254.9, fishingZ = 521.2,
-            autohookPreset = ""
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YS2/jNhD+K4YuvViAHpQo5eb1Jm4Abxqss+ih6GFMUTZhWfRS1HbdRf57h3rEki3H28DopTlZHg6/GY6G38zohzUptZxCoYtpurJufli3OSwzPsky60arko8tszgXOT8sJu3SPT55UTy2HpWQSui9deOitLj9zrIy4clBbPSfa6xPUrK1AasePPNU4YTR2JrtntaKF2uZocR1nB7y69AVRkx7O5yLzkzX5bb1gLgOueBCu0tmGWe6s9HtqnmXzUqVCMhagNAlPQDSqN2JYn2750XHUHDkYRD0PAzbIMOGL9Yi1R9AVH4aQdEKFhrYBlERrAn9KW4XNW5QH0ELnjPe8Sc83hf2I+a1W5X4m09B16++tXq82zuKt9/sflpDJmBT3ME3qQxAT9Aexx/35Z85k9846rsmSK1N0rPQBuyDWM1gW51skq8yrooW1au3+tQhJ+72oKJnxLr9rhU0V8mE+kku/oLdfa5LoYXMZyDyNgA2vvN5qfgnXhSwQtOWNbYeKiesB4kXblwj7HcoMZEYwJvLQr8Z7xEPwoc9tGzrzHptsVo/+LPY4XVQkE1LpXiur3TKI9SrnXXQ25MTD1qvtOoEWWi5MxdU5KuF5ruK+g6+N0k0UddxuQtX+fAlF19LbnAtWMZAgMS2S2hgkyiO7AiYa7NkiT++y90ktRBvLgr9W2psYFb/UaenOUDroO94kXPex48CEr4dTRXkfHSX7Q3kg1RbyH6VcmNAWnr4nUP138jxBC9FI4WswKpR/28WzeHactKI6ggQlxraaTEXWsl8dQVUx++gzvmK5wmo/aG4/STCR1mi8tFJaw0vjF8UTtw+Ven5MKD1pMTunCUaeP6LyjlbPaVXrDV6Jq8nqeZqCuVqjaV/ayoIJu9QwlfNASZMVaLMQ4eLB5oFnwbxaY19pVyawt4yT5tmn/nXUiieoCldmipmOoczufdzuXQ5N95T4E0p8NZ33mE3mrqJl4apHS2pa5PEBRs8lto+jwn1IQqThFnPf7b01nSXQ/SGnSo5T28zhfQ2IqPFZr8sRZYg2/4ymq2R9Ud3wJXo87PpBN/J7538rp7572z3v2a71Ic4jQi3GfKeTULkvWVEY5s5vh94hEbUgw7b1fyGZNcnutiMc5eIDntJUUAOWZ/ypkpsC5mPUFtoUPKE9s6G6z7BNlkw7JgxRsaZWmGylWXeURtoC0gQH49Wfn+ujYzhUqWA1TsznVkzgAZxcGGEDHDnwCeHoS8Z//kXiMO48OYhwWw2kqkJchXf7tjQDAvmsRYf1IaSu5OIietQj7nUZoxTLLtBaMe+R+2EOLGTsmWEw0KViDVu4+KX7RInJpwOQPGRPfr3qdbxwA1jiJbLwGYQJzYBileBcmZjZlCHYfmnHK/CP0jxjuTBEgAA"
         }
     },
     duststorms = {
@@ -167,7 +156,7 @@ UmbralWeatherNodes = {
             baitId = 30281,
             x = 589.74, y = 188.42, z = -591.81,
             fishingX=593.08, fishingY=187.17, fishingZ=-594.61,
-            autohookPreset = ""
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YTW/jOAz9K4Eve4kAf8iO3VsmbTMF2m4x6WAPiz3QtpwIcayMLM9Md9D/PpRtNXbiNEUR7GV7aRWKfKRo+pHyL2taKTGDUpWzbGld/LKuCohzNs1z60LJio0tvXnLC7bbTM3WDa7cMBpbD5ILydWTdeGgtLz6meRVytKdWOs/N1h3QiQrDVYvXL2qcYJwbM23jyvJypXIUeLYdg/5degaI5r0LOyTwcxW1cZEQB2bngjBWIk8Z4nqGDpdNfe0WyFTDrkBCBzaA6Ct2jUvV1dPrOw48vci9P1ehIFJMqzZYsUz9Ql4HacWlEawUJCsERXB2tQf4nZRoxb1ARRnRcI68QT7dkE/Y64xlfxfNgPVPHrjdd/a3cu311o/riDnsC6v4buQGqAnMMfxxn35F5aI7wz1HZ0k45P2PJiEfeLLOWzqk02LZc5kaVDdxtSb2PQg3B5U+IxYVz+VhPZV0ql+FIsfsL0pVMUVF8UceGESQPCZ31aS3bGyhCW6tqyxdV8HYd0LfOHGDcLTFiU6EwN4t6JU78Z7wIOw4QgtYh3ZbzzW+7t4Flt8HSTks0pKVqgznXIP9WxnHYz24MSD3mutpkAWSmz1C8qL5UKxbU19u9jbIprK84Tchatj+FrwbxXTuBa4GbX9eEKieOIQmlIgkCU2Sd3YBSeNgCWhhXi3vFR/ZtoHVvXfTXnqA5gAPdsNX4nxkkPKNqPP+pX6IeRGQ97jf8g/C7HWIIYe/mJQ/9ZyPMFL08ggL7FrNL/bTX04005aUZMB6kw07RjMhZKiWJ4B1fY6qLdsyYoU5NOuub0R4VJUqLx30kbDDaIXhYOwD1V6MQxoPUq+PeZp4rvei8oxXz2lV7y1erqup5licgbVcoWtf6M7CBbGUMHXwwEWTN2i9KLDxQPDgjfxo8Me+0q71I3dMI8psy/sW8UlS9GVqnQX05PDkdp7Wy2dro2PEnhXCbz3mXfYLc2ol6SJQ5jvJ4T6dkIil4X4x6epH/mub0fW8z+G3trpcojecFKlx+ltLpHeRnS0WD/FFc9TZNs/RvMVsv7oGpjkfX7Wk+AH+X2Q39kr/4Pt/tdsN2ExcxxnQgLIfEKT0COxzzwCzGM0iCFOo7DDdg2/Idn1iS6y30B0OEvyEgrI+5R3Bzju5jkc0N3RNN2kOB7zBCdlzI0OolGYbkRVdNQGxgHqR/tXKq9/nw2140pmgF071xNZe/FE4j9xdfTRcuBTw9AXjP/8y8PumvDuy4E21pKZTnKd3+51ob0k6GUj3qkNFXWnAJ0sojSiMcFFSGjAGAk9NyZhHHlh4GSBZ2d1ATa4bYhfNzHelEaXFX5HUngnGJHR28usW/4u9dMEYmJ7NCXUc7DZU0hIEnmOl0GQOolrPf8GALN6nbUSAAA="
         }
     },
     levin = {
@@ -186,7 +175,7 @@ UmbralWeatherNodes = {
             baitId = 30279,
             x = 365.84, y = -193.35, z = -222.72,
             fishingX = 369.91, fishingY = -195.22, fishingZ = -209.88,
-            autohookPreset = "AH4_H4sIAAAAAAAACu1YS2/jNhD+K4YuvViAqLdyc7yJG8BJgziLHooeRhJlE5ZFL0Wl6y7y3zuUxFiy5Xizm/bS3IjRzDcPDb8h+c2YVJJPoZTlNFsaF98MtZ6zgqr1VQFxTlPjQoqKjo0bXNlhNDbuBeOCyZ1xQVBaXn1N8iql6V6s9J/HNdYt58lKgdULW61qHD8cG7Pt40rQcsVzlBDL6iG/Dl1jREHPwjobzHRVbXQELrHcMyFoK57nNJEdQ9JVs8+75SJlkGsAn7g9ALdVu2bl6mpHy44j7yBCz+tF6Osiw5ouViyTl8DqOJWg1IKFhGSNqAjWlv4Yt4sataj3IBktEtqJxz+08/sVs7WpYH/TKcjm12uvh9b2Qb2d1vpxBTmDdXkNT1wogJ5Ap+OM+/IHmvAnivpEFUn7dHsedMEu2XIGmzqzSbHMqSg1qt2YOoHlHoXbgwqfEevqqxTQ7hxV6ke++Au2N4WsmGS8mAErdAFM/OfzStBbWpawRNeGMTbu6iCMO44bbtwg7LYoUZUYwJvzUv4w3j0mQocjNEzjxPfGY/19H89ii9tBQD6thKCFfKcsD1DfLdfBaI8yHvReazUNspB8qzYoK5YLSbc19e1jb5toIt4n5C5cHcPngn2pqMI1fBol1PVik0Dimm5qO2bkeLaZZrEDlgWxY1ED8easlL9lygd29R9Ne6oEdIDEDqzwdIwPNB1dQp5zXii0Oy42kP/K+VrZa2b4ncJ6PyjUV0xBJaBHRitqsnRJoKhFGy+k4EW9c1qtl3GTQV6i8feiWk4HdU6XtEhB7N4SV43wiVeorFPqadh+9KJwFPaxSi+GAa1HwbanPAWe7byonPLVU3rFW6uneneSSSqmUC1XON43akpggw41dX0AwKaox5BadPi2YUYvOh6cr8xANa01negGeqBfKiZoitiyUqNJHQcOu+pNzXO+GT7++X/6zzuUFdshTcGxzTAJQ6QsEpuQea4JDqGR72ShFWTG85+as9oj4wBnOXj8dE9z1kxASkfuaLHexRXLU6TQX0azFVL56BqoYH3SJWdp7Sd56YPtPtjug+3+d2wHOIQgIaFJUpeYbuBZZhT6nhmltpf4gWuTwO2wXcNvSHb/KtGdLNBNiqddluDBF6vSPAAohcmGV0VPDRnNiw6vRE7/PhoqT5XIAAd0rnixvTh6kXfm6ueh5cBTwdALxE++HAxBvukhYX/q/+GzvjJWkqkqcl3f7um/PfOrZSPeqw21c/dukIRRGFixGWQRDlorjMzYCUIzCUmG8zcBG/BugK3X4LYhft7EePEZzekTK0bmSDcX3j5YCQV+6bXZLV1CQSsB/WuJZRMaU9s2Hdd1cMaHmRlDGOC1JPGjhER+6uOM/wf4PtTxcBIAAA=="
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YS2/jNhD+K4YuvZiASL1zc7yJG8BJgziLHooeKImyCcuil6LSdRf57x1KYizZcrzZTXtpbsRw5puHht+Q+mZNKiWmtFTlNFtaF9+sq4LGOZvkuXWhZMXGlt6c84LtN1OzdQMrEkZj615yIbnaWRcYpOXV1ySvUpbuxVr/ucG6FSJZabB6QfSqxvHDsTXbPq4kK1ciBwm27R7y69A1RhT0LOyzwUxX1cZE4GLbPROCsRJ5zhLVMcRdNXLerZApp7kB8LHbA3BbtWterq52rOw48g4i9LxehL4pMl2zxYpn6pLyOk4tKI1goWiyBlQAa0t/jNtFjVrUe6o4KxLWicc/tPP7FSPGVPK/2ZSq5tMbr4fW5KDeTmv9uKI5p+vymj4JqQF6ApOOM+7LH1ginhjoY10k49PteTAFu+TLGd3UmU2KZc5kaVBJY+oEtnsUbg8qfAasq69K0vYo6VI/isVfdHtTqIorLooZ5YUpAIJvPq8ku2VlSZfg2rLG1l0dhHUn4MCNG4TdFiS6EgN4c1GqH8a7h0TYcIQWsk7sNx7r/X08iy0cB0nzaSUlK9Q7ZXmA+m65DkZ7lPGg91qraZCFElt9QHmxXCi2ralvH3vbRBP5PiF34eoYPhf8S8U0ruVnmJDIzpCd2DFyvcxGseOkyGdekqUsIKHjWIA356X6LdM+oKv/aNpTJ2ACxCSww9MxPrB0dEnzXIhCo90JuaH5r0Kstb1hht8ZXe8Hhd6FFHQCZmS0oiZLFweaWozxQklR1Cen1XoZNxnNSzD+XlTb6aDO2ZIVKZW7t8RVI3wSFSiblHoaxI9eFI7CPlbpxTCg9Sj59pSnwCPOi8opXz2lV7y1erp3J5lickqr5QrG+0ZPCWjQoaauLwDQFPUY0osO3zbM6EXHg/OVGaintaET00AP7EvFJUsBW1V6NOnrwGFXval5zjfDxzf/T795h7JwkPgwlDHyEw8j16UUxbbjosRJ/DSmtof92Hr+03BWe2Uc4CwHrp/uac6aSZqykTtarHdxxfMUKPSX0WwFVD66pkzyPunis7T2k7z0wXYfbPfBdv87tss8QmMnJci3kxC5WYhR5BOMgsyxWRCkFMdeh+0afgOy+1eJ7mSBblK47fIELr5QFe2+UZhsRFX01IDRvOjwSeT036Oh9lTJjMKAzjUvtg9HL/LOPP08sBz4VTD0B+In/xwMQb7pR8L+1v/Dd31trCVTXeS6vt3bf3vn18tGvFcbaudO66WEJDBqbYT9kELrRS6KcGAjgkmSuSwIYd7WrdfgtiF+3sTw8BnN2RMvRmhkmgteH7ykBez02uyWLWnBKkn7zxKbYBYzQpDjug5y0zBDMQ0DlGaJHyU48lM/s57/AcS5Lo2BEgAA"
         }
     },
     tempest = {
@@ -205,7 +194,7 @@ UmbralWeatherNodes = {
             baitId = 30281,
             x = -417.17, y = -206.7, z = 165.31,
             fishingX = -411.73, fishingY = -207.15, fishingZ = 166.06,
-            autohookPreset = "AH4_H4sIAAAAAAAACu1YTXObSBD9KyouexFVfAww+KYotuIqxeuKlNrDVg4DNNKUECjDkESb8n9PDzAWSMiKE+9e1r541HS/7ml6Xvfw3ZhUspiyUpbTdGVcfTfUes5zUOvrnEUZJMaVFBWMjVtcOTQcG/eCF4LLvXFlo7S8/hZnVQLJQaz0H8Y11vuiiNcKrF44alXj+HRszHbLtYByXWQosS2rh/w0dI0RBj0L62Iw03W11REQ2yIXQtBWRZZBLDuGdlfNuey2EAlnmQbwbdIDIK3aDS/X13soO468owg9rxehr5PMNrBY81S+YbyOUwlKLVhIFm8QFcHa1J/idlHDFvWeSQ55DJ14/GM7v58xR5sK/g9MmWxevfZ6bO0c5dttrZdrlnG2KW/Yl0IogJ5Ab8cd9+UfIC6+AOrbKknaJ+l50Al7w1cztq13NslXGYhSozqNqRtY5CTcHhR9QKzrb1Kw9uSoVC+LxVe2u81lxSUv8hnjuU6Aie98Xgl4D2XJVujaMMbGXR2EcVfggRs3CPsdSlQmBvDmRSl/Ge8eNwLDERqmceZ547F+fohnscPjIFg2rYSAXL7QLo9QX2yvg9Ge7HjQe63VFMhCFjt1QHm+WkjY1dR3iL0tool4mZC7cHUMH3P+uQKFa1hhkCQ+Tc0AQt8kxLPMkIUh/nQoZZbrJ6lrIN6cl/LPVPnAqv67KU+1AR2gazn0iRjfcpbAdvROHamvhdgqyDv8z7J3RbFRIJoe/gK2OXQL9RT3oXah+0YrarZK7EDxizZeSFHk9fFptR57TsqyEo1/FtVyO6hzWEGeMLF/Tlw1wtuiQmW9pZ6G44ePCidhn6r0YhjQWgq+O+cp8Bz3UeWcr57SE95aPVXAk1SCmLJqtcYev1WtAitgqLLrKQAro+5FatEh3YYevfC0ez7RCFXL1pyiC+gDfK64gASxZaX6k5oJjqvqWcVzuRhe3/l/+s47vEVJmqYRJKbvuNQkth+aNPXAjCMCNnWQ02wwHj5p4mrnxiHiwhmUnCeumUDiGpHRYrOPKp4lyKN/jGZr5PPRDQPB+8xrX6S13+SlV7Z7ZbtXtvvfsR2jtgshzmYpiXFKSyAwQ0ojM/UIDe1YMZ7dYbuG35Ds/lWiO5ug2wRHXh7j9ItZab4CKIXJtqjynhoymhce34vc/qWUKk+VSBk26EzxYnt79ELvwv3PQ8uB7wVDnyF+8/PBEOSzviYcRv9fHviVsZJMVZLr/HavAO3gr5aN+KA2VM6d0rNdB/+CxCQA2GgtihcEiIhpM+KlqWWFUcLq0mtw2xA/biO8/YyWsN0BVpA50uWFlxBeshyf9QtN8DTFm1TPtRtHkRvYxExYANjjA8ekhKVmktCQxkHsecwyHn4ASILxv3USAAA="
+            autohookPreset = "AH4_H4sIAAAAAAAACu1YS2/bOBD+K4Yue7EAPahXbq6buAHcbFC72MOiB4qkbMKy6FJUW2+R/96hJMaSLcdNm93L5mILw5lvHhp+Q+q7NamUmOJSldNsZV19t64LnOZskufWlZIVG1t6cc4LdlikZukWnrw4GVv3kgvJ1d66ckFaXn8jeUUZPYi1/kOD9V4IstZg9YOnn2qcMB5bs91yLVm5FjlIXMfpIT8NXWMkUc/CuRjMdF1tTQTIddCFEIyVyHNGVMfQ7ap5l90KSTnODUDooh4AatVueLm+3rOy4yg4ijAIehGGpsh4wxZrnqk3mNdxakFpBAuFyQZQAawt/SluFzVpUe+x4qwgrBNPeGwX9ivmGVPJ/2FTrJpXb7weW3tH9fZb6+Ua5xxvyhv8RUgN0BOYdPxxX/6BEfGFgb6ri2R8op4HU7A3fDXD2zqzSbHKmSwNqteY+pGDTsLtQcUPgHX9TUncbiVd6qVYfMW720JVXHFRzDAvTAFseOfzSrL3rCzxClxb1ti6q4Ow7gRsuHGDsN+BRFdiAG8uSvXLePeQCBuO0LKtM+uNx3r9EM9iB9tB4nxaSckK9UJZHqG+WK6D0Z5kPOi91moaZKHETm9QXqwWiu1q6jvE3jbRRL5MyF24OoaPBf9cMY1reYlHfBwnNkVuYiMPfmJCXDtxqUsCErDMZxbgzXmp/sy0D+jqv5v21AmYAH3Hi5+I8S3HlG1H7/SW+irkVkPewT/O3wmx0SCGHv5ieHOYFnoV8tBZmLnRippUkRtpfjHGCyVFUW+fVutx5mQ4L8H4Z1Edv4M6ZytWUCz3z4mrRngrKlA2KfU0vDB5VDgJ+1SlF8OA1lLy3TlPUeD5jyrnfPWUnvDW6ukGnmSKySmuVmuY8Vs9KqADhjq7PgVAZ9SzSD90SLehxyA5nZ5PDEI9sg2nmAb6wD5XXDIK2KrS80mfCY676lnNc7kZXt/5f/rOO7zlpNRxQjcDtkpcG6UeUBbJsJ3iIPXdMAl8EloPnwxxtefGIeKCMyg6T1wzCcQ1QqPFZp9WPKfAo3+MZmvg89ENZpL3mde9SGu/yUuvbPfKdq9s9/+YcN1TGnPgdkOxHVGKbBQz104ponZIEIqIE1K4mXTYruE3ILt/lejOFuiWwpGXEzj9QlW0+0ZhshVV0VMDRguS43uR37+UxtpTJTMMAzrXvNjeHoMkuHD/C8By4HvB0GeI3/x8MAT5rK8Jh6P/Lx/4tbGWTHWR6/p2rwDtwV8/NuKD2lA7d1vP9zyaZdQOUuTDoI1jO65/koTSNEoyF6d16zW4bYgftyncfkZLtt0x6CB7ZNoLLiG8xAWs9RtN8iyDm1TPtU/S1I9cZFMcMRuGn2fHCGc2pXESk4gEAXashx8CWrwshhIAAA=="
         }
     }
 }
@@ -387,7 +376,7 @@ CharacterCondition = {
     fishing=43,
     betweenAreas=45,
     jumping48=48,
-    jumping61=61,
+    jumpPlatform=61,
     betweenAreasForDuty=51,
     boundByDuty56=56,
     mounting57=57,
@@ -396,7 +385,24 @@ CharacterCondition = {
     flying=77
 }
 
+function FoodCheck()
+    --food usage
+    if not HasStatusId(48) and Food ~= "" then
+        yield("/item " .. Food)
+    end
+end
+
+function PotionCheck()
+    --pot usage
+    if not HasStatusId(49) and Potion ~= "" then
+        yield("/item " .. Potion)
+    end
+end
+
 function Ready()
+    FoodCheck()
+    PotionCheck()
+    
     if GetItemCount(30279) < 30 or GetItemCount(30280) < 30 or GetItemCount(30281) < 30 then
         State = CharacterState.buyFishingBait
         LogInfo("[UmbralGathering] State Change: BuyFishingBait")
@@ -409,6 +415,27 @@ function Ready()
     else
         State = CharacterState.moveToNextNode
         LogInfo("[UmbralGathering] State Change: MoveToNextNode")
+    end
+end
+
+-- because there's this one stupid tree on the starting platform between the
+-- spawn point and the launch platform that you always get stuck on
+function DodgeTree()
+    while GetDistanceToPoint(-652.28, 293.78, -176.22) > 5 do
+        PathfindAndMoveTo(-652.28, 293.78, -176.22, true)
+        yield("/wait 3")
+    end
+    while GetDistanceToPoint(-628.01, 276.3, -190.51) > 5 and not GetCharacterCondition(CharacterCondition.jumpPlatform) do
+        if not PathfindInProgress() and not PathIsRunning() then
+            PathfindAndMoveTo(-628.01, 276.3, -190.51, true)
+        end
+        yield("/wait 1")
+    end
+    if PathfindInProgress() or PathIsRunning() then
+        yield("/vnav stop")
+    end
+    while GetCharacterCondition(CharacterCondition.jumpPlatform) do
+        yield("/wait 1")
     end
 end
 
@@ -433,6 +460,7 @@ end
 function EnterDiadem()
     UmbralGathered = false
     NextNodeId = 1
+    JustEntered = true
 
     if IsInZone(DiademZoneId) and IsPlayerAvailable() then
         if not NavIsReady() then
@@ -575,7 +603,7 @@ function SelectNextNode()
             end
         end
     elseif PrioritizeUmbral and UmbralGathered and (weather >= 133 and weather <= 136) then
-        if Dofish then
+        if DoFish then
             for _, umbralWeather in pairs(UmbralWeatherNodes) do
                 if umbralWeather.weatherId == weather then
                     umbralWeather.fishingNode.isUmbralNode = true
@@ -614,10 +642,19 @@ function MoveToNextNode()
     if not GetCharacterCondition(CharacterCondition.flying) then
         State = CharacterState.mounting
         LogInfo("State Change: Mounting")
+        return
     elseif NextNode.isFishingNode and GetClassJobId() ~= 18 then
         yield("/gs change Fisher")
         yield("/wait 3")
-    elseif NextNode.isUmbralNode and not NextNode.isFishingNode and
+        return
+    elseif not NextNode.isUmbralNode and JustEntered then
+        DodgeTree()
+        JustEntered = false
+        return
+    end
+
+    JustEntered = false
+    if NextNode.isUmbralNode and not NextNode.isFishingNode and
         ((NextNode.class == "Miner" and GetClassJobId() ~= 16) or
         (NextNode.class == "Botanist" and GetClassJobId() ~= 17))
     then
@@ -1054,7 +1091,12 @@ else
     yield("/echo Invalid SelectedRoute : " .. RouteType)
 end
 yield("/echo SelectedRoute : " .. RouteType)
-yield("/gs change Miner")
+if (RouteType == "RedRoute" or RouteType == "MinerIslands") and GetClassJobId() ~= 16 then
+    yield("/gs change Miner")
+elseif (RouteType == "PinkRoute" or RouteType == "BotanistIslands") and GetClassJobId() ~= 17 then
+    yield("/gs change Botanist")
+end
+yield("/wait 3")
 
 SetSNDProperty("StopMacroIfTargetNotFound", "false")
 if not (IsInZone(FoundationZoneId) or IsInZone(FirmamentZoneId) or IsInZone(DiademZoneId)) then
@@ -1073,6 +1115,11 @@ if IsInZone(FoundationZoneId) then
     repeat
         yield("/wait 1")
     until IsInZone(FirmamentZoneId)
+end
+if IsInZone(DiademZoneId) then
+    JustEntered = GetDistanceToPoint(Mender.x, Mender.y, Mender.z) < 50
+else
+    JustEntered = true
 end
 
 LastStuckCheckTime = os.clock()
@@ -1093,7 +1140,7 @@ while true do
     if not (IsPlayerCasting() or
         GetCharacterCondition(CharacterCondition.betweenAreas) or
         GetCharacterCondition(CharacterCondition.jumping48) or
-        GetCharacterCondition(CharacterCondition.jumping61) or
+        GetCharacterCondition(CharacterCondition.jumpPlatform) or
         GetCharacterCondition(CharacterCondition.mounting57) or
         GetCharacterCondition(CharacterCondition.mounting64) or
         GetCharacterCondition(CharacterCondition.beingMoved) or
