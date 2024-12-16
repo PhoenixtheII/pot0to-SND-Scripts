@@ -1,19 +1,13 @@
 --[[
 ********************************************************************************
 *                            Fishing Gatherer Scrips                           *
-*                                Version 1.2.14                                 *
+*                                Version 1.2.11                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
 
-    -> 1.2.14   Reverted dismount -> fishing
-                Fixed dismounting
-                Adjusted tree coords to give an even wider berth, shortened
-                    fishing range to avoid unfishable area, changed state
-                    transition dismount -> goToFishingHole to avoid flying out
-                    to pointToFace
-                Added IsAddonReady("RetainerList") check
+    -> 1.2.11   Added IsAddonReady("RetainerList") check
                 Fixed purple scrip exchange, changed purple fishing point to
                     face to be further south, fixed coordinates for ul'dah and
                     gridania
@@ -31,11 +25,10 @@ Loosely based on Ahernika's NonStopFisher
 *                               Required Plugins                               *
 ********************************************************************************
 
-1. AutoHook
-2. VnavMesh
-3. Lifestream
-4. Teleporter
-5. YesAlready: YesNo > ... (the 3 dots) > Auto Collectables https://github.com/PunishXIV/AutoHook/blob/main/AcceptCollectable.md
+AutoHook
+VnavMesh
+Lifestream
+Teleporter
 
 ********************************************************************************
 *                                   Settings                                   *
@@ -107,12 +100,13 @@ FishTable =
         fishingSpots = {
             maxHeight = 1024,
             waypoints = {
-                { x=-4.47, y=-6.85, z=747.47 },
-                { x=59.27, y=-2.0, z=735.09 }, -- tree
-                { x=135.71, y=6.12, z=715.0 },
-                { x=212.5, y=12.2, z=739.26 },
+                { x = 162.842, y = 9.301, z = 744.320 },
+                { x = 102.598, y = 3.105, z = 731.788 },
+                { x = 142.502, y = 4.143, z = 726.691 },
+                { x = 59.132, y = -2.865, z = 742.846 }
+
             },
-            pointToFace = { x=134.07, y=6.07, z=10000 }
+            offsetWaypoint = { x=-1, y=maxHeight, z=-1 }
         },
         scripColor = "Orange",
         scripId = 39,
@@ -124,17 +118,16 @@ FishTable =
         baitName = "Cactuar Jig",
         zoneId = 1190,
         zoneName = "Shaaloani",
-        autohookPreset = "AH4_H4sIAAAAAAAACs1Xz3ObOhD+VzqczRtAAkxurpumeeOkmeJOD513EEIYjWXkCpHGr5P/vRJCMTjYTjo59CavtN9+u+wv/3JmjeRzVMt6Xqyci1/OZYUyRmaMORdSNGTi6MsFrcj+MrdX1+oUTJOJcycoF1TunAtfSevLB8yanOR7sX7/aLBuOMelBmsPgT61ONF04lxtl6UgdcmZkvieN0A+Dd1iJPFAwztLZl42G8sA+h48Q8FqccYIlj1Fv/8sOG+Wi5widiSkfhBFg6DCTu0jrcvLHal7hsMDxmE4YBzZoKM1SUtayPeItry1oLaCVCK8VqgKrPsUz3H7qEmHeockJRUmPT7RoV40jGBgVQX9n8yRNKlgrR5qBwfxB532skSMonX9Ed1zoQEGAusOmAzlXwjm90S993WQxnJZUYADgzZ+7+nqCm1aR2fVihFRWyOBUQWxB5+xH0BNHxXW5YMUqKs0HfklT3+i7XUlGyopr64QrWw8XJVTi0aQG1LXaKVMO87EuW1JOLdc1ePEIOy2SqIDM4K34LX8Y7w75QgZZ+i4zpF7Y7G93/NJt6paBGLzRghSyTfy8gD1zXwdZfvM41Hr7SuTIKnkW12vtFqlkmzbzrjn3iXRTLwN5T5cy+FrRX80ROM6JMYAJ8h3gU+ACxEK3CwMPDeIIChiAHM/Qo7CW9Bafi60DZXV3016ageeihtMQ3Cc4xxh2SDx7l+60mi3XGwQ+8T5WuvbRvGNoPa3livyTyVYIFarGjS/u0vtly3OTmSch36sG5DFTKXgVW90jajfoActXdKNqf5/vAPIIIl6iAuyIlWOxO4NqHr6U33gjXp8xvkhoSh50ts7+FrNlzgyovy1JktBt8Y965eRvMqHOAy090Zz78XY1/hcsd23klQzLOk9SdmReA4hX+9ep65rc1ZIIuaoWZVqu9nooagKcKxo2/1HJX07dfWhN15M5w+T53vDiRVALyu2XdoC+UJ+NFSQXGHLRk9ivQ0dqZozVTCWgKcy+3ymviAlX5Z7/Vej+XQ6cV6ZCn/ZN++1ZFhEKMqg74bJNHRhGGfulATEDVCR+TBPAuznzuN/tid3G/P3J4Fpy6pHD/tzHMHj/fkTYayu+M93aYnEejBN/FPhuc7VdKNYDToVE23LPJhteFMNnikGYXK4AoHhOjrVlhpRINzV+Oj+q3DCsUXwA6/kHKk0Zl1EuhrvLVmhMvDX/MHYj/s/HvJaWUvmOtptoPtjvxv2+mjE+2djWd3LwLBQZYE83/UCnLuQwKmbQRC5AGIIcpxECVRLgUo4g2tnPG/yGlE2XDBAkcWJVwAXgFxheUXiZnGGXYwzrJBJ5PnAefwNLHxd8GoOAAA=",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1YW3OjNhT+K5Rnq8NF4pI3r5uk6eQ2a7ed6U4fhCQwE4y8Quwm3cl/7xEYG2ycTHb80Eve4OjoOxc+fZL4Zk9rLWe00tUszeyzb/Z5SZNCTIvCPtOqFhPbDF7npdgN8m7oCp68KJ7Y9yqXKtdP9pkL1ur8kRU1F3xnNv7PLdaNlGxpwJoHzzw1OEE0sS/Xi6US1VIWYHEdZ4D8MnSDEYeDGc6rycyW9arLALsOfiWFbpYsCsH0kY4Ajtuf5b2ehVQ8p8URPNcLgkGP8WbaRV4tz59E1SuA7BVAyKCAoPsG9EHMl3mqP9C8KcMYqs4w15Q9ACqAbb7MIW4fNd6g3lOdi5KJXj7B/rxg2FCvm6ryv8SM6pYZYzSDJPbBvL2v42/AFkta5PShuqBfpDJ4A0NXnT8Z2j8KJr8I8HdNz46kgAcBu3Z+yLNLumrqnpZZIVTVBfHaqX7o4IPsB1DRM2CdP2pFN+vQfIiFnH+l66tS17nOZXlJ87LrLQKKXddK3IiqohmEtu2JfdskYd9KWK2TFuFpDRbTmBG8a1np78a7h0LEeIY2so+MtxGb8V0+8zWsJUWLWa2UKPWJqtxDPVmto9keVDwavfG6kIoJbvA3iuWCZrWsmWu5Nms6L7O5FutGTHcFbZg1Vaepow/XJPZrmX+uhcG1eeglOIxT5LvUQRgTB8G7j9I4ijn2HIYT3wa867zSd6mJAVT/1HLWFLDV9La6Yzn+BvFBMgphGQ8DeCvVihY/S/lgIDo9+V3Q5t3YIf/t0kxpUcHabN83g6a0btFuTG392A2NTnWYc61k2dvwjkxf5Cuh9rTgJi+3Q/CN4h+dg1CO3wt1LTJRcqqeTlBDA/yTrMF5ryuthxfEW4ddiUddxlLrey1Uvj4WKSSev3U5Fmvg9EK0jZ9ZAdNUCzWjdbaEY8fKbE9A87Gl0RxMgDjN/mceeso+o9D4Yqq1WK1110vjs6AqEy3mXVk8NRjG1PmM6L4fkvjwYPDCpm5OI53idVz+KD7XuRIcctS12VvNcecIwV8h7Fu59s6dt3HnRBTo6SkLI8JZ4CDiYg566jkoZq6HGBckjXgcE0ZA/g4FFPsR8Y8L6IwyXVNl/ZJn/2r1vKGPPZuP3xX1XVHfFfW/sxufQEIpTh3hEopwEmGE05AhiuMIJSzymUi9iHM4Qf7ZnUk3Pxk+bQ2tqsIZdSivkNRxef1Dqkwqa86kWsNWPjhOuy/154rDmT9ncPyHpphgrcN0Jety4AYpkHj/YugP7+yRiVSrlILsFkZfx386kJi8cj0mAPSP+fmyu9d8923GTDaWmelq09D+/WZzqzGPrXnnNkbfHtXcJPYo9iIUeBz4RrCPYoEFchIv5IHj40R4zW69R6XgoICp9RViCG5VS8rlV0vllaisVMkVDGiIb+mlsFZA0B8OWDeTJYe/F6fm3Dh13k7Bd86dlHNCeD7IWYS4oD7CMeeIJg5BASMkjmAlh9gd5ZzzwvWaZoqW2gJCMArq+C5f/wv54jymIQkTlNIAqESYi6KER8gjjFLfC2gS0manbHHHVMdC1h1QJxOw98FZoRr+HYoi7EZUYBQxsxWHOEQxSRhKhB+5cF8JQCbt578BALnDoFoYAAA=",
         fishingSpots = {
             maxHeight = 1024,
             waypoints = {
-                { x = 418, y = 16, z = 690 },
-                { x = 477, y = 16, z = 658 },
-                { x = 530, y = 16, z = 629 },
-                { x = 600, y = 16, z = 616 },
-
+                { x = 197.205, y = 11.194, z = 750.186 },
+                { x = 120.631, y = 5.295, z = 724.759 },
+                { x = 75.741, y = -1.648, z = 737.941 },
+                { x = 12.425, y = -7.169, z = 756.219 }
             },
-            pointToFace = { x=134.07, y=6.07, z=10000 }
+            offsetWaypoint = { x=-1, y=maxHeight, z=-1 }
 
 
         },
@@ -279,7 +272,7 @@ end
 function SelectNewFishingHole()
     LogInfo("[FishingGatherer] Selecting new fishing hole")
 
-    if SelectedFish.fishingSpots.waypoints ~= nil then
+    --[[if SelectedFish.fishingSpots.waypoints ~= nil then
 
         SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
         SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
@@ -290,7 +283,15 @@ function SelectNewFishingHole()
     else
         local n = math.random(1, #SelectedFish.fishingSpots)
         SelectedFishingSpot = SelectedFish.fishingSpots[n]
-    end
+    end--]]
+
+    local n = math.random(1, #SelectedFish.fishingSpots.waypoints)
+    SelectedFishingSpot = SelectedFish.fishingSpots.waypoints[n]
+    SelectedFishingSpot.waypointX = SelectedFishingSpot.x + SelectedFish.fishingSpots.offsetWaypoint.x
+    SelectedFishingSpot.waypointY = SelectedFish.fishingSpots.offsetWaypoint.y
+    SelectedFishingSpot.waypointZ = SelectedFishingSpot.z + SelectedFish.fishingSpots.offsetWaypoint.z
+    yield("/echo Fishing: "..SelectedFish.fishName)
+    SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, false, 50)
     SelectedFishingSpot.startTime = os.clock()
 end
 
@@ -312,7 +313,7 @@ function GoToFishingHole()
         return
     end
 
-    if GetDistanceToPoint(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ) > 10 then
+    if GetDistanceToPoint(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ) > 1 then
         if not GetCharacterCondition(CharacterCondition.mounted) then
             State = CharacterState.mounting
             LogInfo("State Change: Mounting")
@@ -380,10 +381,12 @@ function Fishing()
         if not PathfindInProgress() and not PathIsRunning() then
             PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         end
+    else
         yield("/ac Cast")
         yield("/wait 0.5")
-        return
     end
+    return
+
 end
 
 FishingBaitMerchant =
@@ -924,7 +927,7 @@ CharacterState = {
     goToFishingHole = GoToFishingHole,
     extractMateria = ExecuteExtractMateria,
     repair = ExecuteRepair,
-    exchangingVouchers = ExecuteBicolorExchange,
+    exchangingVouchers = ExchangeVouchers,
     processRetainers = ProcessRetainers,
     gcTurnIn = ExecuteGrandCompanyTurnIn,
     fishing = Fishing,
@@ -959,21 +962,13 @@ end
 SelectedFish = SelectFishTable()
 yield("/echo Fishing: "..SelectedFish.fishName)
 
-if SelectedFish.fishingSpots.waypoints == nil then
-    SelectedFish.closestAetheryte = GetClosestAetheryte(
-            SelectedFishingSpot.waypointX,
-            SelectedFishingSpot.waypointY,
-            SelectedFishingSpot.waypointZ,
-            SelectedFish.zoneId,
-            0)
-else
-    SelectedFish.closestAetheryte = GetClosestAetheryte(
-            SelectedFish.fishingSpots.waypoints[1].x,
-            SelectedFish.fishingSpots.waypoints[1].y,
-            SelectedFish.fishingSpots.waypoints[1].z,
-            SelectedFish.zoneId,
-            0)
-end
+SelectedFish.closestAetheryte = GetClosestAetheryte(
+        SelectedFish.fishingSpots.waypoints[1].x,
+        SelectedFish.fishingSpots.waypoints[1].y,
+        SelectedFish.fishingSpots.waypoints[1].z,
+        SelectedFish.zoneId,
+        0)
+
 
 if IsInZone(SelectedFish.zoneId) then
     SelectNewFishingHole()
@@ -1003,4 +998,4 @@ State = CharacterState.ready
 while not StopMain do
     State()
     yield("/wait 0.1")
-end
+end--]]
