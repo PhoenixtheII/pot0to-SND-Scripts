@@ -2,13 +2,14 @@
 
 ********************************************************************************
 *                                Fate Farming                                  *
-*                               Version 2.19.3                                 *
+*                               Version 2.20.0                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 State Machine Diagram: https://github.com/pot0to/pot0to-SND-Scripts/blob/main/FateFarmingStateMachine.drawio.png
         
-    -> 2.19.3   Added checks and debugs for bicolor gemstone shopkeeper
+    -> 2.20.0   Rework bicolor exchange
+                Added checks and debugs for bicolor gemstone shopkeeper
                 Fixed flying ban in Outer La Noscea and Southern Thanalan
                 Added feature to walk towards center of fate if you are too far
                     away to target the collections fate npc
@@ -66,50 +67,50 @@ This Plugins are Optional and not needed unless you have it enabled in the setti
 
 --Pre Fate Settings
 Food                                = ""            --Leave "" Blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>"
-Potion                              = "Superior Spiritbond Potion <hq>"            --Leave "" Blank if you don't want to use any potions.
+Potion                              = ""            --Leave "" Blank if you don't want to use any potions.
 ShouldSummonChocobo                 = true          --Summon chocobo?
-ResummonChocoboTimeLeft         = 3 * 60        --Resummons chocobo if there's less than this many seconds left on the timer, so it doesn't disappear on you in the middle of a fate.
-ChocoboStance                   = "Healer"      --Options: Follow/Free/Defender/Healer/Attacker
-ShouldAutoBuyGysahlGreens       = true          --Automatically buys a 99 stack of Gysahl Greens from the Limsa gil vendor if you're out
+    ResummonChocoboTimeLeft         = 3 * 60        --Resummons chocobo if there's less than this many seconds left on the timer, so it doesn't disappear on you in the middle of a fate.
+    ChocoboStance                   = "Healer"      --Options: Follow/Free/Defender/Healer/Attacker
+    ShouldAutoBuyGysahlGreens       = true          --Automatically buys a 99 stack of Gysahl Greens from the Limsa gil vendor if you're out
 MountToUse                          = "mount roulette"       --The mount you'd like to use when flying between fates
 
 --Fate Combat Settings
 CompletionToIgnoreFate              = 80            --If the fate has more than this much progress already, skip it
 MinTimeLeftToIgnoreFate             = 3*60          --If the fate has less than this many seconds left on the timer, skip it
 CompletionToJoinBossFate            = 0             --If the boss fate has less than this much progress, skip it (used to avoid soloing bosses)
-CompletionToJoinSpecialBossFates = 20           --For the Special Fates like the Serpentlord Seethes or Mascot Murder
-ClassForBossFates               = ""            --If you want to use a different class for boss fates, set this to the 3 letter abbreviation
---for the class. Ex: "PLD"
+    CompletionToJoinSpecialBossFates = 20           --For the Special Fates like the Serpentlord Seethes or Mascot Murder
+    ClassForBossFates               = ""            --If you want to use a different class for boss fates, set this to the 3 letter abbreviation
+                                                        --for the class. Ex: "PLD"
 JoinCollectionsFates                = true          --Set to false if you never want to do collections fates
 
-MeleeDist                           = 3.5           --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
+MeleeDist                           = 2.5           --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
 RangedDist                          = 20            --Distance for ranged. Ranged attacks and spells max distance to be usable is 25.49y, 25.5 is "target out of range"=
 
 RotationPlugin                      = "RSR"         --Options: RSR/BMR/VBM/Wrath/None
-RSRAoeType                      = "Full"        --Options: Cleave/Full/Off
+    RSRAoeType                      = "Full"        --Options: Cleave/Full/Off
 
--- For BMR/VBM only
-RotationSingleTargetPreset      = ""            --Preset name for aoe mode.
-RotationAoePreset               = ""            --For BMR/VBM only. Prset name for single target mode (for forlorns).
+    -- For BMR/VBM only
+    RotationSingleTargetPreset      = ""            --Preset name for aoe mode.
+    RotationAoePreset               = ""            --For BMR/VBM only. Prset name for single target mode (for forlorns).
 DodgingPlugin                       = "BMR"         --Options: BMR/VBM/None. If your RotationPlugin is BMR/VBM, then this will be overriden
 
 IgnoreForlorns                      = false
-IgnoreBigForlornOnly            = false
+    IgnoreBigForlornOnly            = false
 
 --Post Fate Settings
 WaitUpTo                            = 10            --Max number of seconds it should wait until mounting up for next fate.
---Actual wait time will be a randomly generated number between zero and this value
+                                                        --Actual wait time will be a randomly generated number between zero and this value
 EnableChangeInstance                = true          --should it Change Instance when there is no Fate (only works on DT fates)
-WaitIfBonusBuff                 = true          --Don't change instances if you have the Twist of Fate bonus buff
-ShouldExchangeBicolorVouchers       = true          --Should it exchange Bicolor Gemstone Vouchers?
-VoucherType                     = "Turali Bicolor Gemstone Voucher"        -- Old Sharlayan for "Bicolor Gemstone Voucher" and Solution Nine for "Turali Bicolor Gemstone Voucher"
-SelfRepair                          = true         --if false, will go to Limsa mender
-RepairAmount                    = 20            --the amount it needs to drop before Repairing (set it to 0 if you don't want it to repair)
-ShouldAutoBuyDarkMatter         = true          --Automatically buys a 99 stack of Grade 8 Dark Matter from the Limsa gil vendor if you're out
+    WaitIfBonusBuff                 = true          --Don't change instances if you have the Twist of Fate bonus buff
+ShouldExchangeBicolorGemstones       = true          --Should it exchange Bicolor Gemstone Vouchers?
+    ItemToPurchase                  = "Turali Bicolor Gemstone Voucher"        -- Old Sharlayan for "Bicolor Gemstone Voucher" and Solution Nine for "Turali Bicolor Gemstone Voucher"
+SelfRepair                          = false         --if false, will go to Limsa mender
+    RepairAmount                    = 20            --the amount it needs to drop before Repairing (set it to 0 if you don't want it to repair)
+    ShouldAutoBuyDarkMatter         = true          --Automatically buys a 99 stack of Grade 8 Dark Matter from the Limsa gil vendor if you're out
 ShouldExtractMateria                = true          --should it Extract Materia
 Retainers                           = true          --should it do Retainers
 ShouldGrandCompanyTurnIn            = false         --should it to Turn ins at the GC (requires Deliveroo)
-InventorySlotsLeft              = 5             --how much inventory space before turning in
+    InventorySlotsLeft              = 5             --how much inventory space before turning in
 
 Echo                                = "All"         --Options: All/Gems/None
 
@@ -246,6 +247,37 @@ ClassList =
     sge = { classId=40, className="Sage", isMelee=false, isTank=false },
     vpr = { classId=41, className="Viper", isMelee=true, isTank=false },
     pct = { classId=42, className="Pictomancer", isMelee=false, isTank=false }
+}
+
+BicolorExchangeData =
+{
+    {
+        shopKeepName = "Gadfrid",
+        zoneName = "Old Sharlayan",
+        zoneId = 962,
+        aetheryteName = "Old Sharlayan",
+        x=74.17, y=5.15, z=-37.44,
+        shopItems =
+        {
+            { itemName = "Bicolor Gemstone Voucher", itemIndex = 8, price = 100 }
+        }
+    },
+    {
+        shopKeepName = "Beryl",
+        zoneName = "Solution Nine",
+        zoneId = 1186,
+        aetheryteName = "Solution Nine",
+        x=-198.47, y=0.92, z=-6.95,
+        miniAethernet = {
+            name = "Nexus Arcade",
+            x=-157.74, y=0.29, z=17.43
+        },
+        shopItems =
+        {
+            { itemName = "Turali Bicolor Gemstone Voucher", itemIndex = 6, price = 100 },
+            { itemName = "Rroneek Chuck", itemIndex = 9, price = 3 }
+        }
+    }
 }
 
 FatesData = {
@@ -605,7 +637,7 @@ FatesData = {
             collectionsFates={
                 { fateName="Borne on the Backs of Burrowers", npcName="Moblin Forager" },
                 { fateName="Combing the Area", npcName="Hanuhanu Combmaker" },
-
+                
             },
             otherNpcFates= {
                 { fateName="There's Always a Bigger Beast", npcName="Hanuhanu Angler" },
@@ -851,13 +883,13 @@ function SelectNextFateHelper(tempFate, nextFate)
         return nextFate
     else
         if nextFate == nil then
-            LogInfo("[FATE] Selecting #"..tempFate.fateId.." because no other options so far.")
-            return tempFate
-            -- elseif nextFate.startTime == 0 and tempFate.startTime > 0 then -- nextFate is an unopened npc fate
-            --     LogInfo("[FATE] Selecting #"..tempFate.fateId.." because other fate #"..nextFate.fateId.." is an unopened npc fate.")
-            --     return tempFate
-            -- elseif tempFate.startTime == 0 and nextFate.startTime > 0 then -- tempFate is an unopened npc fate
-            --     return nextFate
+                LogInfo("[FATE] Selecting #"..tempFate.fateId.." because no other options so far.")
+                return tempFate
+        -- elseif nextFate.startTime == 0 and tempFate.startTime > 0 then -- nextFate is an unopened npc fate
+        --     LogInfo("[FATE] Selecting #"..tempFate.fateId.." because other fate #"..nextFate.fateId.." is an unopened npc fate.")
+        --     return tempFate
+        -- elseif tempFate.startTime == 0 and nextFate.startTime > 0 then -- tempFate is an unopened npc fate
+        --     return nextFate
         elseif nextFate.timeLeft < MinTimeLeftToIgnoreFate or nextFate.progress > CompletionToIgnoreFate then
             return tempFate
         else -- select based on progress
@@ -955,12 +987,12 @@ function SelectNextFate()
         local tempFate = BuildFateTable(fates[i])
         LogInfo("[FATE] Considering fate #"..tempFate.fateId.." "..tempFate.fateName)
         LogInfo("[FATE] Time left on fate #:"..tempFate.fateId..": "..math.floor(tempFate.timeLeft//60).."min, "..math.floor(tempFate.timeLeft%60).."s")
-
+        
         if not (tempFate.x == 0 and tempFate.z == 0) then -- sometimes game doesn't send the correct coords
             if not tempFate.isBlacklistedFate then -- check fate is not blacklisted for any reason
                 if tempFate.isBossFate then
                     if (tempFate.isSpecialFate and tempFate.progress >= CompletionToJoinSpecialBossFates) or
-                            (not tempFate.isSpecialFate and tempFate.progress >= CompletionToJoinBossFate) then
+                        (not tempFate.isSpecialFate and tempFate.progress >= CompletionToJoinBossFate) then
                         nextFate = SelectNextFateHelper(tempFate, nextFate)
                     else
                         LogInfo("[FATE] Skipping fate #"..tempFate.fateId.." "..tempFate.fateName.." due to boss fate with not enough progress.")
@@ -1250,7 +1282,7 @@ function FlyBackToAetheryte()
         LogInfo("[FATE] State Change: Mounting")
         return
     end
-
+    
     if not (PathfindInProgress() or PathIsRunning()) then
         local closestAetheryte = GetClosestAetheryte(GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(), 0)
         LogInfo("[FATE] ClosestAetheryte.y: "..closestAetheryte.y)
@@ -1331,6 +1363,7 @@ function MiddleOfFateDismount()
                 LogInfo("[FATE] MiddleOfFateDismount Dismount()")
                 Dismount()
             else
+                yield("/vnav stop")
                 State = CharacterState.doFate
                 LogInfo("[FATE] State Change: DoFate")
             end
@@ -1435,7 +1468,7 @@ function MoveToFate()
     -- check for stuck
     if (PathIsRunning() or PathfindInProgress()) and GetCharacterCondition(CharacterCondition.mounted) then
         local now = os.clock()
-        if now - LastStuckCheckTime > 5 then
+        if now - LastStuckCheckTime > 10 then
             local x = GetPlayerRawXPos()
             local y = GetPlayerRawYPos()
             local z = GetPlayerRawZPos()
@@ -1443,23 +1476,10 @@ function MoveToFate()
             if GetDistanceToPoint(LastStuckCheckPosition.x, LastStuckCheckPosition.y, LastStuckCheckPosition.z) < 3 then
                 yield("/vnav stop")
                 yield("/wait 1")
-
-                if (Antistuckcounter == nil) then
-                    Antistuckcounter = 0
-                else
-                    Antistuckcounter = Antistuckcounter + 1
-                end
-                LogInfo("[FATE] Antistuck: "..Antistuckcounter)
-                if (Antistuckcounter <= 3) then
-                    PathfindAndMoveTo(x, y + 10, z, GetCharacterCondition(CharacterCondition.flying) and SelectedZone.flying) -- fly up 10 then try again
-                else
-                    Antistuckcounter = 0
-                    TeleportTo(SelectedZone.aetheryteList[1].aetheryteName)
-                    LogInfo("[FATE] Pretty stuck there, aren't ya? Lets go back to aetheryte")
-                end
-
+                LogInfo("[FATE] Antistuck")
+                PathfindAndMoveTo(x, y + 10, z, GetCharacterCondition(CharacterCondition.flying) and SelectedZone.flying) -- fly up 10 then try again
             end
-
+            
             LastStuckCheckTime = now
             LastStuckCheckPosition = {x=x, y=y, z=z}
         end
@@ -1768,10 +1788,10 @@ function TurnOnCombatMods(rotationMode)
         end
 
         local class = GetClassJobTableFromId(GetClassJobId())
-
+        
         if not AiDodgingOn then
             SetMaxDistance()
-
+            
             if DodgingPlugin == "BMR" then
                 yield("/bmrai on")
                 yield("/bmrai followtarget on") -- overrides navmesh path and runs into walls sometimes
@@ -1893,8 +1913,8 @@ function DoFate()
         yield("/lsync")
         yield("/wait 0.5") -- give it a second to register
     elseif IsFateActive(CurrentFate.fateId) and not IsInFate() and GetFateProgress(CurrentFate.fateId) < 100 and
-            (GetDistanceToPoint(CurrentFate.x, CurrentFate.y, CurrentFate.z) < GetFateRadius(CurrentFate.fateId) + 10) and
-            not GetCharacterCondition(CharacterCondition.mounted) and not (PathIsRunning() or PathfindInProgress())
+        (GetDistanceToPoint(CurrentFate.x, CurrentFate.y, CurrentFate.z) < GetFateRadius(CurrentFate.fateId) + 10) and
+        not GetCharacterCondition(CharacterCondition.mounted) and not (PathIsRunning() or PathfindInProgress())
     then -- got pushed out of fate. go back
         yield("/vnav stop")
         yield("/wait 1")
@@ -2053,7 +2073,7 @@ end
 function Ready()
     FoodCheck()
     PotionCheck()
-
+    
     CombatModsOn = false -- expect RSR to turn off after every fate
     GotCollectionsFullCredit = false
     ForlornMarked = false
@@ -2081,7 +2101,7 @@ function Ready()
     if not LogInfo("[FATE] Ready -> IsPlayerAvailable()") and not IsPlayerAvailable() then
         return
     elseif not LogInfo("[FATE] Ready -> Repair") and RepairAmount > 0 and NeedsRepair(RepairAmount) and
-            (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
+        (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
         State = CharacterState.repair
         LogInfo("[FATE] State Change: Repair")
     elseif not LogInfo("[FATE] Ready -> ExtractMateria") and ShouldExtractMateria and CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
@@ -2096,17 +2116,17 @@ function Ready()
         end
         return
     elseif not LogInfo("[FATE] Ready -> ExchangingVouchers") and WaitingForCollectionsFate == 0 and
-            ShouldExchangeBicolorVouchers and (BicolorGemCount >= 1400) and not shouldWaitForBonusBuff
+        ShouldExchangeBicolorGemstones and (BicolorGemCount >= 1400) and not shouldWaitForBonusBuff
     then
         State = CharacterState.exchangingVouchers
         LogInfo("[FATE] State Change: ExchangingVouchers")
     elseif not LogInfo("[FATE] Ready -> ProcessRetainers") and WaitingForCollectionsFate == 0 and
-            Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1  and not shouldWaitForBonusBuff
+        Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1  and not shouldWaitForBonusBuff
     then
         State = CharacterState.processRetainers
         LogInfo("[FATE] State Change: ProcessingRetainers")
     elseif not LogInfo("[FATE] Ready -> GC TurnIn") and ShouldGrandCompanyTurnIn and
-            GetInventoryFreeSlotCount() < InventorySlotsLeft and not shouldWaitForBonusBuff
+        GetInventoryFreeSlotCount() < InventorySlotsLeft and not shouldWaitForBonusBuff
     then
         State = CharacterState.gcTurnIn
         LogInfo("[FATE] State Change: GCTurnIn")
@@ -2114,7 +2134,7 @@ function Ready()
         TeleportTo(SelectedZone.aetheryteList[1].aetheryteName)
         return
     elseif not LogInfo("[FATE] Ready -> SummonChocobo") and ShouldSummonChocobo and GetBuddyTimeRemaining() <= ResummonChocoboTimeLeft and
-            (not shouldWaitForBonusBuff or GetItemCount(4868) > 0) then
+        (not shouldWaitForBonusBuff or GetItemCount(4868) > 0) then
         State = CharacterState.summonChocobo
     elseif not LogInfo("[FATE] Ready -> ChangingInstances") and NextFate == nil then
         if EnableChangeInstance and GetZoneInstance() > 0 and not shouldWaitForBonusBuff then
@@ -2175,61 +2195,7 @@ function HandleDeath()
     end
 end
 
-function ExchangeOldVouchers()
-    if not IsInZone(962) then
-        TeleportTo("Old Sharlayan")
-        return
-    end
-
-    if PathfindInProgress() or PathIsRunning() then
-        return
-    end
-
-    local gadfrid = { x=74.17, y=5.15, z=-37.44}
-    if GetDistanceToPoint(gadfrid.x, gadfrid.y, gadfrid.z) > 5 then
-        PathfindAndMoveTo(gadfrid.x, gadfrid.y, gadfrid.z)
-    else
-        if not HasTarget() or GetTargetName() ~= "Gadfrid" then
-            yield("/target Gadfrid")
-        elseif not GetCharacterCondition(CharacterCondition.occupiedInQuestEvent) then
-            yield("/interact")
-        end
-    end
-end
-
-function ExchangeNewVouchers()
-    if not IsInZone(1186) then
-        TeleportTo("Solution Nine")
-        return
-    end
-
-    local beryl = { x=-198.47, y=0.92, z=-6.95 }
-    local nexusArcade = { x=-157.74, y=0.29, z=17.43 }
-    if GetDistanceToPoint(beryl.x, beryl.y, beryl.z) > (DistanceBetween(nexusArcade.x, nexusArcade.y, nexusArcade.z, beryl.x, beryl.y, beryl.z) + 10) then
-        LogInfo("Distance to Beryl is too far. Using mini aetheryte.")
-        yield("/li nexus arcade")
-        yield("/wait 1") -- give it a moment to register
-        return
-    elseif IsAddonVisible("TelepotTown") then
-        LogInfo("TelepotTown open")
-        yield("/callback TelepotTown false -1")
-    elseif GetDistanceToPoint(beryl.x, beryl.y, beryl.z) > 5 then
-        LogInfo("Distance to Beryl is too far. Walking there.")
-        if not (PathfindInProgress() or PathIsRunning()) then
-            LogInfo("Path not running")
-            PathfindAndMoveTo(beryl.x, beryl.y, beryl.z)
-        end
-    else
-        LogInfo("Arrived at Beryl")
-        if not HasTarget() or GetTargetName() ~= "Beryl" then
-            yield("/target Beryl")
-        elseif not GetCharacterCondition(CharacterCondition.occupiedInQuestEvent) then
-            yield("/interact")
-        end
-    end
-end
-
-function ExchangeVouchers()
+function ExecuteBicolorExchange()
     CurrentFate = nil
 
     if BicolorGemCount >= 1400 then
@@ -2239,18 +2205,45 @@ function ExchangeVouchers()
         end
 
         if IsAddonVisible("ShopExchangeCurrency") then
-            if VoucherType == "Bicolor Gemstone Voucher" then
-                yield("/callback ShopExchangeCurrency false 0 8 "..(BicolorGemCount//100))
-            else
-                yield("/callback ShopExchangeCurrency false 0 6 "..(BicolorGemCount//100))
-            end
+            yield("/callback ShopExchangeCurrency false 0 "..SelectedBicolorExchangeData.item.itemIndex.." "..(BicolorGemCount//SelectedBicolorExchangeData.item.price))
             return
         end
 
-        if VoucherType == "Bicolor Gemstone Voucher" then
-            ExchangeOldVouchers()
+        if not IsInZone(SelectedBicolorExchangeData.zoneId) then
+            TeleportTo(SelectedBicolorExchangeData.aetheryteName)
+            return
+        end
+    
+        local shopX = SelectedBicolorExchangeData.x
+        local shopY = SelectedBicolorExchangeData.y
+        local shopZ = SelectedBicolorExchangeData.z
+    
+        if SelectedBicolorExchangeData.miniAethernet ~= nil and
+            GetDistanceToPoint(shopX, shopY, shopZ) > (DistanceBetween(SelectedBicolorExchangeData.miniAethernet.x, SelectedBicolorExchangeData.miniAethernet.y, SelectedBicolorExchangeData.miniAethernet.z, shopX, shopY, shopZ) + 10) then
+            LogInfo("Distance to shopkeep is too far. Using mini aetheryte.")
+            yield("/li "..SelectedBicolorExchangeData.miniAethernet.name)
+            yield("/wait 1") -- give it a moment to register
+            return
+        elseif IsAddonVisible("TelepotTown") then
+            LogInfo("TelepotTown open")
+            yield("/callback TelepotTown false -1")
+        elseif GetDistanceToPoint(shopX, shopY, shopZ) > 5 then
+            LogInfo("Distance to shopkeep is too far. Walking there.")
+            if not (PathfindInProgress() or PathIsRunning()) then
+                LogInfo("Path not running")
+                PathfindAndMoveTo(shopX, shopY, shopZ)
+            end
         else
-            ExchangeNewVouchers()
+            LogInfo("[FATE] Arrived at Shopkeep")
+            if PathfindInProgress() or PathIsRunning() then
+                yield("/vnav stop")
+            end
+    
+            if not HasTarget() or GetTargetName() ~= SelectedBicolorExchangeData.shopKeepName then
+                yield("/target "..SelectedBicolorExchangeData.shopKeepName)
+            elseif not GetCharacterCondition(CharacterCondition.occupiedInQuestEvent) then
+                yield("/interact")
+            end
         end
     else
         if IsAddonVisible("ShopExchangeCurrency") then
@@ -2274,7 +2267,7 @@ function ProcessRetainers()
 
     LogInfo("[FATE] Handling retainers...")
     if ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1 then
-
+    
         if PathfindInProgress() or PathIsRunning() then
             return
         end
@@ -2297,7 +2290,6 @@ function ProcessRetainers()
 
         if not HasTarget() or GetTargetName() ~= "Summoning Bell" then
             yield("/target Summoning Bell")
-            yield("/ays e")
             return
         end
 
@@ -2435,7 +2427,7 @@ function Repair()
                 TeleportTo("Limsa Lominsa Lower Decks")
                 return
             end
-
+            
             local mender = { npcName="Alistair", x=-246.87, y=16.19, z=49.83 }
             if GetDistanceToPoint(mender.x, mender.y, mender.z) > (DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10) then
                 yield("/li Hawkers' Alley")
@@ -2478,7 +2470,7 @@ function ExtractMateria()
         end
 
         LogInfo("[FATE] Extracting materia...")
-
+            
         if IsAddonVisible("MaterializeDialog") then
             yield("/callback MaterializeDialog true 0")
         else
@@ -2511,7 +2503,7 @@ CharacterState = {
     flyBackToAetheryte = FlyBackToAetheryte,
     extractMateria = ExtractMateria,
     repair = Repair,
-    exchangingVouchers = ExchangeVouchers,
+    exchangingVouchers = ExecuteBicolorExchange,
     processRetainers = ProcessRetainers,
     gcTurnIn = GrandCompanyTurnIn,
     summonChocobo = SummonChocobo,
@@ -2524,13 +2516,18 @@ CharacterState = {
 
 LogInfo("[FATE] Starting fate farming script.")
 
+StopScript = false
 GemAnnouncementLock = false
 DeathAnnouncementLock = false
 MovingAnnouncementLock = false
 SuccessiveInstanceChanges = 0
 LastInstanceChangeTimestamp = 0
 LastTeleportTimeStamp = 0
-GotCollectionsFullCredit = false -- needs 7 items for  full credit
+GotCollectionsFullCredit = false -- needs 7 items for  full
+-- variable to track collections fates that you have completed but are still active.
+-- will not leave area or change instance if value ~= 0
+WaitingForCollectionsFate = 0
+LastFateEndTime = os.clock()
 LastStuckCheckTime = os.clock()
 LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()}
 MainClass = GetClassJobTableFromId(GetClassJobId())
@@ -2545,10 +2542,25 @@ if SelectedZone.zoneName ~= "" and Echo == "All" then
     yield("/echo Farming "..SelectedZone.zoneName)
 end
 
--- variable to track collections fates that you have completed but are still active.
--- will not leave area or change instance if value ~= 0
-WaitingForCollectionsFate = 0
-LastFateEndTime = os.clock()
+for _, shop in ipairs(BicolorExchangeData) do
+    for _, item in ipairs(shop.shopItems) do
+        if item.itemName == ItemToPurchase then
+            SelectedBicolorExchangeData = {
+                shopKeepName = shop.shopKeepName,
+                zoneId = shop.zoneId,
+                aetheryteName = shop.aetheryteName,
+                miniAethernet = shop.miniAethernet,
+                x = shop.x, y = shop.y, z = shop.z,
+                item = item
+            }
+        end
+    end
+end
+if SelectedBicolorExchangeData == nil then
+    yield("/echo [FATE] Cannot recognize bicolor shop item "..ItemToPurchase.."! Please make sure it's in the BicolorExchangeData table!")
+    StopScript = true
+end
+
 State = CharacterState.ready
 CurrentFate = nil
 if IsInFate() and GetFateProgress(GetNearestFate()) < 100 then
@@ -2559,32 +2571,31 @@ if ShouldSummonChocobo and GetBuddyTimeRemaining() > 0 then
     yield('/cac "'..ChocoboStance..' stance"')
 end
 
-StopScript = false
 while not StopScript do
     if NavIsReady() then
         if State ~= CharacterState.dead and GetCharacterCondition(CharacterCondition.dead) then
             State = CharacterState.dead
             LogInfo("[FATE] State Change: Dead")
         elseif State ~= CharacterState.unexpectedCombat and State ~= CharacterState.doFate and
-                State ~= CharacterState.waitForContinuation and State ~= CharacterState.collectionsFateTurnIn and
-                (not IsInFate() or (IsInFate() and IsCollectionsFate(GetFateName(GetNearestFate())) and GetFateProgress(GetNearestFate()) == 100)) and
-                GetCharacterCondition(CharacterCondition.inCombat)
+            State ~= CharacterState.waitForContinuation and State ~= CharacterState.collectionsFateTurnIn and
+            (not IsInFate() or (IsInFate() and IsCollectionsFate(GetFateName(GetNearestFate())) and GetFateProgress(GetNearestFate()) == 100)) and
+            GetCharacterCondition(CharacterCondition.inCombat)
         then
             State = CharacterState.unexpectedCombat
             LogInfo("[FATE] State Change: UnexpectedCombat")
         end
-
+        
         BicolorGemCount = GetItemCount(26807)
 
         if not (IsPlayerCasting() or
-                GetCharacterCondition(CharacterCondition.betweenAreas) or
-                GetCharacterCondition(CharacterCondition.jumping48) or
-                GetCharacterCondition(CharacterCondition.jumping61) or
-                GetCharacterCondition(CharacterCondition.mounting57) or
-                GetCharacterCondition(CharacterCondition.mounting64) or
-                GetCharacterCondition(CharacterCondition.beingMoved) or
-                GetCharacterCondition(CharacterCondition.occupiedMateriaExtractionAndRepair) or
-                LifestreamIsBusy())
+            GetCharacterCondition(CharacterCondition.betweenAreas) or
+            GetCharacterCondition(CharacterCondition.jumping48) or
+            GetCharacterCondition(CharacterCondition.jumping61) or
+            GetCharacterCondition(CharacterCondition.mounting57) or
+            GetCharacterCondition(CharacterCondition.mounting64) or
+            GetCharacterCondition(CharacterCondition.beingMoved) or
+            GetCharacterCondition(CharacterCondition.occupiedMateriaExtractionAndRepair) or
+            LifestreamIsBusy())
         then
             if WaitingForCollectionsFate ~= 0 and not IsFateActive(WaitingForCollectionsFate) then
                 WaitingForCollectionsFate = 0
