@@ -67,7 +67,7 @@ This Plugins are Optional and not needed unless you have it enabled in the setti
 
 --Pre Fate Settings
 Food                                = ""            --Leave "" Blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>"
-Potion                              = ""            --Leave "" Blank if you don't want to use any potions.
+Potion                              = "Superior Spiritbond Potion <hq>"            --Leave "" Blank if you don't want to use any potions.
 ShouldSummonChocobo                 = true          --Summon chocobo?
     ResummonChocoboTimeLeft         = 3 * 60        --Resummons chocobo if there's less than this many seconds left on the timer, so it doesn't disappear on you in the middle of a fate.
     ChocoboStance                   = "Healer"      --Options: Follow/Free/Defender/Healer/Attacker
@@ -83,7 +83,7 @@ CompletionToJoinBossFate            = 0             --If the boss fate has less 
                                                         --for the class. Ex: "PLD"
 JoinCollectionsFates                = true          --Set to false if you never want to do collections fates
 
-MeleeDist                           = 2.5           --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
+MeleeDist                           = 3.5           --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
 RangedDist                          = 20            --Distance for ranged. Ranged attacks and spells max distance to be usable is 25.49y, 25.5 is "target out of range"=
 
 RotationPlugin                      = "RSR"         --Options: RSR/BMR/VBM/Wrath/None
@@ -104,7 +104,7 @@ EnableChangeInstance                = true          --should it Change Instance 
     WaitIfBonusBuff                 = true          --Don't change instances if you have the Twist of Fate bonus buff
 ShouldExchangeBicolorGemstones       = true          --Should it exchange Bicolor Gemstone Vouchers?
     ItemToPurchase                  = "Turali Bicolor Gemstone Voucher"        -- Old Sharlayan for "Bicolor Gemstone Voucher" and Solution Nine for "Turali Bicolor Gemstone Voucher"
-SelfRepair                          = false         --if false, will go to Limsa mender
+SelfRepair                          = true         --if false, will go to Limsa mender
     RepairAmount                    = 20            --the amount it needs to drop before Repairing (set it to 0 if you don't want it to repair)
     ShouldAutoBuyDarkMatter         = true          --Automatically buys a 99 stack of Grade 8 Dark Matter from the Limsa gil vendor if you're out
 ShouldExtractMateria                = true          --should it Extract Materia
@@ -1476,10 +1476,23 @@ function MoveToFate()
             if GetDistanceToPoint(LastStuckCheckPosition.x, LastStuckCheckPosition.y, LastStuckCheckPosition.z) < 3 then
                 yield("/vnav stop")
                 yield("/wait 1")
-                LogInfo("[FATE] Antistuck")
-                PathfindAndMoveTo(x, y + 10, z, GetCharacterCondition(CharacterCondition.flying) and SelectedZone.flying) -- fly up 10 then try again
+
+                if (Antistuckcounter == nil) then
+                    Antistuckcounter = 0
+                else
+                    Antistuckcounter = Antistuckcounter + 1
+                end
+                LogInfo("[FATE] Antistuck: "..Antistuckcounter)
+                if (Antistuckcounter <= 3) then
+                    PathfindAndMoveTo(x, y + 10, z, GetCharacterCondition(CharacterCondition.flying) and SelectedZone.flying) -- fly up 10 then try again
+                else
+                    Antistuckcounter = 0
+                    TeleportTo(SelectedZone.aetheryteList[1].aetheryteName)
+                    LogInfo("[FATE] Pretty stuck there, aren't ya? Lets go back to aetheryte")
+                end
+
             end
-            
+
             LastStuckCheckTime = now
             LastStuckCheckPosition = {x=x, y=y, z=z}
         end
