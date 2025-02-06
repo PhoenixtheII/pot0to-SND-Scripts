@@ -9,12 +9,17 @@ plays the Kupo Voucher lottery when you're capped, and gets back to crafting.
 Script will stop itself if you are out of materials or out of inventory space.
 
 ********************************************************************************
-*                               Version 1.0.0                                  *
+*                               Version 1.0.3                                  *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    ->  1.0.0   First release
+    ->  1.0.2   Fixed the check where it tries to do one more craft in the
+                    window between finishing the last craft and when it drops
+                    in your inventory
+                Fixed normal check when exiting crafting state, added /at y
+                Redo order of kupo voucher
+                First release
 
 ********************************************************************************
 *                               Required Plugins                               *
@@ -66,10 +71,11 @@ local Npcs =
 
 CharacterCondition =
 {
+    normal = 1,
     craftingMode = 5, --kneel to craft
     occupiedInQuestEvent=32,
     executingCraftingSkill = 40, -- executing crafting skill
-    craftingModeIdle = 41
+    preparingToCraft = 41
 }
 
 function OutOfMaterials()
@@ -90,10 +96,11 @@ function Crafting()
     if slots <= MinInventoryFreeSlots then
         yield("/echo Out of inventory slots")
         ArtisanSetEnduranceStatus(false)
-        if IsAddonVisible("RecipeNote") then
+        if IsAddonVisible("RecipeNote") and GetCharacterCondition(CharacterCondition.preparingToCraft) then
+            yield("/wait 1")
             yield("/echo Closing crafting log 1")
             yield("/callback RecipeNote true -1")
-        elseif not GetCharacterCondition(CharacterCondition.craftingMode) then
+        elseif GetCharacterCondition(CharacterCondition.normal) then
             yield("/echo Turning in")
             State = CharacterState.turnIn
             LogInfo("State Change: TurnIn")
@@ -113,7 +120,9 @@ function Crafting()
             State = CharacterState.turnIn
             LogInfo("State Change: TurnIn")
         end
-    elseif not ArtisanGetEnduranceStatus() then
+    elseif not ArtisanGetEnduranceStatus() and
+        (GetCharacterCondition(CharacterCondition.preparingToCraft) or GetCharacterCondition(CharacterCondition.normal))
+    then
         yield("/echo Crafting "..math.max(0, slots - MinInventoryFreeSlots).." items")
         ArtisanCraftItem(RecipeId, math.max(0, slots - MinInventoryFreeSlots))
         yield("/wait 5")
@@ -164,15 +173,11 @@ end
 Retries = 0
 function KupoVoucherLottery()
     if GetInventoryFreeSlotCount() == 0 and GetItemCount(ItemId) > 0 then
-        State = CharacterState.turnIn
-        LogInfo("State Change: TurnIn")
-    elseif Retries >= 3 then
-        Retries = 0
-        State = CharacterState.crafting
-        LogInfo("State Change: Crafting")
-    elseif GetDistanceToPoint(Npcs.x, Npcs.y, Npcs.z) > 5 then
-        if not PathfindInProgress() and not PathIsRunning() then
-            PathfindAndMoveTo(Npcs.x, Npcs.y, Npcs.z)
+        if IsAddonVisible("SelectYesno") then
+            yield("/callback SelectYesno true -1")
+        else
+            State = CharacterState.turnIn
+            LogInfo("State Change: TurnIn")
         end
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
@@ -182,11 +187,19 @@ function KupoVoucherLottery()
         yield("/wait 1")
         yield("/callback HWDLottery true 2")
         yield("/wait 1")
+    elseif Retries >= 3 then
+        Retries = 0
+        State = CharacterState.crafting
+        LogInfo("State Change: Crafting")
+    elseif GetDistanceToPoint(Npcs.x, Npcs.y, Npcs.z) > 5 then
+        if not PathfindInProgress() and not PathIsRunning() then
+            PathfindAndMoveTo(Npcs.x, Npcs.y, Npcs.z)
+        end
     else
-        yield("/wait 1")
         yield("/target Lizbeth")
         yield("/wait 0.5")
         yield("/interact")
+        yield("/wait 1")
         Retries = Retries + 1
     end
 end
@@ -198,6 +211,7 @@ CharacterState =
     kupoVoucherLottery = KupoVoucherLottery
 }
 
+yield("/at y")
 State = CharacterState.crafting
 local classId = GetClassJobId()
 ItemId = 0

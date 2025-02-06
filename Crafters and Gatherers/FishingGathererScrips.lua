@@ -1,13 +1,21 @@
 --[[
 ********************************************************************************
 *                            Fishing Gatherer Scrips                           *
-*                                Version 1.2.14                                 *
+*                                Version 1.4.6                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
 
-    -> 1.2.14   Reverted dismount -> fishing
+    -> 1.4.6    Updating hard amiss again
+                Update hard amiss check
+                Separate IsAddonReady and IsAddonVisible
+                Fix typo
+                Added more logging statements
+                Added soft and hard amiss checks
+                Added stuck checks
+                Added a second dismount check just to make sure
+                Reverted dismount -> fishing
                 Fixed dismounting
                 Adjusted tree coords to give an even wider berth, shortened
                     fishing range to avoid unfishable area, changed state
@@ -18,14 +26,6 @@ Loosely based on Ahernika's NonStopFisher
                     face to be further south, fixed coordinates for ul'dah and
                     gridania
                 Added purple scrip exchange code bc i forgot lol
-                Tree
-                Fixed materia extraction bug p2
-                Fixed repair
-                Fixed teleport errors
-                Fixed purple scrips
-                Fixed MinInventoryFreeSlots
-                Updated algorithm to randomly choose any fishing spot in a line
-                    along the coast, fixed self repair
 
 ********************************************************************************
 *                               Required Plugins                               *
@@ -112,7 +112,11 @@ FishTable =
                 { x=135.71, y=6.12, z=715.0 },
                 { x=212.5, y=12.2, z=739.26 },
             },
-            pointToFace = { x=134.07, y=6.07, z=10000 }
+            pointToFace = { x=134.07, y=6.07, z=10000 },
+            reset = {
+                waypoint = { x=458.1, y=17.06, z=666.35 },
+                pointToFace = { x=458.1, y=17.06, z=10000 }
+            }
         },
         scripColor = "Orange",
         scripId = 39,
@@ -157,7 +161,11 @@ FishTable =
                 { x=58.87, y=22.22, z=487.95 }, --orange balls
                 { x=71.79, y=22.39, z=477.65 },
             },
-            pointToFace = { x=37.71, y=22.36, z=1000 }
+            pointToFace = { x=37.71, y=22.36, z=1000 },
+            reset = {
+                waypoint = { x=477.26, y=66.67, z=520.09 },
+                pointToFace = { x=10000, y=66.67, z=520.09 },
+            }
         },
         scripColor = "Purple",
         scripId = 38,
@@ -279,19 +287,34 @@ end
 function SelectNewFishingHole()
     LogInfo("[FishingGatherer] Selecting new fishing hole")
 
-    if SelectedFish.fishingSpots.waypoints ~= nil then
+    -- if SelectedFish.fishingSpots.waypoints ~= nil then
+    SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
+    SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(
+        SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
 
-        SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
-        SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
-
-        SelectedFishingSpot.x = SelectedFish.fishingSpots.pointToFace.x
-        SelectedFishingSpot.y = SelectedFish.fishingSpots.pointToFace.y
-        SelectedFishingSpot.z = SelectedFish.fishingSpots.pointToFace.z
-    else
-        local n = math.random(1, #SelectedFish.fishingSpots)
-        SelectedFishingSpot = SelectedFish.fishingSpots[n]
-    end
+    SelectedFishingSpot.x = SelectedFish.fishingSpots.pointToFace.x
+    SelectedFishingSpot.y = SelectedFish.fishingSpots.pointToFace.y
+    SelectedFishingSpot.z = SelectedFish.fishingSpots.pointToFace.z
+    -- else
+    --     local n = math.random(1, #SelectedFish.fishingSpots)
+    --     SelectedFishingSpot = SelectedFish.fishingSpots[n]
+    -- end
     SelectedFishingSpot.startTime = os.clock()
+    SelectedFishingSpot.lastStuckCheckPosition = {
+        x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()
+    }
+end
+
+function RandomAdjustCoordinates(x, y, z, maxDistance)
+    local angle = math.random() * 2 * math.pi
+    local x_adjust = maxDistance * math.random()
+    local z_adjust = maxDistance * math.random()
+
+    local randomX = x + (x_adjust * math.cos(angle))
+    local randomY = y + maxDistance
+    local randomZ = z + (z_adjust * math.sin(angle))
+
+    return randomX, randomY, randomZ
 end
 
 function TeleportToFishingZone()
@@ -312,11 +335,36 @@ function GoToFishingHole()
         return
     end
 
-    if GetDistanceToPoint(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ) > 10 then
+    -- if stuck for over 10s, adjust
+    local now = os.clock()
+    if now - SelectedFishingSpot.startTime > 10 then
+        SelectedFishingSpot.startTime = now
+        local x = GetPlayerRawXPos()
+        local y = GetPlayerRawYPos()
+        local z = GetPlayerRawZPos()
+        local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
+        if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
+            LogInfo("[FishingGatherer] Stuck in same spot for over 10 seconds.")
+            if PathfindInProgress() or PathIsRunning() then
+                yield("/vnav stop")
+            end
+            local randomX, randomY, randomZ = RandomAdjustCoordinates(x, y, z, 20)
+            if randomX ~= nil and randomY ~= nil and randomZ ~= nil then
+                PathfindAndMoveTo(randomX, randomY, randomZ, GetCharacterCondition(CharacterCondition.mounted))
+            end
+            return
+        else
+            SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
+        end
+    end
+
+    if GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ) > 10 then
+        LogInfo("FishingGatherer] Too far from waypoint! Currently "..GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ).." distance.")
         if not GetCharacterCondition(CharacterCondition.mounted) then
-            State = CharacterState.mounting
+            Mount(CharacterState.goToFishingHole)
             LogInfo("State Change: Mounting")
         elseif not (PathfindInProgress() or PathIsRunning()) then
+            LogInfo("[FishingGatherer] Moving to waypoint: ("..SelectedFishingSpot.waypointX..", "..SelectedFishingSpot.waypointY..", "..SelectedFishingSpot.waypointZ..")")
             PathfindAndMoveTo(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, true)
         end
         yield("/wait 1")
@@ -324,13 +372,57 @@ function GoToFishingHole()
     end
 
     if GetCharacterCondition(CharacterCondition.mounted) then
-        State = CharacterState.dismounting
-        LogInfo("State Change: Dismount")
+        Dismount()
+        LogInfo("[FishingGatherer] State Change: Dismount")
         return
     end
 
     State = CharacterState.fishing
-    LogInfo("State Change: Fishing")
+    LogInfo("[FishingGatherer] State Change: Fishing")
+end
+
+function GoToResetFishingHole()
+    local reset = SelectedFish.fishingSpots.reset
+    if GetDistanceToPoint(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z) > 30 and
+        not GetCharacterCondition(CharacterCondition.mounted)
+    then
+        Mount()
+        return
+    elseif GetDistanceToPoint(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z) > 5 then
+        if not PathfindInProgress() and not PathIsRunning() then
+            PathfindAndMoveTo(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z, GetCharacterCondition(CharacterCondition.mounted))
+        end
+    elseif PathfindInProgress() or PathIsRunning() then
+        yield("/vnav stop")
+    elseif GetCharacterCondition(CharacterCondition.mounted) then
+        Dismount()
+    else
+        State = CharacterState.resetFishingHole
+        LogInfo("[FishingGatherer] State Change: ResetFishingHole")
+    end
+end
+
+CastSuccess = false
+function ResetFishingHole()
+    if GetItemCount(29717) == 0 then
+        State = CharacterState.buyFishingBait
+        LogInfo("State Change: Buy Fishing Bait")
+        return
+    end
+
+    if GetCharacterCondition(CharacterCondition.gathering) then
+        CastSuccess = true
+    elseif CastSuccess then
+        CastSuccess = false
+        SelectNewFishingHole()
+        State = CharacterState.ready
+    elseif not PathfindInProgress() and not PathIsRunning() then
+        local pointToFace = SelectedFish.fishingSpots.reset.pointToFace
+        PathMoveTo(pointToFace.x, pointToFace.y, pointToFace.z)
+        return
+    end
+    yield("/ac Cast")
+    yield("/wait 0.5")
 end
 
 function Fishing()
@@ -338,9 +430,18 @@ function Fishing()
         State = CharacterState.buyFishingBait
         LogInfo("State Change: Buy Fishing Bait")
         return
+    elseif IsAddonVisible("_TextError") and string.find(GetNodeText("_TextError", 1), "Perhaps it is time to try another location.") ~= nil then
+        State = CharacterState.amissReset
+        LogInfo("[FishingGatherer] State Change: Hard amiss")
+        return
+    elseif IsAddonVisible("_TextError") and string.find(GetNodeText("_TextError", 1), "The fish sense something amiss.") ~= nil then
+        State = CharacterState.goToFishingHole
+        LogInfo("[FishingGatherer] State Change: Soft amiss")
+        return
     end
 
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
+        LogInfo("[FishingGatherer] Not enough inventory space")
         if GetCharacterCondition(CharacterCondition.gathering) then
             yield("/ac Quit")
             yield("/wait 1")
@@ -352,7 +453,8 @@ function Fishing()
         return
     end
 
-    if (SelectedFishingSpot.startTime + (SwitchLocationsAfter*60)) < os.clock() then
+    if os.clock() - SelectedFishingSpot.startTime > (SwitchLocationsAfter*60) then
+        LogInfo("[FishingGatherer] Switching fishing spots")
         if GetCharacterCondition(CharacterCondition.gathering) then
             if not GetCharacterCondition(CharacterCondition.fishing) then
                 yield("/ac Quit")
@@ -361,29 +463,43 @@ function Fishing()
         else
             SelectNewFishingHole()
             State = CharacterState.ready
-            LogInfo("State Change: Ready")
+            LogInfo("[FishingGatherer] State Change: Timeout Ready")
         end
         return
-    end
-
-    yield("/ahbait "..SelectedFish.baitName)
-
-    if GetCharacterCondition(CharacterCondition.gathering) then
+    elseif GetCharacterCondition(CharacterCondition.gathering) then
         if (PathfindInProgress() or PathIsRunning()) then
             yield("/vnav stop")
         end
         yield("/wait 1")
         return
     end
-    yield("/echo Distance: "..GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) )
-    if GetDistanceToPoint(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z) > 2 then
-        if not PathfindInProgress() and not PathIsRunning() then
-            PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+
+    if os.clock() - SelectedFishingSpot.startTime > 10 then
+        local x = GetPlayerRawXPos()
+        local y = GetPlayerRawYPos()
+        local z = GetPlayerRawZPos()
+        local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
+        if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
+            LogInfo("[FishingGatherer] Stuck in same spot for over 10 seconds.")
+            if PathfindInProgress() or PathIsRunning() then
+                yield("/vnav stop")
+            end
+            SelectNewFishingHole()
+            State = CharacterState.ready
+            LogInfo("[FishingGatherer] State Change: Stuck Ready")
+            return
+        else
+            SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
         end
-        yield("/ac Cast")
-        yield("/wait 0.5")
+    end
+
+    -- run towards fishing hole and cast until the fishing line hits the water
+    if not PathfindInProgress() and not PathIsRunning() then
+        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         return
     end
+    yield("/ac Cast")
+    yield("/wait 0.5")
 end
 
 FishingBaitMerchant =
@@ -427,7 +543,7 @@ function BuyFishingBait()
         yield("/callback TelepotTown true -1")
         return
     end
-
+    
     if distanceToMerchant > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
             PathfindAndMoveTo(FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
@@ -501,10 +617,7 @@ function TeleportTo(aetheryteName)
 end
 
 function Mount()
-    if GetCharacterCondition(CharacterCondition.flying) then
-        State = CharacterState.goToFishingHole
-        LogInfo("[FATE] State Change: GoToFishingHole")
-    elseif GetCharacterCondition(CharacterCondition.mounted) then
+    if GetCharacterCondition(CharacterCondition.mounted) then
         yield("/gaction jump")
     else
         yield('/gaction "mount roulette"')
@@ -512,19 +625,17 @@ function Mount()
     yield("/wait 1")
 end
 
-function Dismount()
+function Dismount(callbackState)
     if PathIsRunning() or PathfindInProgress() then
         yield("/vnav stop")
         return
     end
 
-    if GetCharacterCondition(CharacterCondition.flying) then
+    if GetCharacterCondition(CharacterCondition.flying) or GetCharacterCondition(CharacterCondition.mounted) then
         yield('/ac dismount')
-    elseif GetCharacterCondition(CharacterCondition.mounted) then
-        yield('/ac dismount')
-    else
-        State = CharacterState.fishing
-        LogInfo("State Change: Fishing")
+    elseif GetCharacterCondition(CharacterCondition.normal) and callbackState ~= nil then
+        State = callbackState
+        LogInfo("[FishingGatherer] State Change: CallbackState")
     end
     yield("/wait 1")
 end
@@ -559,7 +670,7 @@ function TurnIn()
         State = CharacterState.goToHubCity
         LogInfo("State Change: GoToHubCity")
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-            GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
+        GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
         end
@@ -584,7 +695,7 @@ function TurnIn()
             yield("/vnav stop")
         end
 
-        if not IsAddonVisible("CollectablesShop") then
+        if not IsAddonVisible("CollectablesShop") or not IsAddonReady("CollectablesShop") then
             yield("/target Collectable Appraiser")
             yield("/wait 0.5")
             yield("/interact")
@@ -612,7 +723,7 @@ function ScripExchange()
         State = CharacterState.goToHubCity
         LogInfo("State Change: GoToHubCity")
     elseif not LogInfo("[FishingGatherer] /li aethernet") and SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-            GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
+        GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
         end
@@ -625,18 +736,27 @@ function ScripExchange()
             LogInfo("Path not running")
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
         end
-    elseif IsAddonVisible("ShopExchangeItemDialog") then
-        yield("/callback ShopExchangeItemDialog true 0")
-        yield("/wait 1")
-    elseif IsAddonVisible("SelectIconString") then
-        yield("/callback SelectIconString true 0")
-    elseif IsAddonVisible("InclusionShop") then
-        yield("/callback InclusionShop true 12 "..ScripExchangeItem.categoryMenu)
-        yield("/wait 1")
-        yield("/callback InclusionShop true 13 "..ScripExchangeItem.subcategoryMenu)
-        yield("/wait 1")
-        yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..math.min(99, GetItemCount(GathererScripId)//ScripExchangeItem.price))
+    elseif not LogInfo("[FishingGatherer] check ShopExchangeItemDialog") and IsAddonVisible("ShopExchangeItemDialog") then
+        if IsAddonReady("ShopExchangeItemDialog") then
+            yield("/callback ShopExchangeItemDialog true 0")
+        end
+    elseif not LogInfo("[FishingGatherer] check SelectIconString") and IsAddonVisible("SelectIconString") then
+        if IsAddonReady("SelectIconString") then
+            LogInfo("[FishingGatherer] SelectIconString Ready")
+            yield("/callback SelectIconString true 0")
+        else
+            LogInfo("[FishingGatherer] SelectIconString Not Ready")
+        end
+    elseif not LogInfo("[FishingGatherer] check InclusionShop") and IsAddonVisible("InclusionShop") then
+        if IsAddonReady("InclusionShop") then
+            yield("/callback InclusionShop true 12 "..ScripExchangeItem.categoryMenu)
+            yield("/wait 1")
+            yield("/callback InclusionShop true 13 "..ScripExchangeItem.subcategoryMenu)
+            yield("/wait 1")
+            yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..math.min(99, GetItemCount(GathererScripId)//ScripExchangeItem.price))
+        end
     else
+        LogInfo("[FishingGatherer] target and interact with Scrip Exchange")
         yield("/wait 1")
         yield("/target Scrip Exchange")
         yield("/wait 0.5")
@@ -648,10 +768,8 @@ end
 
 -- #region Other Tasks
 function ProcessRetainers()
-    CurrentFate = nil
-
     LogInfo("[FishingGatherer] Handling retainers...")
-    if not LogInfo("[FishingGatherer] check retainers ready") and not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1 then
+    if not LogInfo("[FishingGatherer] check retainers ready") and (not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1) then
         if IsAddonVisible("RetainerList") then
             if IsAddonReady("RetainerList") then
                 yield("/callback RetainerList true -1")
@@ -661,12 +779,12 @@ function ProcessRetainers()
             LogInfo("[FishingGatherer] State Change: Ready")
         end
     elseif not LogInfo("[FishingGatherer] is in hub city zone?") and
-            not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId))
+        not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId))
     then
         TeleportTo(SelectedHubCity.aetheryte)
     elseif not LogInfo("[FishingGatherer] use aethernet?") and
-            SelectedHubCity.retainerBell.requiresAethernet and not LogInfo("abc") and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
-            (GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > (DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10)))
+        SelectedHubCity.retainerBell.requiresAethernet and not LogInfo("abc") and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or
+        (GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > (DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10)))
     then
         if not LifestreamIsBusy() then
             yield("/li "..SelectedHubCity.aethernet.aethernetName)
@@ -735,7 +853,7 @@ function ExecuteRepair()
 
     -- if occupied by repair, then just wait
     if GetCharacterCondition(CharacterCondition.occupiedMateriaExtractionAndRepair) then
-        LogInfo("[FATE] Repairing...")
+        LogInfo("[FishingGatherer] Repairing...")
         yield("/wait 1")
         return
     end
@@ -794,7 +912,7 @@ function ExecuteRepair()
                 TeleportTo("Limsa Lominsa Lower Decks")
                 return
             end
-
+            
             local mender = { npcName="Alistair", x=-246.87, y=16.19, z=49.83 }
             if GetDistanceToPoint(mender.x, mender.y, mender.z) > (DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10) then
                 yield("/li Hawkers' Alley")
@@ -814,7 +932,7 @@ function ExecuteRepair()
             end
         else
             State = CharacterState.ready
-            LogInfo("[FATE] State Change: Ready")
+            LogInfo("[FishingGatherer] State Change: Ready")
         end
     end
 end
@@ -822,7 +940,7 @@ end
 function ExecuteExtractMateria()
     if GetCharacterCondition(CharacterCondition.mounted) then
         Dismount()
-        LogInfo("[FATE] State Change: Dismounting")
+        LogInfo("[FishingGatherer] State Change: Dismounting")
         return
     end
 
@@ -837,8 +955,8 @@ function ExecuteExtractMateria()
             return
         end
 
-        LogInfo("[FATE] Extracting materia...")
-
+        LogInfo("[FishingGatherer] Extracting materia...")
+            
         if IsAddonVisible("MaterializeDialog") then
             yield("/callback MaterializeDialog true 0")
         else
@@ -849,7 +967,7 @@ function ExecuteExtractMateria()
             yield("/callback Materialize true -1")
         else
             State = CharacterState.ready
-            LogInfo("[FATE] State Change: Ready")
+            LogInfo("[FishingGatherer] State Change: Ready")
         end
     end
 end
@@ -885,14 +1003,14 @@ function Ready()
     if not LogInfo("[FishingGatherer] Ready -> IsPlayerAvailable()") and not IsPlayerAvailable() then
         -- do nothing
     elseif not LogInfo("[FishingGatherer] Ready -> Repair") and RepairAmount > 0 and NeedsRepair(RepairAmount) and
-            (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
+        (not shouldWaitForBonusBuff or (SelfRepair and GetItemCount(33916) > 0)) then
         State = CharacterState.repair
         LogInfo("[FishingGatherer] State Change: Repair")
     elseif not LogInfo("[FishingGatherer] Ready -> ExtractMateria") and ExtractMateria and CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
         LogInfo("[FishingGatherer] State Change: ExtractMateria")
     elseif not LogInfo("[FishingGatherer] Ready -> ProcessRetainers") and
-            Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1
+        Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1
     then
         State = CharacterState.processRetainers
         LogInfo("[FishingGatherer] State Change: ProcessingRetainers")
@@ -900,7 +1018,7 @@ function Ready()
         State = CharacterState.turnIn
         LogInfo("State Change: TurnIn")
     elseif not LogInfo("[FishingGatherer] Ready -> GC TurnIn") and GrandCompanyTurnIn and
-            GetInventoryFreeSlotCount() <= MinInventoryFreeSlots
+        GetInventoryFreeSlotCount() <= MinInventoryFreeSlots
     then
         State = CharacterState.gcTurnIn
         LogInfo("[FishingGatherer] State Change: GCTurnIn")
@@ -918,8 +1036,6 @@ end
 
 CharacterState = {
     ready = Ready,
-    mounting = Mount,
-    dismounting = Dismount,
     teleportToFishingZone = TeleportToFishingZone,
     goToFishingHole = GoToFishingHole,
     extractMateria = ExecuteExtractMateria,
@@ -931,10 +1047,33 @@ CharacterState = {
     turnIn = TurnIn,
     scripExchange = ScripExchange,
     goToHubCity = GoToHubCity,
-    buyFishingBait = BuyFishingBait
+    buyFishingBait = BuyFishingBait,
+    amissReset = GoToResetFishingHole
 }
 
-StopMain = false
+StopFlag = false
+
+RequiredPlugins = {
+    "Lifestream",
+    "TeleporterPlugin",
+    "vnavmesh",
+    "AutoHook",
+    "YesAlready"
+}
+if Retainers then
+    table.insert(RequiredPlugins, "AutoRetainer")
+end
+if GrandCompanyTurnIn then
+    table.insert(RequiredPlugins, "Deliveroo")
+end
+
+for _, plugin in ipairs(RequiredPlugins) do
+    if not HasPlugin(plugin) then
+        yield("/e Missing required plugin: "..plugin.."! Stopping script. Please install the required plugin and try again.")
+        StopFlag = true
+    end
+end
+
 LastStuckCheckTime = os.clock()
 LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()}
 
@@ -1000,7 +1139,7 @@ if GetClassJobId() ~= 18 then
 end
 
 State = CharacterState.ready
-while not StopMain do
+while not StopFlag do
     State()
     yield("/wait 0.1")
 end

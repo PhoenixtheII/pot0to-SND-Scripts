@@ -2,13 +2,24 @@
 
 ********************************************************************************
 *                                Fate Farming                                  *
-*                               Version 2.20.0                                 *
+*                               Version 2.21.5                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 State Machine Diagram: https://github.com/pot0to/pot0to-SND-Scripts/blob/main/FateFarmingStateMachine.drawio.png
         
-    -> 2.20.0   Rework bicolor exchange
+    -> 2.21.5   Removed jumps
+                Fix for change instances companion script
+                Adjusted landing logic so hopefully it shouldn't get stuck too
+                    high up anymore
+                Added ability to only do bonus fates
+                Adjusted coordinates for Old Sharlayan bicolor gemstone vendor
+                Support for multi-zone farming
+                Added some thanalan npc fates
+                Cleanup for Yak'tel fates and landing condition when flying back
+                    to aetheryte
+                Added height limit check for flying  back to aetheryte
+                Rework bicolor exchange
                 Added checks and debugs for bicolor gemstone shopkeeper
                 Fixed flying ban in Outer La Noscea and Southern Thanalan
                 Added feature to walk towards center of fate if you are too far
@@ -17,12 +28,6 @@ State Machine Diagram: https://github.com/pot0to/pot0to-SND-Scripts/blob/main/Fa
                     - /slightly/ smoother dismount (not by much tbh)
                     - added check to prevent vnav from interrupting casters
                     - turned off vnav pathing for boss fates while in combat
-                Added extra check for chocobo healer stance if you start script
-                    with chocobo already out
-                Added check to stop /vnav if you die
-                Fixed bug that causes you to dodge back and forth too much
-                Added setting for dodging plugin
-                Added chocobo stance
 
 ********************************************************************************
 *                               Required Plugins                               *
@@ -40,7 +45,7 @@ Plugins that are needed for it to work:
     -> Some form of AI dodging. Options are: 
         -> BossMod Reborn: https://raw.githubusercontent.com/FFXIV-CombatReborn/CombatRebornRepo/main/pluginmaster.json
         -> Veyn's BossMod: https://puni.sh/api/repository/veyn
-    -> TextAdvance: (for interacting with Fate NPCs)
+    -> TextAdvance: (for interacting with Fate NPCs) https://github.com/NightmareXIV/MyDalamudPlugins/raw/main/pluginmaster.json
     -> Teleporter :  (for Teleporting to aetherytes [teleport][Exchange][Retainers])
     -> Lifestream :  (for changing Instances [ChangeInstance][Exchange]) https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/pluginmaster.json
 
@@ -82,6 +87,7 @@ CompletionToJoinBossFate            = 0             --If the boss fate has less 
     ClassForBossFates               = ""            --If you want to use a different class for boss fates, set this to the 3 letter abbreviation
                                                         --for the class. Ex: "PLD"
 JoinCollectionsFates                = true          --Set to false if you never want to do collections fates
+BonusFatesOnly                      = false         --If true, will only do bonus fates and ignore everything else
 
 MeleeDist                           = 3.5           --Distance for melee. Melee attacks (auto attacks) max distance is 2.59y, 2.60 is "target out of range"
 RangedDist                          = 20            --Distance for ranged. Ranged attacks and spells max distance to be usable is 25.49y, 25.5 is "target out of range"=
@@ -90,8 +96,10 @@ RotationPlugin                      = "RSR"         --Options: RSR/BMR/VBM/Wrath
     RSRAoeType                      = "Full"        --Options: Cleave/Full/Off
 
     -- For BMR/VBM only
-    RotationSingleTargetPreset      = ""            --Preset name for aoe mode.
-    RotationAoePreset               = ""            --For BMR/VBM only. Prset name for single target mode (for forlorns).
+    RotationSingleTargetPreset      = ""            --Preset name with single target strategies (for forlorns).
+    RotationAoePreset               = ""            --Preset with AOE + Buff strategies.
+    RotationHoldBuffPreset          = ""            --Preset to hold 2min burst when progress gets to seleted %
+    PorcentageToHoldBuff            = 65            --Ideally you'll want to make full use of your buffs, higher than 70% will still waste a few seconds if progress is too fast.
 DodgingPlugin                       = "BMR"         --Options: BMR/VBM/None. If your RotationPlugin is BMR/VBM, then this will be overriden
 
 IgnoreForlorns                      = false
@@ -99,10 +107,11 @@ IgnoreForlorns                      = false
 
 --Post Fate Settings
 WaitUpTo                            = 10            --Max number of seconds it should wait until mounting up for next fate.
-                                                        --Actual wait time will be a randomly generated number between zero and this value
+                                                        --Actual wait time will be a randomly generated number between 3s and this value
 EnableChangeInstance                = true          --should it Change Instance when there is no Fate (only works on DT fates)
     WaitIfBonusBuff                 = true          --Don't change instances if you have the Twist of Fate bonus buff
-ShouldExchangeBicolorGemstones       = true          --Should it exchange Bicolor Gemstone Vouchers?
+    NumberOfInstances               = 2
+ShouldExchangeBicolorGemstones      = true          --Should it exchange Bicolor Gemstone Vouchers?
     ItemToPurchase                  = "Turali Bicolor Gemstone Voucher"        -- Old Sharlayan for "Bicolor Gemstone Voucher" and Solution Nine for "Turali Bicolor Gemstone Voucher"
 SelfRepair                          = true         --if false, will go to Limsa mender
     RepairAmount                    = 20            --the amount it needs to drop before Repairing (set it to 0 if you don't want it to repair)
@@ -117,8 +126,6 @@ Echo                                = "All"         --Options: All/Gems/None
 CompanionScriptMode                 = false         --Set to true if you are using the fate script with a companion script (such as the Atma Farmer)
 
 --#endregion Settings
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --[[
 ********************************************************************************
@@ -256,7 +263,7 @@ BicolorExchangeData =
         zoneName = "Old Sharlayan",
         zoneId = 962,
         aetheryteName = "Old Sharlayan",
-        x=74.17, y=5.15, z=-37.44,
+        x=78, y=5, z=-37,
         shopItems =
         {
             { itemName = "Bicolor Gemstone Voucher", itemIndex = 8, price = 100 }
@@ -312,9 +319,25 @@ FatesData = {
         zoneName = "Central Thanalan",
         zoneId = 141,
         fatesList = {
+            collectionsFates= {
+                { fateName="Let them Eat Cactus", npcName="Hungry Hobbledehoy"},
+            },
+            otherNpcFates= {
+                { fateName="A Few Arrows Short of a Quiver" , npcName="Crestfallen Merchant" },
+                { fateName="Wrecked Rats", npcName="Coffer & Coffin Heavy" },
+                { fateName="Something to Prove", npcName="Cowardly Challenger" }
+            },
+            fatesWithContinuations = {},
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "Eastern Thanalan",
+        zoneId = 145,
+        fatesList = {
             collectionsFates= {},
             otherNpcFates= {
-                { fateName="" , npcName="Crestfallen Merchant" }
+                { fateName="Attack on Highbridge: Denouement" , npcName="Brass Blade" }
             },
             fatesWithContinuations = {},
             blacklistedFates= {}
@@ -349,6 +372,9 @@ FatesData = {
             collectionsFates= {},
             otherNpcFates= {},
             fatesWithContinuations = {},
+            specialFates = {
+                "He Taketh It with His Eyes" --behemoth
+            },
             blacklistedFates= {}
         }
     },
@@ -399,6 +425,9 @@ FatesData = {
             collectionsFates= {},
             otherNpcFates= {},
             fatesWithContinuations = {},
+            specialFates = {
+                "Coeurls Chase Boys Chase Coeurls" --coeurlregina
+            },
             blacklistedFates= {}
         }
     },
@@ -419,6 +448,110 @@ FatesData = {
         fatesList= {
             collectionsFates= {},
             otherNpcFates= {},
+            fatesWithContinuations = {},
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "The Fringes",
+        zoneId = 612,
+        fatesList= {
+            collectionsFates= {
+                { fateName="Showing The Recruits What For", npcName="Storm Commander Bharbennsyn" },
+                { fateName="Get Sharp", npcName="M Tribe Youth" },
+            },
+            otherNpcFates= {
+                { fateName="The Mail Must Get Through", npcName="Storm Herald" },
+                { fateName="The Antlion's Share", npcName="M Tribe Ranger" },
+                { fateName="Double Dhara", npcName="Resistence Fighter" },
+                { fateName="Keeping the Peace", npcName="Resistence Fighter" }
+            },
+            fatesWithContinuations = {},
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "The Peaks",
+        zoneId = 620,
+        fatesList= {
+            collectionsFates= {
+                { fateName="Fletching Returns", npcName="Sorry Sutler" }
+            },
+            otherNpcFates= {
+                { fateName="Resist, Die, Repeat", npcName="Wounded Fighter" },
+                { fateName="And the Bandits Played On", npcName="Frightened Villager" },
+                { fateName="Forget-me-not", npcName="Coldhearth Resident" },
+                { fateName="Of Mice and Men", npcName="Furious Farmer" }
+            },
+            fatesWithContinuations = {},
+            blacklistedFates= {
+                "The Magitek Is Back", --escort
+                "A New Leaf" --escort
+            }
+        }
+    },
+    {
+        zoneName = "The Lochs",
+        zoneId = 621,
+        fatesList= {
+            collectionsFates= {},
+            otherNpcFates= {},
+            fatesWithContinuations = {},
+            specialFates = {
+                "A Horse Outside" --ixion
+            },
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "The Ruby Sea",
+        zoneId = 613,
+        fatesList= {
+            collectionsFates= {
+                { fateName="Treasure Island", npcName="Blue Avenger" },
+                { fateName="The Coral High Ground", npcName="Busy Beachcomber" }
+            },
+            otherNpcFates= {
+                { fateName="Another One Bites The Dust", npcName="Pirate Youth" },
+                { fateName="Ray Band", npcName="Wounded Confederate" },
+                { fateName="Bilge-hold Jin", npcName="Green Confederate" }
+            },
+            fatesWithContinuations = {},
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "Yanxia",
+        zoneId = 614,
+        fatesList= {
+            collectionsFates= {
+                { fateName="Rice and Shine", npcName="Flabbergasted Farmwife" },
+                { fateName="More to Offer", npcName="Ginko" }
+            },
+            otherNpcFates= {
+                { fateName="Freedom Flies", npcName="Kinko" },
+                { fateName="A Tisket, a Tasket", npcName="Gyogun of the Most Bountiful Catch" }
+            },
+            specialFates = {
+                "Foxy Lady" --foxyyy
+            },
+            fatesWithContinuations = {},
+            blacklistedFates= {}
+        }
+    },
+    {
+        zoneName = "The Azim Steppe",
+        zoneId = 622,
+        fatesList= {
+            collectionsFates= {
+                { fateName="The Dataqi Chronicles: Duty", npcName="Altani" }
+            },
+            otherNpcFates= {
+                { fateName="Rock for Food", npcName="Oroniri Youth" },
+                { fateName="Killing Dzo", npcName="Olkund Dzotamer" },
+                { fateName="They Shall Not Want", npcName="Mol Shepherd" },
+                { fateName="A Good Day to Die", npcName="Qestiri Merchant" }
+            },
             fatesWithContinuations = {},
             blacklistedFates= {}
         }
@@ -449,6 +582,9 @@ FatesData = {
             },
             otherNpcFates= {},
             fatesWithContinuations = {},
+            specialFates = {
+                "A Finale Most Formidable" --formidable
+            },
             blacklistedFates= {}
         }
     },
@@ -509,6 +645,9 @@ FatesData = {
                 { fateName="Lookin' Back on the Track", npcName="Teushs Ooan" },
             },
             fatesWithContinuations = {},
+            specialFates = {
+                "The Head, the Tail, the Whole Damned Thing" --archaeotania
+            },
             blacklistedFates= {
                 "Coral Support", -- escort fate
                 "The Seashells He Sells", -- escort fate
@@ -536,6 +675,9 @@ FatesData = {
                 { fateName="Full Petal Alchemist: Perilous Pickings", npcName="Sajabaht" }
             },
             otherNpcFates= {},
+            specialFates = {
+                "Devout Pilgrims vs. Daivadipa" --daveeeeee
+            },
             fatesWithContinuations = {},
             blacklistedFates= {}
         }
@@ -585,6 +727,9 @@ FatesData = {
                 { fateName="Wings of Glory", npcName="Ahl Ein's Kin" },
                 { fateName="Omicron Recall: Secure Connection", npcName="N-6205"},
                 { fateName="Only Just Begun", npcName="Myhk Nehr" }
+            },
+            specialFates = {
+                "Omicron Recall: Killing Order" --chi
             },
             fatesWithContinuations = {},
             blacklistedFates= {}
@@ -665,12 +810,14 @@ FatesData = {
                 --{ fateName=, npcName="Xbr'aal Hunter" }, 2 npcs names same thing....
                 { fateName="La Selva se lo Llevó", npcName="Xbr'aal Hunter" },
                 { fateName="Stabbing Gutward", npcName="Doppro Spearbrother" },
-                --{ fateName=, npcName="Xbr'aal Sentry" }, -- 2 npcs named same thing.....
+                { fateName="Porting is Such Sweet Sorrow", npcName="Hoobigo Porter" }
+                -- { fateName="Stick it to the Mantis", npcName="Xbr'aal Sentry" }, -- 2 npcs named same thing.....
             },
-            fatesWithContinuations = {},
+            fatesWithContinuations = {
+                "Stabbing Gutward"
+            },
             blacklistedFates= {
-                "The Departed",
-                "Porting Is Such Sweet Sorrow" -- defence fate
+                "The Departed"
             }
         }
     },
@@ -703,6 +850,7 @@ FatesData = {
         fatesList= {
             collectionsFates= {
                 { fateName="License to Dill", npcName="Tonawawtan Provider" },
+                { fateName="When It's So Salvage", npcName="Refined Reforger" }
             },
             otherNpcFates= {
                 { fateName="It's Super Defective", npcName="Novice Hunter" },
@@ -710,8 +858,7 @@ FatesData = {
                 { fateName="Ware the Wolves", npcName="Imperiled Hunter" },
                 { fateName="Domo Arigato", npcName="Perplexed Reforger" },
                 { fateName="Old Stampeding Grounds", npcName="Driftdowns Reforger" },
-                { fateName="Pulling the Wool", npcName="Panicked Courier" },
-                { fateName="When It's So Salvage", npcName="Refined Reforger" }
+                { fateName="Pulling the Wool", npcName="Panicked Courier" }
             },
             fatesWithContinuations = {
                 { fateName="Domo Arigato", continuationIsBoss=false }
@@ -879,6 +1026,17 @@ end
     Given two fates, picks the better one based on priority progress -> is bonus -> time left -> distance
 ]]
 function SelectNextFateHelper(tempFate, nextFate)
+    if BonusFatesOnly then
+        if not tempFate.isBonusFate and nextFate ~= nil and nextFate.isBonusFate then
+            return nextFate
+        elseif tempFate.isBonusFate and (nextFate == nil or not nextFate.isBonusFate) then
+            return tempFate
+        elseif not tempFate.isBonusFate and (nextFate == nil or not nextFate.isBonusFate) then
+            return nil
+        end
+        -- if both are bonus fates, go through the regular fate selection process
+    end
+
     if tempFate.timeLeft < MinTimeLeftToIgnoreFate or tempFate.progress > CompletionToIgnoreFate then
         return nextFate
     else
@@ -1151,9 +1309,19 @@ function TeleportTo(aetheryteName)
 end
 
 function ChangeInstance()
-    if SuccessiveInstanceChanges >= 2 then
-        yield("/wait 10")
-        SuccessiveInstanceChanges = 0
+    if SuccessiveInstanceChanges >= NumberOfInstances then
+        if CompanionScriptMode then
+            local shouldWaitForBonusBuff = WaitIfBonusBuff and (HasStatusId(1288) or HasStatusId(1289))
+            if WaitingForFateRewards == 0 and not shouldWaitForBonusBuff then
+                StopScript = true
+            else
+                LogInfo("[Fate Farming] Waiting for buff or fate rewards")
+                yield("/wait 3")
+            end
+        else
+            yield("/wait 10")
+            SuccessiveInstanceChanges = 0
+        end
         return
     end
 
@@ -1174,7 +1342,7 @@ function ChangeInstance()
         return
     end
 
-    if WaitingForCollectionsFate ~= 0 then
+    if WaitingForFateRewards ~= 0 then
         yield("/wait 10")
         return
     end
@@ -1218,7 +1386,7 @@ function WaitForContinuation()
         if nextFateId ~= CurrentFate.fateId then
             CurrentFate = BuildFateTable(nextFateId)
             State = CharacterState.doFate
-            LogInfo("State Change: DoFate")
+            LogInfo("[FATE] State Change: DoFate")
         end
     elseif os.clock() - LastFateEndTime > 30 then
         LogInfo("WaitForContinuation Abort")
@@ -1255,9 +1423,20 @@ function FlyBackToAetheryte()
         return
     end
 
+    local x = GetPlayerRawXPos()
+    local y = GetPlayerRawYPos()
+    local z = GetPlayerRawZPos()
+    local closestAetheryte = GetClosestAetheryte(x, y, z, 0)
+    -- if you get any sort of error while flying back, then just abort and tp back
+    if IsAddonVisible("_TextError") and GetNodeText("_TextError", 1) == "Your mount can fly no higher." then
+        yield("/vnav stop")
+        TeleportTo(closestAetheryte.aetheryteName)
+        return
+    end
+
     yield("/target aetheryte")
 
-    if HasTarget() and GetTargetName() == "aetheryte" and GetDistanceToTarget() <= 20 then
+    if HasTarget() and GetTargetName() == "aetheryte" and DistanceBetween(GetTargetRawXPos(), y, GetTargetRawZPos(), x, y, z) <= 20 then
         if PathfindInProgress() or PathIsRunning() then
             yield("/vnav stop")
         end
@@ -1284,7 +1463,6 @@ function FlyBackToAetheryte()
     end
     
     if not (PathfindInProgress() or PathIsRunning()) then
-        local closestAetheryte = GetClosestAetheryte(GetPlayerRawXPos(), GetPlayerRawYPos(), GetPlayerRawZPos(), 0)
         LogInfo("[FATE] ClosestAetheryte.y: "..closestAetheryte.y)
         if closestAetheryte ~= nil then
             SetMapFlag(SelectedZone.zoneId, closestAetheryte.x, closestAetheryte.y, closestAetheryte.z)
@@ -1294,16 +1472,9 @@ function FlyBackToAetheryte()
 end
 
 function Mount()
-    if GetCharacterCondition(CharacterCondition.flying) then
+    if GetCharacterCondition(CharacterCondition.mounted) then
         State = CharacterState.moveToFate
         LogInfo("[FATE] State Change: MoveToFate")
-    elseif GetCharacterCondition(CharacterCondition.mounted) then
-        if not SelectedZone.flying then
-            State = CharacterState.moveToFate
-            LogInfo("[FATE] State Change: MoveToFate")
-        else
-            yield("/gaction jump")
-        end
     else
         if MountToUse == "mount roulette" then
             yield('/gaction "mount roulette"')
@@ -1353,7 +1524,7 @@ function MiddleOfFateDismount()
     end
 
     if HasTarget() then
-        if DistanceBetween(GetPlayerRawXPos(), 0, GetPlayerRawZPos(), GetTargetRawXPos(), 0, GetTargetRawZPos()) > (MaxDistance + GetTargetHitboxRadius()) then
+        if DistanceBetween(GetPlayerRawXPos(), 0, GetPlayerRawZPos(), GetTargetRawXPos(), 0, GetTargetRawZPos()) > (MaxDistance + GetTargetHitboxRadius() + 5) then
             if not (PathfindInProgress() or PathIsRunning()) then
                 LogInfo("[FATE] MiddleOfFateDismount PathfindAndMoveTo")
                 PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos(), GetCharacterCondition(CharacterCondition.flying))
@@ -1444,25 +1615,32 @@ function MoveToFate()
     end
 
     -- upon approaching fate, pick a target and switch to pathing towards target
-    if HasTarget() then
-        LogInfo("[FATE] Found FATE target, immediate rerouting")
-        PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
-        if GetTargetName() == CurrentFate.npcName then
-            State = CharacterState.interactWithNpc
-        elseif GetTargetFateID() == CurrentFate.fateId then
-            State = CharacterState.middleOfFateDismount
-            LogInfo("[FATE] State Change: MiddleOfFateDismount")
+    if GetDistanceToPoint(CurrentFate.x, CurrentFate.y, CurrentFate.z) < 60 then
+        if HasTarget() then
+            LogInfo("[FATE] Found FATE target, immediate rerouting")
+            PathfindAndMoveTo(GetTargetRawXPos(), GetTargetRawYPos(), GetTargetRawZPos())
+            if (CurrentFate.isOtherNpcFate or CurrentFate.isCollectionsFate) then
+                State = CharacterState.interactWithNpc
+                LogInfo("[FATE] State Change: Interact with npc")
+            -- if GetTargetName() == CurrentFate.npcName then
+            --     State = CharacterState.interactWithNpc
+            -- elseif GetTargetFateID() == CurrentFate.fateId then
+            --     State = CharacterState.middleOfFateDismount
+            --     LogInfo("[FATE] State Change: MiddleOfFateDismount")
+            else
+                State = CharacterState.middleOfFateDismount
+                LogInfo("[FATE] State Change: MiddleOfFateDismount")
+            end
+            return
         else
-            ClearTarget()
+            if (CurrentFate.isOtherNpcFate or CurrentFate.isCollectionsFate) and not IsInFate() then
+                yield("/target "..CurrentFate.npcName)
+            else
+                TargetClosestFateEnemy()
+            end
+            yield("/wait 0.5") -- give it a moment to make sure the target sticks
+            return
         end
-        return
-    elseif GetDistanceToPoint(CurrentFate.x, CurrentFate.y, CurrentFate.z) < 60 then
-        if (CurrentFate.isOtherNpcFate or CurrentFate.isCollectionsFate) and not IsInFate() then
-            yield("/target "..CurrentFate.npcName)
-        else
-            TargetClosestFateEnemy()
-        end
-        return
     end
 
     -- check for stuck
@@ -1522,12 +1700,16 @@ function MoveToFate()
         nearestLandX, nearestLandY, nearestLandZ = RandomAdjustCoordinates(CurrentFate.x, CurrentFate.y, CurrentFate.z, 10)
     end
 
-    PathfindAndMoveTo(nearestLandX, nearestLandY, nearestLandZ, HasFlightUnlocked(SelectedZone.zoneId) and SelectedZone.flying)
+    if GetDistanceToPoint(nearestLandX, nearestLandY, nearestLandZ) > 5 then
+        PathfindAndMoveTo(nearestLandX, nearestLandY, nearestLandZ, HasFlightUnlocked(SelectedZone.zoneId) and SelectedZone.flying)
+    else
+        State = CharacterState.middleOfFateDismount
+    end
 end
 
 function InteractWithFateNpc()
-
     if IsInFate() or GetFateStartTimeEpoch(CurrentFate.fateId) > 0 then
+        yield("/vnav stop")
         State = CharacterState.doFate
         LogInfo("[FATE] State Change: DoFate")
         yield("/wait 1") -- give the fate a second to register before dofate and lsync
@@ -1668,12 +1850,12 @@ function SummonChocobo()
             yield('/cac "'..ChocoboStance..' stance"')
         elseif ShouldAutoBuyGysahlGreens then
             State = CharacterState.autoBuyGysahlGreens
-            LogInfo("[State] State Change: AutoBuyGysahlGreens")
+            LogInfo("[FATE] State Change: AutoBuyGysahlGreens")
             return
         end
     end
     State = CharacterState.ready
-    LogInfo("[State] State Change: Ready")
+    LogInfo("[FATE] State Change: Ready")
 end
 
 function AutoBuyGysahlGreens()
@@ -1769,6 +1951,16 @@ function TurnOffAoes()
             yield("/vbmai setpresetname "..RotationSingleTargetPreset)
         end
         AoesOn = false
+    end
+end
+
+function TurnOffRaidBuffs()
+    if AoesOn then
+        if RotationPlugin == "BMR" then
+            yield("/bmrai setpresetname "..RotationHoldBuffPreset)
+        elseif RotationPlugin == "VBM" then
+            yield("/vbmai setpresetname "..RotationHoldBuffPreset)
+        end
     end
 end
 
@@ -1874,14 +2066,11 @@ function HandleUnexpectedCombat()
         return
     end
 
-    if GetCharacterCondition(CharacterCondition.flying) then
+    if GetCharacterCondition(CharacterCondition.mounted) then
         if not (PathfindInProgress() or PathIsRunning()) then
             PathfindAndMoveTo(GetPlayerRawXPos(), GetPlayerRawYPos() + 10, GetPlayerRawZPos(), true)
         end
         yield("/wait 10")
-        return
-    elseif GetCharacterCondition(CharacterCondition.mounted) then
-        yield("/gaction jump")
         return
     end
 
@@ -1910,6 +2099,10 @@ function HandleUnexpectedCombat()
 end
 
 function DoFate()
+    if WaitingForFateRewards ~= CurrentFate.fateId then
+        WaitingForFateRewards = CurrentFate.fateId
+        LogInfo("[FATE] WaitingForFateRewards DoFate: "..tostring(WaitingForFateRewards))
+    end
     local currentClass = GetClassJobId()
     -- switch classes (mostly for continutation fates that pop you directly into the next one)
     if CurrentFate.isBossFate and BossFatesClass ~= nil and currentClass ~= BossFatesClass.classId and not IsPlayerOccupied() then
@@ -1940,16 +2133,15 @@ function DoFate()
             LastFateEndTime = os.clock()
             State = CharacterState.waitForContinuation
             LogInfo("[FATE] State Change: WaitForContinuation")
+            return
         else
+            DidFate = true
             LogInfo("[FATE] No continuation for "..CurrentFate.fateName)
+            local randomWait = (math.floor(math.random() * (math.max(0, WaitUpTo - 3)) * 1000)/1000) + 3 -- truncated to 3 decimal places
+            yield("/wait "..randomWait)
             TurnOffCombatMods()
             State = CharacterState.ready
             LogInfo("[FATE] State Change: Ready")
-            local randomWait = math.floor(math.random()*3 * 1000)/1000 -- truncated to 3 decimal places
-            yield("/wait "..randomWait)
-        end
-        if CompanionScriptMode then
-            StopScript = true
         end
         return
     elseif GetCharacterCondition(CharacterCondition.mounted) then
@@ -1957,7 +2149,6 @@ function DoFate()
         LogInfo("[FATE] State Change: MiddleOfFateDismount")
         return
     elseif CurrentFate.isCollectionsFate then
-        WaitingForCollectionsFate = CurrentFate.fateId
         yield("/wait 1") -- needs a moment after start of fate for GetFateEventItem to populate
         if GetItemCount(GetFateEventItem(CurrentFate.fateId)) >= 7 or (GotCollectionsFullCredit and GetFateProgress(CurrentFate.fateId) == 100) then
             yield("/vnav stop")
@@ -2063,6 +2254,11 @@ function DoFate()
             end
         end
     end
+        
+    --hold buff thingy
+    if GetFateProgress(CurrentFate.fateId) >= PorcentageToHoldBuff then 
+        TurnOffRaidBuffs()
+    end   
 end
 
 --#endregion
@@ -2128,12 +2324,12 @@ function Ready()
             yield("/wait 10")
         end
         return
-    elseif not LogInfo("[FATE] Ready -> ExchangingVouchers") and WaitingForCollectionsFate == 0 and
+    elseif not LogInfo("[FATE] Ready -> ExchangingVouchers") and WaitingForFateRewards == 0 and
         ShouldExchangeBicolorGemstones and (BicolorGemCount >= 1400) and not shouldWaitForBonusBuff
     then
         State = CharacterState.exchangingVouchers
         LogInfo("[FATE] State Change: ExchangingVouchers")
-    elseif not LogInfo("[FATE] Ready -> ProcessRetainers") and WaitingForCollectionsFate == 0 and
+    elseif not LogInfo("[FATE] Ready -> ProcessRetainers") and WaitingForFateRewards == 0 and
         Retainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1  and not shouldWaitForBonusBuff
     then
         State = CharacterState.processRetainers
@@ -2149,10 +2345,18 @@ function Ready()
     elseif not LogInfo("[FATE] Ready -> SummonChocobo") and ShouldSummonChocobo and GetBuddyTimeRemaining() <= ResummonChocoboTimeLeft and
         (not shouldWaitForBonusBuff or GetItemCount(4868) > 0) then
         State = CharacterState.summonChocobo
-    elseif not LogInfo("[FATE] Ready -> ChangingInstances") and NextFate == nil then
+    elseif not LogInfo("[FATE] Ready -> NextFate nil") and NextFate == nil then
         if EnableChangeInstance and GetZoneInstance() > 0 and not shouldWaitForBonusBuff then
             State = CharacterState.changingInstances
             LogInfo("[FATE] State Change: ChangingInstances")
+            return
+        elseif CompanionScriptMode and not shouldWaitForBonusBuff then
+            if WaitingForFateRewards == 0 then
+                StopScript = true
+                LogInfo("[FATE] StopScript: Ready")
+            else
+                LogInfo("[FATE] Waiting for fate rewards")
+            end
         elseif not HasTarget() or GetTargetName() ~= "aetheryte" or GetDistanceToTarget() > 20 then
             State = CharacterState.flyBackToAetheryte
             LogInfo("[FATE] State Change: FlyBackToAetheryte")
@@ -2160,6 +2364,13 @@ function Ready()
             yield("/wait 10")
         end
         return
+    elseif CompanionScriptMode and DidFate and not shouldWaitForBonusBuff then
+        if WaitingForFateRewards == 0 then
+            StopScript = true
+            LogInfo("[FATE] StopScript: DidFate")
+        else
+            LogInfo("[FATE] Waiting for fate rewards")
+        end
     elseif not LogInfo("[FATE] Ready -> MovingToFate") then -- and ((CurrentFate == nil) or (GetFateProgress(CurrentFate.fateId) == 100) and NextFate ~= nil) then
         CurrentFate = NextFate
         SetMapFlag(SelectedZone.zoneId, CurrentFate.x, CurrentFate.y, CurrentFate.z)
@@ -2530,6 +2741,7 @@ CharacterState = {
 LogInfo("[FATE] Starting fate farming script.")
 
 StopScript = false
+DidFate = false
 GemAnnouncementLock = false
 DeathAnnouncementLock = false
 MovingAnnouncementLock = false
@@ -2539,7 +2751,7 @@ LastTeleportTimeStamp = 0
 GotCollectionsFullCredit = false -- needs 7 items for  full
 -- variable to track collections fates that you have completed but are still active.
 -- will not leave area or change instance if value ~= 0
-WaitingForCollectionsFate = 0
+WaitingForFateRewards = 0
 LastFateEndTime = os.clock()
 LastStuckCheckTime = os.clock()
 LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()}
@@ -2552,8 +2764,9 @@ SetMaxDistance()
 
 SelectedZone = SelectNextZone()
 if SelectedZone.zoneName ~= "" and Echo == "All" then
-    yield("/echo Farming "..SelectedZone.zoneName)
+    yield("/echo [FATE] Farming "..SelectedZone.zoneName)
 end
+LogInfo("[FATE] Farming Start for "..SelectedZone.zoneName)
 
 for _, shop in ipairs(BicolorExchangeData) do
     for _, item in ipairs(shop.shopItems) do
@@ -2610,13 +2823,15 @@ while not StopScript do
             GetCharacterCondition(CharacterCondition.occupiedMateriaExtractionAndRepair) or
             LifestreamIsBusy())
         then
-            if WaitingForCollectionsFate ~= 0 and not IsFateActive(WaitingForCollectionsFate) then
-                WaitingForCollectionsFate = 0
+            if WaitingForFateRewards ~= 0 and not IsFateActive(WaitingForFateRewards) then
+                WaitingForFateRewards = 0
+                LogInfo("[FATE] WaitingForFateRewards: "..tostring(WaitingForFateRewards))
             end
             State()
         end
     end
     yield("/wait 0.1")
 end
+yield("/vnav stop")
 
 --#endregion Main

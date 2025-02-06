@@ -1,18 +1,19 @@
 --[[
 
 ********************************************************************************
-*                                Atma Farming                                  *
-*                                Version 1.0.0                                 *
+*                        Anima Luminous Crystal Farming                        *
+*                                Version 1.0.1                                 *
 ********************************************************************************
 
-Atma farming script meant to be used with `Fate Farming.lua`. This will go down
-the list of atma farming zones and farm fates until you have 12 of the required
-atmas in your inventory, then teleport to the next zone and restart the fate
-farming script.
+Anima luminous crystal farming script meant to be used with `Fate Farming.lua`.
+This will go down the list of zones and farm fates until you have enough of the
+required crystals in your inventory, then teleport to the next zone and restart
+the fate farming script.
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    -> 1.0.0    First release
+    -> 1.0.1    Added mounted character condition
+                First release
 
 --#region Settings
 
@@ -36,21 +37,16 @@ NumberToFarm = 1                -- How many of each atma to farm
 ]]
 Atmas =
 {
-    {zoneName = "Middle La Noscea", zoneId = 134, itemName = "Atma of the Ram", itemId = 7856},
-    {zoneName = "Lower La Noscea", zoneId = 135, itemName = "Atma of the Fish", itemId = 7859},
-    {zoneName = "Western La Noscea", zoneId = 138, itemName = "Atma of the Crab", itemId = 7862},
-    {zoneName = "Upper La Noscea", zoneId = 139, itemName = "Atma of the Water-bearer", itemId = 7853},
-    {zoneName = "Western Thanalan", zoneId = 140, itemName = "Atma of the Twins", itemId = 7857},
-    {zoneName = "Central Thanalan", zoneId = 141, itemName = "Atma of the Scales", itemId = 7861},
-    {zoneName = "Eastern Thanalan", zoneId = 145, itemName = "Atma of the Bull", itemId = 7855},
-    {zoneName = "Southern Thanalan", zoneId = 146, itemName = "Atma of the Scorpion", itemId = 7852, flying=false},
-    {zoneName = "Central Shroud", zoneId = 148, itemName = "Atma of the Maiden", itemId = 7851},
-    {zoneName = "East Shroud", zoneId = 152, itemName = "Atma of the Goat", itemId = 7854},
-    {zoneName = "North Shroud", zoneId = 154, itemName = "Atma of the Archer", itemId = 7860},
-    {zoneName = "Outer La Noscea", zoneId = 180, itemName = "Atma of the Lion", itemId = 7858, flying=false}
+    {zoneName = "Coerthas Western Highlands", zoneId = 397, itemName = "Luminous Ice Crystal", itemId = 13569},
+    {zoneName = "The Dravanian Forelands", zoneId = 398, itemName = "Luminous Earth Crystal", itemId = 13572},
+    {zoneName = "The Dravanian Hinterlands", zoneId = 399, itemName = "Luminous Water Crystal", itemId = 13574},
+    {zoneName = "The Churning Mists", zoneId = 400, itemName = "Luminous Lightning Crystal", itemId = 13573},
+    {zoneName = "Sea of Clouds", zoneId = 401, itemName = "Luminous Wind Crystal", itemId = 13570},
+    {zoneName = "Azys Lla", zoneId = 402, itemName = "Luminous Fire Crystal", itemId = 13571}
 }
 
 CharacterCondition = {
+    mounted=4,
     casting=27,
     betweenAreas=45
 }
@@ -78,13 +74,32 @@ function TeleportTo(aetheryteName)
     yield("/wait 1")
 end
 
+function GoToDravanianHinterlands()
+    if GetCharacterCondition(CharacterCondition.betweenAreas) then
+        return
+    elseif IsInZone(478) then
+        if not GetCharacterCondition(CharacterCondition.mounted) then
+            State = CharacterState.mounting
+            LogInfo("[DailyHunts] State Change: Mounting")
+        elseif not PathIsRunning() and not PathfindInProgress() then
+            PathfindAndMoveTo(148.51, 207.0, 118.47)
+        end
+    else
+        TeleportTo("Idyllshire")
+    end
+end
+
 NextAtmaTable = GetNextAtmaTable()
 while NextAtmaTable ~= nil do
     if not IsPlayerOccupied() and not IsMacroRunningOrQueued(FateMacro) then
         if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
             NextAtmaTable = GetNextAtmaTable()
         elseif not IsInZone(NextAtmaTable.zoneId) then
-            TeleportTo(GetAetheryteName(GetAetherytesInZone(NextAtmaTable.zoneId)[0]))
+            if NextAtmaTable.zoneId == 399 then
+                GoToDravanianHinterlands()
+            else
+                TeleportTo(GetAetheryteName(GetAetherytesInZone(NextAtmaTable.zoneId)[0]))
+            end
         else
             yield("/snd run "..FateMacro)
         end
