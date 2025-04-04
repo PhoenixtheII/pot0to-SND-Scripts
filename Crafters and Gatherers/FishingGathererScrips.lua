@@ -1,13 +1,18 @@
 --[[
 ********************************************************************************
 *                            Fishing Gatherer Scrips                           *
-*                                Version 1.4.6                                 *
+*                                Version 1.4.9                                 *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
 Loosely based on Ahernika's NonStopFisher
 
-    -> 1.4.6    Updating hard amiss again
+    -> 1.4.9    Remove the whole "false if none" part
+                Abort old attempts at amiss checks, just set a timer for how
+                    long you want to stay in current instance
+                Added another /wait 1 to scrip exchange
+                Updating amiss to _FlyText instead of _TextError
+                Updating hard amiss again
                 Update hard amiss check
                 Separate IsAddonReady and IsAddonVisible
                 Fix typo
@@ -41,19 +46,22 @@ Loosely based on Ahernika's NonStopFisher
 *                                   Settings                                   *
 ********************************************************************************
 ]]
+
+
+ItemToExchange                      = "Mount Token"
+MoveSpotsAfter                      = 30        --Number of minutes to fish at this spot before changing spots.
+ResetHardAmissAfter                 = 120       --Number of minutes to farm in current instance before teleporting away and back
 --FishToFarm = "Zorgor Condor"
 FishToFarm = "Cloudsail"
 ScripColorToFarm                    = "JustFish"
-ItemToExchange                      = "Mount Token"
-SwitchLocationsAfter                = 15        --Number of minutes to fish at this spot before changing spots.
 
 Retainers                           = true      --If true, will do AR (autoretainers)
 GrandCompanyTurnIn                  = true      --If true, will do GC deliveries using deliveroo everytime retainers are processed
 ReturnToGCTown                      = true      --if true will use fast return to GC town for retainers and scrip exchange (that assumes you set return location to your gc town else turn it false), else falase
 --needs a yesalready set up like "/Return to New Gridania/"
 
-Food                                = ""        --what food to eat (false if none)
-Potion                              = "Superior Spiritbond Potion <hq>"     --what potion to use (false if none)
+Food                                = ""        --what food to eat
+Potion                              = "Superior Spiritbond Potion <hq>"     --what potion to use
 
 --things you want to enable
 ExtractMateria                      = true      --If true, will extract materia if possible
@@ -90,6 +98,48 @@ ScripExchangeItems = {
         price = 20
     },
     {
+        itemName = "Gatherer's Guerdon Materia XI",
+        categoryMenu = 5,
+        subcategoryMenu = 1,
+        listIndex = 0,
+        price = 250
+    },
+    {
+        itemName = "Gatherer's Guile Materia XI",
+        categoryMenu = 5,
+        subcategoryMenu = 1,
+        listIndex = 1,
+        price = 250
+    },
+    {
+        itemName = "Gatherer's Grasp Materia XI",
+        categoryMenu = 5,
+        subcategoryMenu = 1,
+        listIndex = 2,
+        price = 250
+    },
+    {
+        itemName = "Gatherer's Guerdon Materia XII",
+        categoryMenu = 5,
+        subcategoryMenu = 2,
+        listIndex = 0,
+        price = 500
+    },
+    {
+        itemName = "Gatherer's Guile Materia XII",
+        categoryMenu = 5,
+        subcategoryMenu = 2,
+        listIndex = 1,
+        price = 500
+    },
+    {
+        itemName = "Gatherer's Grasp Materia XII",
+        categoryMenu = 5,
+        subcategoryMenu = 2,
+        listIndex = 2,
+        price = 500
+    },
+    {
         itemName = "JustFish"
     }
 }
@@ -112,11 +162,7 @@ FishTable =
                 { x=135.71, y=6.12, z=715.0 },
                 { x=212.5, y=12.2, z=739.26 },
             },
-            pointToFace = { x=134.07, y=6.07, z=10000 },
-            reset = {
-                waypoint = { x=458.1, y=17.06, z=666.35 },
-                pointToFace = { x=458.1, y=17.06, z=10000 }
-            }
+            pointToFace = { x=134.07, y=6.07, z=10000 }
         },
         scripColor = "Orange",
         scripId = 39,
@@ -152,7 +198,7 @@ FishTable =
         baitName = "Versatile Lure",
         zoneId = 959,
         zoneName = "Mare Lamentorum",
-        autohookPreset = "AH4_H4sIAAAAAAAACu1YTVPjOBD9Kymf4yl/f3ALGWCpCgxFwu5hag+y3U5UOFZGllmyU/z3adlWYicOmZoiFAculGlJr59aT63u/NRGpWBjUohinM61s5/aRU6iDEZZpp0JXsJQk4MTmsN2MFFD1/hlBeFQu+OUcSrW2pmJ1uLiOc7KBJKtWc5/qbFuGIsXEqz6sORXheMFQ+1qNVtwKBYsQ4tpGB3k16ErjNDvrDCOkhkvyqVi4JiGc4SCWsWyDGJxICKIY7ZXWcdZMJ5QklVE8ifgytCdPOxzZlqeF+6wdrqsu5saRewJzzIlWaHcX9JicbGGohUIdwfSdTuQnjpL8gjTBU3FOaFVOKShUIapIPEjoiJYc8L7uG3UsEG9I4JCHh9SHNLzdmG87jlZConT/2FMRC04RWJ3tbVzynazerYgGSWPxSV5YlwCdAxqd/awa7+HGCOM800Zs74bgxR2hWZ3CKjwntP5FVlWcRjl8wx4oZxKTcllvuHs7aYDFbwg1sWz4KS53/JgZmz6H1ld56KkgrL8itBcxUdH6U5KDjdQFGSOrjVtqN1WJLRbhllgWCOsV2iRgerBm7BC/DHeHW4E+hlqunZgvPZYjW/5TFd4RznJxiXnkIs32uUO6pvttZft3o57vVezaoFMBVvJ60zz+VTAqsrHW+6NiEb8bSi34SoODzn9UYLE1dIoiAkEhm7GIdEdN0j00I4iPTUAwtBMzBBsDfEmtBDfUukDVf29lqfcwOa+hr7pH+b4N/rHbJHBQM6QgLeML0n2F2OPEkKlkn+AVP9LO/Lf3MoqDapb2gzKran7Kk0zugS+c49vaL4Zkk/TF+R4Q57btvALXv8Gso6fY/oyxSlOU8FZ3npzT+/esFvuJzCHPCF8/QHiUhH7ykqEOnJSb+rY8sKN3+1pnMzF70T8BM5nnK7eOa6+a9kbz6eKbMfJ+8e2cS8z7igVwMeknC+wUl7KSgjTal8qrmppTFRVqSU/WkVE/Z674X4N2n3QX6kmZRmsnkSVAe/hR0k5JOhJlLIYk3V2X1o8fZp712z2mZ0+s9Nndvpg2alVIAYGpF5CUt02A093jNjUie/HumcHsW8Zielaifbyr6oQm18Nvm8MdZGIFWO7WrQ9x7cPV4uXGYDAHQ/OOcmTTm1rHgyW7OKuEyy2aYx1N4ZIOvuWZ+uHAh7yBPi2XVU/mMjVoyUr81bA+xpZN9xt3mzp7SvLxZggYtbsunm/tvEMJNuSpwTTayarsqZxd0P3SG/r4soP8wvMtjP5435ELpaWsYx2Feh2h9L0JfKzNm+n7V8Ao6NPK3LtwLAsPY3sQHcSYuhR4Nq6ZXmuATZxIyPCfmNff+7hHdzDnAlGC/hN6Zk9yutX12tyelU2/bLsVdFxWX6q67C6OuJyIhL6jk/0xI8c3Qk90EmCMkvD1DNMMwwTB5tZzHW1anvT10Af3JUcS9/BNMYSuOj234GUrRekOknNSHeISzC9Ehf/uIGTgOO4JNZefgEjD0ty/xUAAA==",
+        autohookPreset = "AH4_H4sIAAAAAAAACu1YTVPjOBD9K5TP8ZS/bXELGWCpCgxFwu5hag+K3U5UOFZGllnYKf77tGwrsROHTE0RigM3py29/tBT+3V+GsNS8hEtZDFK58bpT+M8p7MMhllmnEpRwsBQL8csh83LRL+6wicnIgPjVjAumHw2Tm20FudPcVYmkGzMav1LjXXNebxQYNWDo54qnCAaGJer6UJAseAZWmzL6iC/Dl1hkLCzwzoYzGhRLnUEnm15B0LQu3iWQSz3VARx7PYu53AUXCSMZlUg+SMIbeguHvQ5s50gIFtRe92ou0kNZ/wRzzKlWaHdX7Bicf4MRasQ/hak73cgA32W9AEmC5bKM8qqcihDoQ0TSeMHREWw5oR3cduopEG9pZJBHu9jHIYXbMME3XNyNJJg/8OIyppwOojt3c7WKbvN7umCZow+FBf0kQsF0DHo7NxB134HMVYY19uqZn03BkPYJprbCUCX94zNL+myqsMwn2cgCu1UcUptCy1vJ5sOVPSCWOdPUtDmfquDmfLJf3R1lcuSScbzS8pyXR8TqTsuBVxDUdA5ujaMgXFTBWHccOwCgxrheYUWVagevDEv5B/j3WIi0B+hYRp73tceq/ebeCYrvKOCZqNSCMjlG2W5hfpmufZGu5Nxr/dq1QUXMVS3DpdpulXGRFmb9mhjg6ypNJF8pS4+y+cTCbjDbmfZ0G0o3ia5NlwV7X3OfpSgcA3iOjQEyzMdElumF6SOSfzANS3iOb6b2mmUOAbijVkhv6XKB/L/e01klcD6ZtfZ7Yvxb/SPfSWDE7VCAd5wsaTZX5w/KAjddP4BWv1Wdox/fX+rhqnvc/OyXWplmrIliK0bf83y9Sv1EfuCMV7Tp7aNfMFG0UDW9fPsUDVDHdNECp63vs7Hd2+5LfdjmEOeUPH8AepSBfaVlwh14KTe1LETkLXfzWkczcXvVPwIzqeCrd65rqHvuGvPx6psx8n711a7xxW8RM30pCSHWqZ68DCVIEa0nC9QZS+VisJG29ecKx2OrauSaeqhJUBqLeCTXf3aFQOvKFElofXnVPfEO/hRMgEJepKlEnJKo/c1yuM3vnftb5/96rNfffarD9ad2pLRjokTOLHpzMBByQixSSIvMiPHBuLOXC+CmfHyr9aMzT8O39eGWjaihmzrRzfwQne/frzIACRmfHImaJ501K69t1hqArxKUKizGDU7lkg5+5Znz/cF3OcJiM2oq/9sUbuHS17mrYL3DcE+2R78XOXtK8/liCJi1mTdfNE29YxUtKVIKbbXTOm0Zuj3iX9gLvZx54f592Yzq/zxhKI2K8tIVbsqdHtmaSYV9VibN8t2L4DV4SekLtA4Sk0IrdT0EhxuZkCQpJAEbhTQgEYRTiC7/PP3Z3AHcy45K+A3qWf3MK+fXa/R6VXa9NOyl0WHafnJrv3s6pAr9KiTBkFiztw4ML04IiaxPcukgQWJ68dBQurmV7O2t32dmCe3pUAxfDKJURQX3Ync9jybBHFo2mGM7ZXYIbbXNDEpsZyZP6OEhIHx8gtuKGkNOxYAAA==",
         fishingSpots = {
             maxHeight = 35,
             waypoints = {
@@ -161,11 +207,7 @@ FishTable =
                 { x=58.87, y=22.22, z=487.95 }, --orange balls
                 { x=71.79, y=22.39, z=477.65 },
             },
-            pointToFace = { x=37.71, y=22.36, z=1000 },
-            reset = {
-                waypoint = { x=477.26, y=66.67, z=520.09 },
-                pointToFace = { x=10000, y=66.67, z=520.09 },
-            }
+            pointToFace = { x=37.71, y=22.36, z=1000 }
         },
         scripColor = "Purple",
         scripId = 38,
@@ -222,6 +264,7 @@ HubCities =
 }
 
 CharacterCondition = {
+    normal=1,
     mounted=4,
     gathering=6,
     casting=27,
@@ -323,6 +366,7 @@ function TeleportToFishingZone()
     elseif not GetCharacterCondition(CharacterCondition.betweenAreas) then
         yield("/wait 3")
         SelectNewFishingHole()
+        ResetHardAmissTime = os.clock()
         State = CharacterState.goToFishingHole
         LogInfo("[FishingGatherer] GoToFishingHole")
     end
@@ -381,50 +425,7 @@ function GoToFishingHole()
     LogInfo("[FishingGatherer] State Change: Fishing")
 end
 
-function GoToResetFishingHole()
-    local reset = SelectedFish.fishingSpots.reset
-    if GetDistanceToPoint(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z) > 30 and
-        not GetCharacterCondition(CharacterCondition.mounted)
-    then
-        Mount()
-        return
-    elseif GetDistanceToPoint(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z) > 5 then
-        if not PathfindInProgress() and not PathIsRunning() then
-            PathfindAndMoveTo(reset.waypoint.x, reset.waypoint.y, reset.waypoint.z, GetCharacterCondition(CharacterCondition.mounted))
-        end
-    elseif PathfindInProgress() or PathIsRunning() then
-        yield("/vnav stop")
-    elseif GetCharacterCondition(CharacterCondition.mounted) then
-        Dismount()
-    else
-        State = CharacterState.resetFishingHole
-        LogInfo("[FishingGatherer] State Change: ResetFishingHole")
-    end
-end
-
-CastSuccess = false
-function ResetFishingHole()
-    if GetItemCount(29717) == 0 then
-        State = CharacterState.buyFishingBait
-        LogInfo("State Change: Buy Fishing Bait")
-        return
-    end
-
-    if GetCharacterCondition(CharacterCondition.gathering) then
-        CastSuccess = true
-    elseif CastSuccess then
-        CastSuccess = false
-        SelectNewFishingHole()
-        State = CharacterState.ready
-    elseif not PathfindInProgress() and not PathIsRunning() then
-        local pointToFace = SelectedFish.fishingSpots.reset.pointToFace
-        PathMoveTo(pointToFace.x, pointToFace.y, pointToFace.z)
-        return
-    end
-    yield("/ac Cast")
-    yield("/wait 0.5")
-end
-
+ResetHardAmissTime = os.clock()
 function Fishing()
     if GetItemCount(29717) == 0 then
         State = CharacterState.buyFishingBait
@@ -445,7 +446,6 @@ function Fishing()
         if GetCharacterCondition(CharacterCondition.gathering) then
             yield("/ac Quit")
             yield("/wait 1")
-            SelectNewFishingHole()
         else
             State = CharacterState.turnIn
             LogInfo("State Change: TurnIn")
@@ -453,7 +453,18 @@ function Fishing()
         return
     end
 
-    if os.clock() - SelectedFishingSpot.startTime > (SwitchLocationsAfter*60) then
+    if os.clock() - ResetHardAmissTime > (ResetHardAmissAfter*60) then
+        if GetCharacterCondition(CharacterCondition.gathering) then
+            if not GetCharacterCondition(CharacterCondition.fishing) then
+                yield("/ac Quit")
+                yield("/wait 1")
+            end
+        else
+            State = CharacterState.turnIn
+            LogInfo("[FishingGatherer] State Change: Forced TurnIn to avoid hard amiss")
+        end
+        return
+    elseif os.clock() - SelectedFishingSpot.startTime > (MoveSpotsAfter*60) then
         LogInfo("[FishingGatherer] Switching fishing spots")
         if GetCharacterCondition(CharacterCondition.gathering) then
             if not GetCharacterCondition(CharacterCondition.fishing) then
@@ -473,7 +484,7 @@ function Fishing()
         yield("/wait 1")
         return
     end
-
+    
     if os.clock() - SelectedFishingSpot.startTime > 10 then
         local x = GetPlayerRawXPos()
         local y = GetPlayerRawYPos()
@@ -754,6 +765,7 @@ function ScripExchange()
             yield("/callback InclusionShop true 13 "..ScripExchangeItem.subcategoryMenu)
             yield("/wait 1")
             yield("/callback InclusionShop true 14 "..ScripExchangeItem.listIndex.." "..math.min(99, GetItemCount(GathererScripId)//ScripExchangeItem.price))
+            yield("/wait 1")
         end
     else
         LogInfo("[FishingGatherer] target and interact with Scrip Exchange")
@@ -990,7 +1002,7 @@ end
 
 function SelectFishTable()
     for _, fishTable in ipairs(FishTable) do
-        if FishToFarm == fishTable.fishName then
+        if ScripColorToFarm == fishTable.scripColor then
             return fishTable
         end
     end
@@ -1047,8 +1059,7 @@ CharacterState = {
     turnIn = TurnIn,
     scripExchange = ScripExchange,
     goToHubCity = GoToHubCity,
-    buyFishingBait = BuyFishingBait,
-    amissReset = GoToResetFishingHole
+    buyFishingBait = BuyFishingBait
 }
 
 StopFlag = false

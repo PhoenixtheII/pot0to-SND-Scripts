@@ -9,12 +9,14 @@ automatically teleport you to the correct zone, fly over, dig, kill enemies,
 and open the chest. It will NOT do portals for you.
 
 ********************************************************************************
-*                               Version 1.0.0                                  *
+*                               Version 1.1.1                                  *
 ********************************************************************************
 
 Created by: pot0to (https://ko-fi.com/pot0to)
         
-    ->  1.0.0   First release
+    ->  1.1.1   Fixed some wait times related to Dravanian Hinterland tp
+                Added ability to go to Dravanian Hinterlands via Idyllshire
+                First release
 
 ********************************************************************************
 *                               Required Plugins                               *
@@ -55,6 +57,7 @@ CharacterCondition = {
     boundByDuty34=34,
     betweenAreas=45,
     jumping48=48,
+    betweenAreas51=51,
     jumping61=61,
     mounting57=57,
     mounting64=64,
@@ -65,28 +68,59 @@ CharacterCondition = {
 
 -- #region Movement
 
-function TeleportToFlag()
-    yield("/tp " .. GetAetheryteName(GetAetherytesInZone(GetFlagZone())[0]))
+function TeleportTo(aetheryteName)
+    yield("/tp "..aetheryteName)
     yield("/wait 1") -- wait for casting to begin
     while GetCharacterCondition(CharacterCondition.casting) do
-        LogInfo("[FATE] Casting teleport...")
+        LogInfo("[TreasureHuntHelper] Casting teleport...")
         yield("/wait 1")
     end
     yield("/wait 1") -- wait for that microsecond in between the cast finishing and the transition beginning
-    while GetCharacterCondition(CharacterCondition.betweenAreas) do
-        LogInfo("[FATE] Teleporting...")
+    while not IsPlayerAvailable() or GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.betweenAreas51) do
+        LogInfo("[TreasureHuntHelper] Teleporting...")
         yield("/wait 1")
     end
+    LogInfo("[TreasureHuntHelper] Finished teleporting")
     yield("/wait 1")
 end
 
-function GoToMapLocation()
-    if PathfindInProgress() or PathIsRunning() then
-        return
-    end
+function TeleportToFlag()
+    local aetheryteName = GetAetheryteName(GetAetherytesInZone(GetFlagZone())[0])
+    TeleportTo(aetheryteName)
+end
 
-    if not IsInZone(GetFlagZone()) then
-        TeleportToFlag()
+function GoToMapLocation()
+    local flagZone = GetFlagZone()
+    if not IsInZone(flagZone) then
+        if flagZone == 399 then
+            if not IsInZone(478) then
+                TeleportTo("Idyllshire")
+            else
+                if GetTargetName() ~= "aetheryte" then
+                    yield("/target aetheryte")
+                end
+                if GetTargetName() ~= "aetheryte" or GetDistanceToTarget() > 7 then
+                    if not PathIsRunning() and not PathfindInProgress() then
+                        PathfindAndMoveTo(71, 211, -19)
+                    end
+                else
+                    yield("/vnav stop")
+                    yield("/li Western Hinterlands")
+                    yield("/wait 3")
+                    while LifestreamIsBusy() do
+                        yield("/wait 1")
+                    end
+                    yield("/wait 3")
+                    while GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.betweenAreas51) do
+                        LogInfo("[TreasureHuntHelper] Between areas...")
+                        yield("/wait 1")
+                    end
+                    yield("/wait 1")
+                end
+            end
+        else
+            TeleportToFlag()
+        end
         return
     end
 
@@ -95,21 +129,39 @@ function GoToMapLocation()
         return
     end
     
-    yield("/vnav flyflag")
+    if not PathfindInProgress() and not PathIsRunning() then
+        yield("/vnav flyflag")
+    end
 end
 
 --#endregion  Movement
 
+DidMap = false
 function Main()
+    if IsAddonVisible("_TextError") and GetNodeText("_TextError", 1) == "You do not possess a treasure map." then
+        yield("/echo You do not possess a treasure map.")
+        StopFlag = true
+        return
+    end
+
     if GetCharacterCondition(CharacterCondition.inCombat) and not HasTarget() then
         yield("/battletarget")
+        return
+    elseif DidMap and not GetCharacterCondition(CharacterCondition.boundByDuty34) then -- if combat is over
+        StopFlag = true
         return
     end
 
     yield("/tmap")
+    repeat
+        yield("/wait 1")
+    until IsAddonVisible("AreaMap")
 
-    if not IsInZone(GetFlagZone()) or GetDistanceToPoint(GetFlagXCoord(), GetPlayerRawYPos(), GetFlagYCoord()) > 5 then
+    if not IsInZone(GetFlagZone()) or GetDistanceToPoint(GetFlagXCoord(), GetPlayerRawYPos(), GetFlagYCoord()) > 15 then
         GoToMapLocation()
+        return
+    elseif PathfindInProgress() or PathIsRunning() then
+        yield("/vnav stop")
         return
     end
 
@@ -140,11 +192,13 @@ function Main()
     end
 
     if not GetCharacterCondition(CharacterCondition.inCombat) then
-        if GetCharacterCondition(CharacterCondition.boundByDuty34) then
-            StopFlag = true
-        end
         yield("/interact")
         return
+    end
+
+    if GetCharacterCondition(CharacterCondition.boundByDuty34) then
+        LogInfo("[TreasureHuntHelper] DidMap = true")
+        DidMap = true
     end
     
     yield("/rotation manual")
@@ -157,6 +211,7 @@ repeat
     if not (IsPlayerCasting() or
         GetCharacterCondition(CharacterCondition.betweenAreas) or
         GetCharacterCondition(CharacterCondition.jumping48) or
+        GetCharacterCondition(CharacterCondition.betweenAreas51) or
         GetCharacterCondition(CharacterCondition.jumping61) or
         GetCharacterCondition(CharacterCondition.mounting57) or
         GetCharacterCondition(CharacterCondition.mounting64) or
