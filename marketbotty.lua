@@ -20,8 +20,9 @@ blacklist_retainers = { --Do not run script on these retainers
 item_overrides = { --Item names with no spaces or symbols
     StuffedAlpha = { maximum = 450 },
     StuffedBomBoko = { minimum = 450 },
-    Coke = { minimum = 450, maximum = 5000 },
-    CunningCraftsmansTisane = { default = 3499, minimum = 1999 },
+    Moqueca = { minimum = 1799, maximum = 5000 },
+    CunningCraftsmansTisane = { default = 3499, minimum = 1899 },
+    StuffedPeppers = { default = 1999, minimum = 999 },
 }
 
 undercut = 1 --There's no reason to change this. 1 gil undercut is life.
@@ -32,6 +33,7 @@ history_trim_amount = 5 --Trims this many from highest and lowest in history lis
 history_multiplier = "round" --if no active sales then get average historical price and multiply
 is_using_overrides = true --item_overrides table.
 is_check_for_hq = true --Not working yet :(
+is_check_for_hq_deep = false
 
 is_override_report = true
 is_postrun_one_gil_report = true  --Requires is_verbose
@@ -41,8 +43,8 @@ is_verbose = true --Basic info in chat about what's going on.
 is_debug = true --Absolutely flood your chat with all sorts of shit you don't need to know.
 name_rechecks = 10 --Latency sensitive tunable. Probably sets wrong price if below 5
 
-is_read_from_files = true --Override arrays with lists in files. Missing files are ignored.
-is_write_to_files = true --Adds characters and retainers to characters_file and retainers_file
+is_read_from_files = false --Override arrays with lists in files. Missing files are ignored.
+is_write_to_files = false --Adds characters and retainers to characters_file and retainers_file
 is_echo_during_read = false --Echo each character and retainer name as they're read, to see how you screwed up.
 config_folder = os.getenv("appdata") .. "\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\"
 marketbotty_settings = "marketbotty_settings.lua" --loaded first
@@ -256,22 +258,24 @@ function SearchResults()
         yield("/wait 0.1")
     end
     hqsearched = false
-    ready = false
+    hqready = false
     if (is_hq and hqsearched == false) then
-        while ready == false do
-            if IsAddonVisible("ItemSearchFilter") then
-                yield("/wait 0.25")
-                SafeCallback("ItemSearchFilter", true, 1)
-                yield("/wait 0.25")
-                SafeCallback("ItemSearchFilter", true, 0)
-                yield("/wait 0.25")
-                hqsearched = true
-                ready = true
-                debug("Waiting for HQ prices...")
-            elseif IsAddonVisible("ItemSearchResult") == true then
-                SafeCallback("ItemSearchResult", true, 1)
+        if (is_check_for_hq_deep == true) then
+            while hqready == false do
+                if IsAddonVisible("ItemSearchFilter") then
+                    yield("/wait 0.5")
+                    SafeCallback("ItemSearchFilter", true, 1)
+                    yield("/wait 0.5")
+                    SafeCallback("ItemSearchFilter", true, 0)
+                    yield("/wait 0.5")
+                    hqsearched = true
+                    hqready = true
+                    debug("Waiting for HQ prices...")
+                elseif IsAddonVisible("ItemSearchResult") == true then
+                    SafeCallback("ItemSearchResult", true, 1)
+                end
+                yield("/wait 0.5")
             end
-            yield("/wait 0.1")
         end
         ready = false
         search_hits = ""
@@ -294,18 +298,27 @@ function SearchResults()
                 search_wait_tick = search_wait_tick + 1
                 debug("Waiting... " .. search_wait_tick)
                 if (search_wait_tick > 50) or (string.find(GetNodeText("ItemSearchResult", 26), "Please wait") and search_wait_tick > 10) then
-                    subready = false
-                    while subready == false do
-                        if IsAddonVisible("ItemSearchFilter") then
+                    if (is_check_for_hq_deep == true) then
+                        subready = false
+                        while subready == false do
+                            if IsAddonVisible("ItemSearchFilter") then
+                                yield("/wait 0.5")
+                                SafeCallback("ItemSearchFilter", true, 1)
+                                yield("/wait 0.5")
+                                SafeCallback("ItemSearchFilter", true, 0)
+                                yield("/wait 0.5")
+                                debug("Waiting for HQ prices...")
+                                subready = true
+                            elseif IsAddonVisible("ItemSearchResult") == true then
+                                SafeCallback("ItemSearchResult", true, 1)
+                            end
                             yield("/wait 0.25")
-                            SafeCallback("ItemSearchFilter", true, 1)
-                            yield("/wait 0.25")
-                            SafeCallback("ItemSearchFilter", true, 0)
-                            yield("/wait 0.25")
-                            debug("Waiting for HQ prices...")
-                            subready = true
-                        elseif IsAddonVisible("ItemSearchResult") == true then
-                            SafeCallback("ItemSearchResult", true, 1)
+                        end
+                    else
+                        SafeCallback("RetainerSell", true, 4)
+                        yield("/wait 0.1")
+                        if IsAddonVisible("ItemHistory")==false then
+                            SafeCallback("ItemSearchResult", true, 0)
                         end
                         yield("/wait 0.1")
                     end
@@ -584,7 +597,7 @@ function OpenBell()
     while GetCharacterCondition(50, false) do
         if target_tick > 99 then
             break
-        elseif string.lower(GetTargetName()) ~= "summoning bell" then
+        elseif GetTargetName() ~= "Summoning Bell" then
             debug("Finding summoning bell...")
             yield("/target Summoning Bell")
             target_tick = target_tick + 1
@@ -952,7 +965,7 @@ else
     SearchPrices()
     SearchRetainers()
     HistoryAverage()
-    CloseSearch()
+    --CloseSearch()
 end
 
 :: PricingLogic ::
@@ -976,6 +989,7 @@ if is_check_for_hq and is_hq and target_price < prices_list_length then
     else
         node_hq = target_price + 40999
     end
+    yield("/echo node_hq: " .. node_hq)
     --if not IsNodeVisible("ItemSearchResult", 5, target_price, 13) then
     if not IsNodeVisible("ItemSearchResult", 1, 26, node_hq, 2, 3) then
         debug(target_price .. " not HQ")
@@ -1139,6 +1153,8 @@ if is_postrun_sanity_report and sanity_items_count ~= 0 then
     end
     echo("---------------------")
 end
+yield("/wait 300")
+goto Startup
 yield("/pcraft stop")
 yield("/pcraft stop")
 yield("/pcraft stop")

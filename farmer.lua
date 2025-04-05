@@ -67,9 +67,9 @@ medicine_to_use                       =
 "Superior Spiritbond Potion <hq>"                                     --what potion to use (false if none) --there is no check if you don't have that potion, script will move on after set time
 
 --things you want to enable
-do_extract                            = true --If true, will extract materia if possible (GBR does this now, so only use one of the two to avaoid conflicts)
-do_reduce                             = true --If true, will reduce ephemerals if possible
-do_repair                             = true --If true, will do repair if possible set repair amount below
+do_extract                            = false --If true, will extract materia if possible (GBR does this now, so only use one of the two to avaoid conflicts)
+do_reduce                             = false --If true, will reduce ephemerals if possible
+do_repair                             = false --If true, will do repair if possible set repair amount below
 do_scrips                             = true --If true, will do colletibles and scrip exchange (only in griania for now) !!!!read the settings below carefully!!! to set items
 --If currently does purple=high coridals and orange = mythbloom aethersand (you can change it)
 do_ar                                 = true --If true, will do AR (autoretainers)
@@ -518,7 +518,7 @@ function PathToMB()
         yield("/vnav stop")
 
         yield("/tp " .. additional_scrip_exchange_location)
-        yield("/wait " .. interval_rate * 15)
+        yield("/wait " .. interval_rate * 100)
         repeat
             yield("/wait " .. interval_rate)
         until (zoneid == GetZoneID()) and (not GetCharacterCondition(27)) and (not GetCharacterCondition(45)) and (not GetCharacterCondition(51))
@@ -1129,13 +1129,32 @@ function CollectableAppraiserScripExchange()
 
     end
 end
-
+function doWeNeedToStop()
+    if do_repair and NeedsRepair(RepairAmount) then
+        return true
+    end
+    if do_extract and CanExtractMateria(100) then
+        return true
+    end
+    if do_reduce and HasReducibles() and GetInventoryFreeSlotCount() < num_inventory_free_slot_threshold then
+        return true
+    end
+    i_count = tonumber(GetInventoryFreeSlotCount())
+    if i_count < num_inventory_free_slot_threshold then
+        return true
+    end
+    if (ARRetainersWaitingToBeProcessed(all_characters) and do_ar) then
+        return true
+    end
+    yield("/echo [LegendaryFarmer] No stopping required, please, continue();")
+    return false
+end
 ---------------------------------------------------------------------------------
 function Main()
     -----------------------------------------------------------------------------
-    i_count = tonumber(GetInventoryFreeSlotCount())
+    --i_count = tonumber(GetInventoryFreeSlotCount())
     --wait while gathering status
-    while (not (i_count < num_inventory_free_slot_threshold)) and (not CanExtractMateria(100)) do
+    --[[while (not (i_count < num_inventory_free_slot_threshold)) and (not CanExtractMateria(100)) do
         yield("/wait " .. interval_rate * 300)
         i_count = tonumber(GetInventoryFreeSlotCount())
         yield("/echo [LegendaryFarmer] Gathering...")
@@ -1145,9 +1164,17 @@ function Main()
             break
             yield("/echo [LegendaryFarmer] Stopping to Process Retainers...")
         end
-    end
+    end]]--
     ---------------------------------------------------------------------------------
-
+    while (true) do
+        yield("/wait " .. interval_rate * 300)
+        i_count = tonumber(GetInventoryFreeSlotCount())
+        yield("/echo [LegendaryFarmer] Gathering...")
+        yield("/echo [LegendaryFarmer] Slots Remaining: " .. i_count)
+        if (doWeNeedToStop()) then
+            break
+        end
+    end
     --waiting to complete last bit of gathering status
     if (GetCharacterCondition(6) or GetCharacterCondition(42)) then
         yield("/wait " .. interval_rate * 24)

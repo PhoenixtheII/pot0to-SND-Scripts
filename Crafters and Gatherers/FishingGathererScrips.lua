@@ -51,9 +51,9 @@ Loosely based on Ahernika's NonStopFisher
 ItemToExchange                      = "Mount Token"
 MoveSpotsAfter                      = 30        --Number of minutes to fish at this spot before changing spots.
 ResetHardAmissAfter                 = 120       --Number of minutes to farm in current instance before teleporting away and back
---FishToFarm = "Zorgor Condor"
-FishToFarm = "Cloudsail"
-ScripColorToFarm                    = "JustFish"
+FishToFarm = "Zorgor Condor"
+--FishToFarm = "Cloudsail"
+ScripColorToFarm                    = "Orange"
 
 Retainers                           = true      --If true, will do AR (autoretainers)
 GrandCompanyTurnIn                  = true      --If true, will do GC deliveries using deliveroo everytime retainers are processed
@@ -1002,7 +1002,7 @@ end
 
 function SelectFishTable()
     for _, fishTable in ipairs(FishTable) do
-        if ScripColorToFarm == fishTable.scripColor then
+        if FishToFarm == fishTable.fishName then
             return fishTable
         end
     end
